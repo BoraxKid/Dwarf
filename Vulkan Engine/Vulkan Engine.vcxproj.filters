@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers de ressources\shaders">
+      <UniqueIdentifier>{85af1a72-81b5-4748-8174-e5d5752c844d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\textures">
+      <UniqueIdentifier>{aab91c35-cb38-46c1-8c9b-59541cae6777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\materials">
+      <UniqueIdentifier>{60142a7a-1685-4f95-a120-5f62a60b678b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers de ressources\models">
+      <UniqueIdentifier>{bb153a7f-4130-4b57-a772-0a98c06c7e67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -68,5 +80,44 @@
     <ClInclude Include="Color.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.frag">
+      <Filter>Fichiers de ressources\shaders</Filter>
+    </None>
+    <None Include="shaders\shader.vert">
+      <Filter>Fichiers de ressources\shaders</Filter>
+    </None>
+    <None Include="materials\CamaroSS.mtl">
+      <Filter>Fichiers de ressources\materials</Filter>
+    </None>
+    <None Include="materials\sportsCar.mtl">
+      <Filter>Fichiers de ressources\materials</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\camaross.jpg">
+      <Filter>Fichiers de ressources\textures</Filter>
+    </Image>
+    <Image Include="textures\CamaroSS.png">
+      <Filter>Fichiers de ressources\textures</Filter>
+    </Image>
+    <Image Include="textures\chalet.jpg">
+      <Filter>Fichiers de ressources\textures</Filter>
+    </Image>
+    <Image Include="textures\texture.jpg">
+      <Filter>Fichiers de ressources\textures</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\CamaroSS.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
+    <Object Include="models\chalet.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
+    <Object Include="models\sportsCar.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
   </ItemGroup>
 </Project>
