@@ -7,6 +7,32 @@
 
 namespace VkEngine
 {
+	enum MaterialType
+	{
+		AMBIENT,
+		DIFFUSE,
+		SPECULAR,
+		SPECULAR_HIGHLIGHT,
+		TRANSMITTANCE,
+		EMISSION,
+		SHININESS,
+		IOR,
+		DISSOLVE,
+		ILLUM,
+		CLEARCOAT_THICKNESS,
+		CLEARCOAT_ROUGHNESS,
+		ANISOTROPY,
+		ANISOTROPY_ROTATION,
+		BUMP,
+		DISPLACEMENT,
+		ALPHA,
+		ROUGHNESS,
+		METALLIC,
+		SHEEN,
+		EMISSIVE,
+		NORMAL
+	};
+
 	class Material
 	{
 	public:
@@ -64,6 +90,7 @@ namespace VkEngine
 		float _clearcoatRoughness;
 		float _anisotropy;
 		float _anisotropyRotation;
+		std::vector<Texture *> _textures;
 		Texture *_ambientTexture;
 		Texture *_diffuseTexture;
 		Texture *_specularTexture;

@@ -21,7 +21,7 @@ namespace VkEngine
 		this->createFramebuffers();
 		this->createUniformBuffer();
 		this->createDescriptorPool();
-		this->_model = new Model(this->_device, this->_commandPool, this->_graphicsQueue);
+		this->_model = new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/CamaroSS.obj", "textures/CamaroSS.png");
 		this->_model->init(this->_physicalDevice.getMemoryProperties(), this->_descriptorPool, this->_descriptorSetLayout);
 		this->createCommandBuffers();
 		this->createSemaphores();

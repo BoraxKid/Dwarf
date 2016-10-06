@@ -2,13 +2,17 @@
 
 namespace VkEngine
 {
-	Model::Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue)
-		: _mesh(device, commandPool, graphicsQueue), _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
+	Model::Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename, const std::string &textureFilename)
+		: _mesh(device, commandPool, graphicsQueue, meshFilename), _texture(nullptr), _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
 	{
+		if (!textureFilename.empty())
+			this->_texture = new Texture(device, commandPool, graphicsQueue, textureFilename);
 	}
 
 	Model::~Model()
 	{
+		if (this->_texture)
+			delete (this->_texture);
 		this->_device.freeCommandBuffers(this->_commandPool, this->_commandBuffer);
 	}
 

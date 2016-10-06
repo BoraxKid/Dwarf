@@ -5,10 +5,10 @@
 
 namespace VkEngine
 {
-	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue)
+	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
 	{
-		this->loadFromFile("models/CamaroSS.obj");
+		this->loadFromFile(meshFilename);
 	}
 
 	Mesh::~Mesh()

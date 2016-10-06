@@ -9,7 +9,7 @@ namespace VkEngine
 	class Model
 	{
 	public:
-		Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue);
+		Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename, const std::string &textureFilename);
 		virtual ~Model();
 
 		void init(vk::PhysicalDeviceMemoryProperties memProperties, vk::DescriptorPool &descriptorPool, vk::DescriptorSetLayout &descriptorSetLayout);
@@ -20,12 +20,13 @@ namespace VkEngine
 
 	private:
 		VkEngine::Mesh _mesh;
+		VkEngine::Texture *_texture;
 
 		const vk::Device &_device;
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 
-		//vk::DescriptorSet _descriptorSet;
+		vk::DescriptorSet _descriptorSet;
 
 		vk::CommandBuffer _commandBuffer;
 	};

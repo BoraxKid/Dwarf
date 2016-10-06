@@ -51,11 +51,6 @@
     <Image Include="textures\chalet.jpg" />
     <Image Include="textures\texture.jpg" />
   </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\CamaroSS.obj" />
-    <Object Include="models\chalet.obj" />
-    <Object Include="models\sportsCar.obj" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{afb3414e-2d2b-41e9-a190-0d32cada07d5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

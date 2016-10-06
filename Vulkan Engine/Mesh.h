@@ -57,7 +57,7 @@ namespace VkEngine
 	class Mesh
 	{
 	public:
-		Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue);
+		Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename);
 		virtual ~Mesh();
 
 		void loadFromFile(const std::string &filename);
