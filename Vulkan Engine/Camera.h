@@ -9,7 +9,7 @@
 
 #include <array>
 
-namespace VkEngine
+namespace Dwarf
 {
 	class Camera
 	{

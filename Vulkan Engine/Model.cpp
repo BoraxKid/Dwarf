@@ -1,6 +1,6 @@
 #include "Model.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	Model::Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename, const std::string &textureFilename)
 		: _mesh(device, commandPool, graphicsQueue, meshFilename), _texture(nullptr), _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)

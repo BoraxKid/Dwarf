@@ -1,6 +1,6 @@
 #include "Tools.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	namespace Tools
 	{

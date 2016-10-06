@@ -15,7 +15,7 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
-namespace VkEngine
+namespace Dwarf
 {
 	namespace Tools
 	{

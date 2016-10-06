@@ -5,7 +5,7 @@
 #include "Color.h"
 #include "Texture.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	enum MaterialType
 	{

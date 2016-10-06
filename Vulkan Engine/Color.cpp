@@ -1,6 +1,6 @@
 #include "Color.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	Color::Color(float red, float green, float blue, float alpha)
 		: _values(red, green, blue, alpha)

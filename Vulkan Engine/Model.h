@@ -4,7 +4,7 @@
 
 #include "Mesh.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	class Model
 	{
@@ -19,8 +19,8 @@ namespace VkEngine
 		vk::CommandBuffer getCommandBuffer();
 
 	private:
-		VkEngine::Mesh _mesh;
-		VkEngine::Texture *_texture;
+		Dwarf::Mesh _mesh;
+		Dwarf::Texture *_texture;
 
 		const vk::Device &_device;
 		const vk::CommandPool &_commandPool;

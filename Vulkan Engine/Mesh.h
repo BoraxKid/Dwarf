@@ -14,7 +14,7 @@
 #include "Tools.h"
 #include "Material.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	class Renderer;
 
@@ -85,9 +85,9 @@ namespace VkEngine
 	};
 }
 
-template<> struct std::hash<VkEngine::Vertex>
+template<> struct std::hash<Dwarf::Vertex>
 {
-	size_t operator()(const VkEngine::Vertex &vertex) const
+	size_t operator()(const Dwarf::Vertex &vertex) const
 	{
 		return (((std::hash<glm::vec3>()(vertex.pos) ^
 			(std::hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^

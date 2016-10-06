@@ -3,7 +3,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-namespace VkEngine
+namespace Dwarf
 {
 	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
@@ -101,6 +101,7 @@ namespace VkEngine
 			{
 				vertex = Vertex();
 				vertex.pos = glm::vec3(attrib.vertices.at(3 * iterIndices->vertex_index + 0), attrib.vertices.at(3 * iterIndices->vertex_index + 1), attrib.vertices.at(3 * iterIndices->vertex_index + 2));
+				if (!attrib.texcoords.empty())
 				vertex.uv = glm::vec2(attrib.texcoords.at(2 * iterIndices->texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * iterIndices->texcoord_index + 1));
 				if (uniqueVertices.count(vertex) == 0)
 				{

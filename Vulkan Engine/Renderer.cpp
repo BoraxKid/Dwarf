@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	Renderer::Renderer(int width, int height, const std::string &title)
 		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f)
@@ -20,9 +20,16 @@ namespace VkEngine
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createUniformBuffer();
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/CamaroSS.obj", "textures/CamaroSS.png"));
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/sportsCar.obj", "textures/CamaroSS.png"));
 		this->createDescriptorPool();
-		this->_model = new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/CamaroSS.obj", "textures/CamaroSS.png");
-		this->_model->init(this->_physicalDevice.getMemoryProperties(), this->_descriptorPool, this->_descriptorSetLayout);
+		std::vector<Model *>::iterator iterModels = this->_models.begin();
+		std::vector<Model *>::iterator iterModels2 = this->_models.end();
+		while (iterModels != iterModels2)
+		{
+			(*iterModels)->init(this->_physicalDevice.getMemoryProperties(), this->_descriptorPool, this->_descriptorSetLayout);
+			++iterModels;
+		}
 		this->createCommandBuffers();
 		this->createSemaphores();
 		this->run();
@@ -30,7 +37,13 @@ namespace VkEngine
 
 	Renderer::~Renderer()
 	{
-		delete(this->_model);
+		std::vector<Model *>::iterator iterModels = this->_models.begin();
+		std::vector<Model *>::iterator iterModels2 = this->_models.end();
+		while (iterModels != iterModels2)
+		{
+			delete (*iterModels);
+			++iterModels;
+		}
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
 		if (!this->_commandBuffers.empty())
@@ -381,8 +394,9 @@ namespace VkEngine
 
 	void Renderer::createDescriptorPool()
 	{
-		std::array<vk::DescriptorPoolSize, 2> poolSizes = {	vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 1) };
-		vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), 1, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
+		uint32_t descriptorCount = static_cast<uint32_t>(this->_models.size());
+		std::array<vk::DescriptorPoolSize, 2> poolSizes = {	vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
+		vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
 		this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
 	}
 
@@ -417,16 +431,24 @@ namespace VkEngine
 		vk::RenderPassBeginInfo renderPassInfo(this->_renderPass, vk::Framebuffer(), vk::Rect2D(vk::Offset2D(0, 0), this->_swapChainExtent), static_cast<uint32_t>(clearValues.size()), clearValues.data());
 		vk::CommandBufferInheritanceInfo inheritanceInfo(this->_renderPass);
 
+		std::vector<Model *>::iterator iterModels = this->_models.begin();
+		std::vector<Model *>::iterator iterModels2 = this->_models.end();
 		std::vector<vk::CommandBuffer>::iterator iter = this->_commandBuffers.begin();
 		std::vector<vk::CommandBuffer>::iterator iter2 = this->_commandBuffers.end();
 		while (iter != iter2)
 		{
+			iterModels = this->_models.begin();
+			iterModels2 = this->_models.end();
 			renderPassInfo.framebuffer = this->_swapChainFramebuffers.at(iter - this->_commandBuffers.begin());
 			inheritanceInfo.framebuffer = this->_swapChainFramebuffers.at(iter - this->_commandBuffers.begin());
 			iter->begin(beginInfo);
 			iter->beginRenderPass(renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
-			this->_model->buildCommandBuffer(inheritanceInfo, this->_graphicsPipeline, this->_pipelineLayout, this->_camera.getMVP());
-			iter->executeCommands(this->_model->getCommandBuffer());
+			while (iterModels != iterModels2)
+			{
+				(*iterModels)->buildCommandBuffer(inheritanceInfo, this->_graphicsPipeline, this->_pipelineLayout, this->_camera.getMVP());
+				iter->executeCommands((*iterModels)->getCommandBuffer());
+				++iterModels;
+			}
 			iter->endRenderPass();
 			iter->end();
 			++iter;

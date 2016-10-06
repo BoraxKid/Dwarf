@@ -33,11 +33,11 @@ const bool gEnableValidationLayers = true;
 const bool gEnableValidationLayers = true;
 #endif
 
-/// \namespace VkEngine
+/// \namespace Dwarf
 /// \brief Entire engine's namespace
 ///
 /// Namespace used throughout the entire engine
-namespace VkEngine
+namespace Dwarf
 {
 	/// \class Renderer
 	/// \brief Rendering class
@@ -190,7 +190,7 @@ namespace VkEngine
 
 		Camera _camera;
 		glm::vec2 _mousePos;
-		Model *_model;
+		std::vector<Model *> _models;
 	};
 }
 

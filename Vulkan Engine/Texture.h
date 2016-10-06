@@ -6,7 +6,7 @@
 
 #include "Tools.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	class Texture
 	{

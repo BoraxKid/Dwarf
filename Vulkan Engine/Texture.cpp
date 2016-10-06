@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-namespace VkEngine
+namespace Dwarf
 {
 	Texture::Texture(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _textureName(textureName), _textureImageLayout(imageLayout)

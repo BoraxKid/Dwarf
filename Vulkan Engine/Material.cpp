@@ -1,6 +1,6 @@
 #include "Material.h"
 
-namespace VkEngine
+namespace Dwarf
 {
 	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &name)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _name(name), _ambientTexture(nullptr), _diffuseTexture(nullptr), _specularTexture(nullptr), _specularHighlightTexture(nullptr), _bumpTexture(nullptr), _displacementTexture(nullptr), _alphaTexture(nullptr), _roughnessTexture(nullptr), _metallicTexture(nullptr), _sheenTexture(nullptr), _emissiveTexture(nullptr), _normalTexture(nullptr)
