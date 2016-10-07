@@ -4,7 +4,7 @@
 namespace Dwarf
 {
 	Camera::Camera()
-		: _rotationSpeed(1.0f), _movementSpeed(1.0f), _fov(60), _zNear(0.1f), _zFar(10.0f), _left(false), _right(false), _up(false), _down(false)
+		: _rotationSpeed(1.0f), _movementSpeed(1.0f), _fov(60), _zNear(0.1f), _zFar(100000.0f), _left(false), _right(false), _up(false), _down(false)
 	{
 		this->_position = glm::vec3(0.0f, 0.0f, 0.0f);
 	}

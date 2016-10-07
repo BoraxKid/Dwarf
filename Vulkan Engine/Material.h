@@ -46,7 +46,7 @@ namespace Dwarf
 		void setShininess(float value);
 		void setIor(float value);
 		void setDissolve(float value);
-		void setIllum(float value);
+		void setIllum(int value);
 		void setRoughness(float value);
 		void setMetallic(float value);
 		void setSheen(float value);
@@ -82,7 +82,7 @@ namespace Dwarf
 		float _shininess;
 		float _ior;
 		float _dissolve;
-		float _illum;
+		int _illum;
 		float _roughness;
 		float _metallic;
 		float _sheen;

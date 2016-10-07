@@ -51,7 +51,7 @@ namespace Dwarf
 		this->_dissolve = value;
 	}
 
-	void Material::setIllum(float value)
+	void Material::setIllum(int value)
 	{
 		this->_illum = value;
 	}

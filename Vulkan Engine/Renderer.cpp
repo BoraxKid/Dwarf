@@ -21,7 +21,7 @@ namespace Dwarf
 		this->createFramebuffers();
 		this->createUniformBuffer();
 		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/CamaroSS.obj", "textures/CamaroSS.png"));
-		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/sportsCar.obj", "textures/CamaroSS.png"));
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/geosphere.obj", "textures/furyroad.jpg"));
 		this->createDescriptorPool();
 		std::vector<Model *>::iterator iterModels = this->_models.begin();
 		std::vector<Model *>::iterator iterModels2 = this->_models.end();
@@ -145,7 +145,7 @@ namespace Dwarf
 	{
 		if (gEnableValidationLayers && !Tools::checkValidationLayerSupport(gValidationLayers))
 			Tools::exitOnError("Validation layers not available");
-		vk::ApplicationInfo appInfo(this->_title.c_str(), VK_MAKE_VERSION(1, 0, 0), "Vulkan Engine", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+		vk::ApplicationInfo appInfo(this->_title.c_str(), VK_MAKE_VERSION(1, 0, 0), "Dwarf Engine", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
 		std::vector<const char *> requiredExtensions = Tools::getRequiredExtensions(gEnableValidationLayers);
 		vk::InstanceCreateInfo createInfo;
 		createInfo.pApplicationInfo = &appInfo;
