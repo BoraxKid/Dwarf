@@ -22,6 +22,9 @@
     <Filter Include="Fichiers de ressources\materials">
       <UniqueIdentifier>{60142a7a-1685-4f95-a120-5f62a60b678b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers de ressources\models">
+      <UniqueIdentifier>{cc3394bf-2e24-4f17-9c1a-f98910880aec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -111,5 +114,19 @@
     <Image Include="textures\texture.jpg">
       <Filter>Fichiers de ressources\textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\CamaroSS.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
+    <Object Include="models\chalet.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
+    <Object Include="models\geosphere.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
+    <Object Include="models\sportsCar.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
   </ItemGroup>
 </Project>
