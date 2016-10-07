@@ -85,8 +85,8 @@ namespace Dwarf
 
 	void Renderer::run()
 	{
-		std::chrono::time_point<std::chrono::steady_clock> start;
-		std::chrono::time_point<std::chrono::steady_clock> end;
+		auto start = std::chrono::high_resolution_clock::now();
+		auto end = std::chrono::high_resolution_clock::now();
 		float diff;
 		uint32_t frameCounter = 0;
 		float frameTimer = 0.0f;
@@ -661,8 +661,8 @@ namespace Dwarf
 
 	void Renderer::updatePushConstants(vk::CommandBuffer &commandBuffer)
 	{
-		static std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::high_resolution_clock::now();
-		std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::high_resolution_clock::now();
+		static auto startTime = std::chrono::high_resolution_clock::now();
+		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
 		glm::mat4 pushConstant = glm::perspective(glm::radians(45.0f), static_cast<float>(this->_swapChainExtent.width) / static_cast<float>(this->_swapChainExtent.height), 0.1f, 10.0f);
