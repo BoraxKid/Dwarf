@@ -19,7 +19,7 @@ namespace Dwarf
 	private:
 		bool isSame(const std::string &leftMaterialName, Material *rightMaterial) const;
 
-		std::map<std::string, Material *> _materials;
+		std::map<const std::string, Material *> _materials;
 	};
 }
 

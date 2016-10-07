@@ -47,12 +47,7 @@ namespace Dwarf
 		vk::SamplerCreateInfo samplerInfo(vk::SamplerCreateFlags(), vk::Filter::eLinear, vk::Filter::eLinear, vk::SamplerMipmapMode::eLinear, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, 0.0f, VK_TRUE, 16, VK_FALSE, vk::CompareOp::eAlways, 0.0f, 0.0f, vk::BorderColor::eIntOpaqueBlack, VK_FALSE);
 		this->_textureSampler = this->_device.createSampler(samplerInfo, CUSTOM_ALLOCATOR);
 
-		/*vk::DescriptorSetAllocateInfo allocInfo(descriptorPool, 1, &descriptorSetLayout);
-		this->_descriptorSet = this->_device.allocateDescriptorSets(allocInfo).at(0);
-		vk::DescriptorBufferInfo bufferInfo(this->_buffer, this->_uniformBufferOffset, sizeof(UniformBufferObject));*/
 		this->_imageInfo = vk::DescriptorImageInfo(this->_textureSampler, this->_textureImageView, this->_textureImageLayout);
 		return (this->_imageInfo);
-		/*std::array<vk::WriteDescriptorSet, 2> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo), vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo) };
-		this->_device.updateDescriptorSets(descriptorWrites, nullptr);*/
 	}
 }

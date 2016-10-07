@@ -2,6 +2,8 @@
 #define MATERIAL_H_
 #pragma once
 
+#include <map>
+
 #include "Color.h"
 #include "Texture.h"
 
@@ -32,6 +34,58 @@ namespace Dwarf
 		EMISSIVE,
 		NORMAL
 	};
+
+	enum ValueType
+	{
+		COLOR,
+		FLOAT,
+		INT
+	};
+
+	union UnionValue
+	{
+		UnionValue(Color value) : c(value) {};
+		UnionValue(float value) : f(value) {};
+		UnionValue(int value) : i(value) {};
+		~UnionValue() {};
+		Color c;
+		float f;
+		int i;
+	};
+
+	struct Value
+	{
+		Value() : type(INT), value(0) {}
+		Value(ValueType t, Color c) : type(t), value(c) {}
+		Value &operator=(const Value &cpy)
+		{
+			type = cpy.type;
+			if (type == COLOR)
+				value.c = cpy.value.c;
+			if (type == FLOAT)
+				value.f = cpy.value.f;
+			if (type == INT)
+				value.i = cpy.value.i;
+		}
+		bool isSame(const Value &cpy) const
+		{
+			if (type != cpy.type)
+				return (false);
+			if (type == COLOR && value.c != cpy.value.c)
+				return (false);
+			if (type == FLOAT && value.f != cpy.value.f)
+				return (false);
+			if (type == INT && value.i != cpy.value.i)
+				return (false);
+			return (true);
+		}
+
+		ValueType type;
+		UnionValue value;
+	};
+
+	bool operator==(const Value &lhs, const Value &rhs);
+	bool operator!=(const Value &lhs, const Value &rhs);
 
 	class Material
 	{
@@ -70,41 +124,16 @@ namespace Dwarf
 		void createNormalTexture(const std::string &textureName);
 
 	private:
+		void init();
+
 		const vk::Device &_device;
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 		vk::Pipeline _pipeline;
 		vk::DescriptorSet _descriptorSet;
 		const std::string &_name;
-		Color _ambient;
-		Color _diffuse;
-		Color _specular;
-		Color _transmittance;
-		Color _emission;
-		float _shininess;
-		float _ior;
-		float _dissolve;
-		int _illum;
-		float _roughness;
-		float _metallic;
-		float _sheen;
-		float _clearcoatThickness;
-		float _clearcoatRoughness;
-		float _anisotropy;
-		float _anisotropyRotation;
-		std::vector<Texture *> _textures;
-		Texture *_ambientTexture;
-		Texture *_diffuseTexture;
-		Texture *_specularTexture;
-		Texture *_specularHighlightTexture;
-		Texture *_bumpTexture;
-		Texture *_displacementTexture;
-		Texture *_alphaTexture;
-		Texture *_roughnessTexture;
-		Texture *_metallicTexture;
-		Texture *_sheenTexture;
-		Texture *_emissiveTexture;
-		Texture *_normalTexture;
+		std::map<const MaterialType, Value> _values;
+		std::map<const MaterialType, Texture *> _textures;
 	};
 
 	bool operator==(const Material &lhs, const Material &rhs);

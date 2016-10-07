@@ -3,7 +3,7 @@
 namespace Dwarf
 {
 	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &name)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _name(name), _ambientTexture(nullptr), _diffuseTexture(nullptr), _specularTexture(nullptr), _specularHighlightTexture(nullptr), _bumpTexture(nullptr), _displacementTexture(nullptr), _alphaTexture(nullptr), _roughnessTexture(nullptr), _metallicTexture(nullptr), _sheenTexture(nullptr), _emissiveTexture(nullptr), _normalTexture(nullptr)
+		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _name(name)
 	{
 	}
 
@@ -13,9 +13,7 @@ namespace Dwarf
 
 	bool Material::isSame(const Material &material) const
 	{
-		if (this->_name != material._name || this->_ambient != material._ambient || this->_diffuse != material._diffuse || this->_specular != material._specular || this->_transmittance != material._transmittance || this->_emission != material._emission || this->_shininess != material._shininess || this->_ior != material._ior || this->_dissolve != material._dissolve || this->_illum != material._illum || this->_roughness != material._roughness || this->_metallic != material._metallic || this->_sheen != material._sheen || this->_clearcoatThickness != material._clearcoatThickness || this->_clearcoatRoughness != material._clearcoatRoughness || this->_anisotropy != material._anisotropy || this->_anisotropyRotation != material._anisotropyRotation)
-			return (false);
-		if (this->_ambientTexture != material._ambientTexture || this->_diffuseTexture != material._diffuseTexture || this->_specularTexture != material._specularTexture || this->_specularHighlightTexture != material._specularHighlightTexture || this->_bumpTexture != material._bumpTexture || this->_displacementTexture != material._displacementTexture || this->_alphaTexture != material._alphaTexture || this->_roughnessTexture != material._roughnessTexture || this->_metallicTexture != material._metallicTexture || this->_sheenTexture != material._sheenTexture || this->_emissiveTexture != material._emissiveTexture || this->_normalTexture != material._normalTexture)
+		if (this->_name != material._name || this->_values.size() != material._values.size() || !std::equal(this->_values.begin(), this->_values.end(), material._values.begin()) || this->_textures.size() != material._textures.size() || !std::equal(this->_textures.begin(), this->_textures.end(), material._textures.begin()))
 			return (false);
 		return (true);
 	}
@@ -27,142 +25,196 @@ namespace Dwarf
 
 	void Material::setAmbient(Color value)
 	{
-		this->_ambient = value;
+		this->_values.at(AMBIENT).value.c = value;
 	}
 
 	void Material::setDiffuse(Color value)
 	{
-		this->_diffuse = value;
+		this->_values.at(DIFFUSE).value.c = value;
 	}
 
 	void Material::setSpecular(Color value)
 	{
-		this->_specular = value;
+		this->_values.at(SPECULAR).value.c = value;
 	}
 
 	void Material::setTransmittance(Color value)
 	{
-		this->_transmittance = value;
+		this->_values.at(TRANSMITTANCE).value.c = value;
 	}
 
 	void Material::setEmission(Color value)
 	{
-		this->_emission = value;
+		this->_values.at(EMISSION).value.c = value;
 	}
 
 	void Material::setShininess(float value)
 	{
-		this->_shininess = value;
+		this->_values.at(SHININESS).value.f = value;
 	}
 
 	void Material::setIor(float value)
 	{
-		this->_ior = value;
+		this->_values.at(IOR).value.f = value;
 	}
 
 	void Material::setDissolve(float value)
 	{
-		this->_dissolve = value;
+		this->_values.at(DISSOLVE).value.f = value;
 	}
 
 	void Material::setIllum(int value)
 	{
-		this->_illum = value;
+		this->_values.at(ILLUM).value.i = value;
 	}
 
 	void Material::setRoughness(float value)
 	{
-		this->_roughness = value;
+		this->_values.at(ROUGHNESS).value.f = value;
 	}
 
 	void Material::setMetallic(float value)
 	{
-		this->_metallic = value;
+		this->_values.at(METALLIC).value.f = value;
 	}
 
 	void Material::setSheen(float value)
 	{
-		this->_sheen = value;
+		this->_values.at(SHEEN).value.f = value;
 	}
 
 	void Material::setClearcoatThickness(float value)
 	{
-		this->_clearcoatThickness = value;
+		this->_values.at(CLEARCOAT_THICKNESS).value.f = value;
 	}
 
 	void Material::setClearcoatRoughness(float value)
 	{
-		this->_clearcoatRoughness = value;
+		this->_values.at(CLEARCOAT_ROUGHNESS).value.f = value;
 	}
 
 	void Material::setAnisotropy(float value)
 	{
-		this->_anisotropy = value;
+		this->_values.at(ANISOTROPY).value.f = value;
 	}
 
 	void Material::setAnisotropyRotation(float value)
 	{
-		this->_anisotropyRotation = value;
+		this->_values.at(ANISOTROPY_ROTATION).value.f = value;
 	}
 
 	void Material::createAmbientTexture(const std::string &textureName)
 	{
-		this->_ambientTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(AMBIENT) != this->_textures.end())
+			delete (this->_textures.at(AMBIENT));
+		this->_textures[AMBIENT] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createDiffuseTexture(const std::string &textureName)
 	{
-		this->_diffuseTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(DIFFUSE) != this->_textures.end())
+			delete (this->_textures.at(DIFFUSE));
+		this->_textures[DIFFUSE] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createSpecularTexture(const std::string &textureName)
 	{
-		this->_specularTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(SPECULAR) != this->_textures.end())
+			delete (this->_textures.at(SPECULAR));
+		this->_textures[SPECULAR] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createSpecularHighlightTexture(const std::string &textureName)
 	{
-		this->_specularHighlightTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(SPECULAR_HIGHLIGHT) != this->_textures.end())
+			delete (this->_textures.at(SPECULAR_HIGHLIGHT));
+		this->_textures[SPECULAR_HIGHLIGHT] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createBumpTexture(const std::string &textureName)
 	{
-		this->_bumpTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(BUMP) != this->_textures.end())
+			delete (this->_textures.at(BUMP));
+		this->_textures[BUMP] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createDisplacementTexture(const std::string &textureName)
 	{
-		this->_displacementTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(DISPLACEMENT) != this->_textures.end())
+			delete (this->_textures.at(DISPLACEMENT));
+		this->_textures[DISPLACEMENT] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createAlphaTexture(const std::string &textureName)
 	{
-		this->_alphaTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(ALPHA) != this->_textures.end())
+			delete (this->_textures.at(ALPHA));
+		this->_textures[ALPHA] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createRoughnessTexture(const std::string &textureName)
 	{
-		this->_roughnessTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(ROUGHNESS) != this->_textures.end())
+			delete (this->_textures.at(ROUGHNESS));
+		this->_textures[ROUGHNESS] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createMetallicTexture(const std::string &textureName)
 	{
-		this->_metallicTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(METALLIC) != this->_textures.end())
+			delete (this->_textures.at(METALLIC));
+		this->_textures[METALLIC] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createSheenTexture(const std::string &textureName)
 	{
-		this->_sheenTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(SHEEN) != this->_textures.end())
+			delete (this->_textures.at(SHEEN));
+		this->_textures[SHEEN] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createEmissiveTexture(const std::string &textureName)
 	{
-		this->_emissiveTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(EMISSIVE) != this->_textures.end())
+			delete (this->_textures.at(EMISSIVE));
+		this->_textures[EMISSIVE] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
 	}
 
 	void Material::createNormalTexture(const std::string &textureName)
 	{
-		this->_normalTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+		if (this->_textures.find(NORMAL) != this->_textures.end())
+			delete (this->_textures.at(NORMAL));
+		this->_textures[NORMAL] = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+	}
+
+	void Material::init()
+	{
+		this->_values[AMBIENT] = Value(ValueType::COLOR, Color());
+		this->_values[DIFFUSE] = Value(ValueType::COLOR, Color());
+		this->_values[SPECULAR] = Value(ValueType::COLOR, Color());
+		this->_values[TRANSMITTANCE] = Value(ValueType::COLOR, Color());
+		this->_values[EMISSION] = Value(ValueType::COLOR, Color());
+		this->_values[SHININESS] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[IOR] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[DISSOLVE] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[ILLUM] = Value(ValueType::INT, 0);
+		this->_values[ROUGHNESS] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[METALLIC] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[SHEEN] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[CLEARCOAT_THICKNESS] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[CLEARCOAT_ROUGHNESS] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[ANISOTROPY] = Value(ValueType::FLOAT, 1.0f);
+		this->_values[ANISOTROPY_ROTATION] = Value(ValueType::FLOAT, 1.0f);
+	}
+
+	bool operator==(const Value &lhs, const Value &rhs)
+	{
+		return (lhs.isSame(rhs));
+	}
+
+	bool operator!=(const Value &lhs, const Value &rhs)
+	{
+		return (!lhs.isSame(rhs));
 	}
 
 	bool operator==(const Material &lhs, const Material &rhs)

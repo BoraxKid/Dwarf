@@ -125,7 +125,7 @@ namespace Dwarf
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		this->_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 		glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetWindowPos(this->_window, -1920, 100);
+		//glfwSetWindowPos(this->_window, -1920, 100);
 		glfwSetWindowUserPointer(this->_window, this);
 		glfwSetWindowSizeCallback(this->_window, Renderer::onWindowResized);
 

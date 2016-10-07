@@ -34,7 +34,7 @@ namespace Dwarf
 		std::string error;
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "materials/"))
 			Tools::exitOnError(error);
-		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
+		/*std::vector<tinyobj::material_t>::iterator iter = materials.begin();
 		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
 		Material *material = nullptr;
 		while (iter != iter2)
@@ -83,7 +83,7 @@ namespace Dwarf
 			this->_materials.push_back(material);
 			material = nullptr;
 			++iter;
-		}
+		}*/
 		std::vector<tinyobj::shape_t>::const_iterator iterShapes = shapes.begin();
 		std::vector<tinyobj::shape_t>::const_iterator iterShapes2 = shapes.end();
 		std::vector<tinyobj::index_t>::const_iterator iterIndices;
