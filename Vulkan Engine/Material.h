@@ -59,13 +59,17 @@ namespace Dwarf
 		Value(ValueType t, Color c) : type(t), value(c) {}
 		Value &operator=(const Value &cpy)
 		{
-			type = cpy.type;
-			if (type == COLOR)
-				value.c = cpy.value.c;
-			if (type == FLOAT)
-				value.f = cpy.value.f;
-			if (type == INT)
-				value.i = cpy.value.i;
+			if (this != &cpy)
+			{
+				type = cpy.type;
+				if (type == COLOR)
+					value.c = cpy.value.c;
+				if (type == FLOAT)
+					value.f = cpy.value.f;
+				if (type == INT)
+					value.i = cpy.value.i;
+			}
+			return (*this);
 		}
 		bool isSame(const Value &cpy) const
 		{
