@@ -26,6 +26,9 @@ namespace Dwarf
 	private:
 		glm::vec4 _values;
 	};
+
+	bool operator==(const Color &lhs, const Color &rhs);
+	bool operator!=(const Color &lhs, const Color &rhs);
 }
 
 #endif // COLOR_H_

@@ -38,6 +38,8 @@ namespace Dwarf
 	public:
 		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &name);
 		virtual ~Material();
+		bool isSame(const Material &material) const;
+		const std::string &getName() const;
 		void setAmbient(Color value);
 		void setDiffuse(Color value);
 		void setSpecular(Color value);
@@ -104,6 +106,9 @@ namespace Dwarf
 		Texture *_emissiveTexture;
 		Texture *_normalTexture;
 	};
+
+	bool operator==(const Material &lhs, const Material &rhs);
+	bool operator!=(const Material &lhs, const Material &rhs);
 }
 
 #endif // MATERIAL_H_

@@ -11,6 +11,20 @@ namespace Dwarf
 	{
 	}
 
+	bool Material::isSame(const Material &material) const
+	{
+		if (this->_name != material._name || this->_ambient != material._ambient || this->_diffuse != material._diffuse || this->_specular != material._specular || this->_transmittance != material._transmittance || this->_emission != material._emission || this->_shininess != material._shininess || this->_ior != material._ior || this->_dissolve != material._dissolve || this->_illum != material._illum || this->_roughness != material._roughness || this->_metallic != material._metallic || this->_sheen != material._sheen || this->_clearcoatThickness != material._clearcoatThickness || this->_clearcoatRoughness != material._clearcoatRoughness || this->_anisotropy != material._anisotropy || this->_anisotropyRotation != material._anisotropyRotation)
+			return (false);
+		if (this->_ambientTexture != material._ambientTexture || this->_diffuseTexture != material._diffuseTexture || this->_specularTexture != material._specularTexture || this->_specularHighlightTexture != material._specularHighlightTexture || this->_bumpTexture != material._bumpTexture || this->_displacementTexture != material._displacementTexture || this->_alphaTexture != material._alphaTexture || this->_roughnessTexture != material._roughnessTexture || this->_metallicTexture != material._metallicTexture || this->_sheenTexture != material._sheenTexture || this->_emissiveTexture != material._emissiveTexture || this->_normalTexture != material._normalTexture)
+			return (false);
+		return (true);
+	}
+
+	const std::string &Material::getName() const
+	{
+		return (this->_name);
+	}
+
 	void Material::setAmbient(Color value)
 	{
 		this->_ambient = value;
@@ -149,5 +163,15 @@ namespace Dwarf
 	void Material::createNormalTexture(const std::string &textureName)
 	{
 		this->_normalTexture = new Texture(this->_device, this->_commandPool, this->_graphicsQueue, textureName);
+	}
+
+	bool operator==(const Material &lhs, const Material &rhs)
+	{
+		return (lhs.isSame(rhs));
+	}
+
+	bool operator!=(const Material &lhs, const Material &rhs)
+	{
+		return (!lhs.isSame(rhs));
 	}
 }

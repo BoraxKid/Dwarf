@@ -59,4 +59,14 @@ namespace Dwarf
 	{
 		return (this->_values);
 	}
+
+	bool operator==(const Color &lhs, const Color &rhs)
+	{
+		return (lhs.getColor() == rhs.getColor());
+	}
+
+	bool operator!=(const Color &lhs, const Color &rhs)
+	{
+		return (lhs.getColor() != rhs.getColor());
+	}
 }
