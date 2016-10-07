@@ -246,3 +246,6 @@ obj/
 
 # include directory for Linux
 include/
+
+# logs
+logs/
