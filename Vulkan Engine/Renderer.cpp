@@ -574,7 +574,12 @@ namespace Dwarf
 		std::vector<vk::SurfaceFormatKHR>::const_iterator iter2 = availableFormats.end();
 
 		if (availableFormats.size() == 1 && availableFormats.at(0).format == vk::Format::eUndefined)
-			return (vk::SurfaceFormatKHR(vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear));
+		{
+			vk::SurfaceFormatKHR tmp;
+			tmp.format = vk::Format::eB8G8R8A8Unorm;
+			tmp.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+			return (tmp);
+		}
 		while (iter != iter2)
 		{
 			if (iter->format == vk::Format::eB8G8R8A8Unorm && iter->colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
