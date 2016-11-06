@@ -10,8 +10,8 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec2 inTextureCoord;
 
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec2 fragTextureCoord;
+layout(location = 0) out vec3 outFragColor;
+layout(location = 1) out vec2 outFragTextureCoord;
 out gl_PerVertex
 {
     vec4 gl_Position;
@@ -20,6 +20,6 @@ out gl_PerVertex
 void main()
 {
     gl_Position = pushConstants.mvp * vec4(inPosition, 1.0);
-    fragColor = inColor;
-	fragTextureCoord = inTextureCoord;
+    outFragColor = inColor;
+	outFragTextureCoord = inTextureCoord;
 }

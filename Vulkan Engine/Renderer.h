@@ -190,6 +190,8 @@ namespace Dwarf
 
 		Camera _camera;
 		glm::vec2 _mousePos;
+
+        MaterialManager *_materialManager;
 		std::vector<Model *> _models;
 	};
 }

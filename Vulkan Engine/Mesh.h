@@ -12,7 +12,7 @@
 #include <glm/gtx/hash.hpp>
 
 #include "Tools.h"
-#include "Material.h"
+#include "MaterialManager.h"
 
 namespace Dwarf
 {

@@ -94,10 +94,11 @@ namespace Dwarf
 	class Material
 	{
 	public:
-		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &name);
+        typedef int ID;
+		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, ID id);
 		virtual ~Material();
 		bool isSame(const Material &material) const;
-		const std::string &getName() const;
+        ID getID() const;
 		void setAmbient(Color value);
 		void setDiffuse(Color value);
 		void setSpecular(Color value);
@@ -133,9 +134,9 @@ namespace Dwarf
 		const vk::Device &_device;
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
-		vk::Pipeline _pipeline;
-		vk::DescriptorSet _descriptorSet;
-		const std::string &_name;
+		vk::Pipeline &_pipeline;
+		vk::DescriptorSet &_descriptorSet;
+        const ID _id;
 		std::map<const MaterialType, Value> _values;
 		std::map<const MaterialType, Texture *> _textures;
 	};

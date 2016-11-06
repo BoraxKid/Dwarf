@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &name)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _name(name)
+	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Material::ID id)
+		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _id(id)
 	{
 	}
 
@@ -13,15 +13,15 @@ namespace Dwarf
 
 	bool Material::isSame(const Material &material) const
 	{
-		if (this->_name != material._name || this->_values.size() != material._values.size() || !std::equal(this->_values.begin(), this->_values.end(), material._values.begin()) || this->_textures.size() != material._textures.size() || !std::equal(this->_textures.begin(), this->_textures.end(), material._textures.begin()))
+		if (this->_id != material._id || this->_values.size() != material._values.size() || !std::equal(this->_values.begin(), this->_values.end(), material._values.begin()) || this->_textures.size() != material._textures.size() || !std::equal(this->_textures.begin(), this->_textures.end(), material._textures.begin()))
 			return (false);
 		return (true);
 	}
 
-	const std::string &Material::getName() const
-	{
-		return (this->_name);
-	}
+    Material::ID Material::getID() const
+    {
+        return (this->_id);
+    }
 
 	void Material::setAmbient(Color value)
 	{
