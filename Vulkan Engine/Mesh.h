@@ -57,10 +57,10 @@ namespace Dwarf
 	class Mesh
 	{
 	public:
-		Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename);
+		Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Dwarf::MaterialManager &materialManager, const std::string &meshFilename);
 		virtual ~Mesh();
 
-		void loadFromFile(const std::string &filename);
+		void loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename);
 		void createBuffers(vk::PhysicalDeviceMemoryProperties memProperties);
 
 		vk::Buffer getBuffer() const;
@@ -74,7 +74,7 @@ namespace Dwarf
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 
-		std::vector<Material *> _materials;
+		std::map<Material *, std::vector<Vertex>> _verticesPerMaterials;
 		std::vector<Vertex> _vertices;
 		std::vector<uint32_t> _indices;
 		vk::DeviceMemory _buffersMemory;

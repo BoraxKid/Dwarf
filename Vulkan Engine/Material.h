@@ -95,7 +95,7 @@ namespace Dwarf
 	{
 	public:
         typedef int ID;
-		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, ID id);
+		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, ID id);
 		virtual ~Material();
 		bool isSame(const Material &material) const;
         ID getID() const;
@@ -134,8 +134,8 @@ namespace Dwarf
 		const vk::Device &_device;
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
-		vk::Pipeline &_pipeline;
-		vk::DescriptorSet &_descriptorSet;
+		const vk::Pipeline &_pipeline;
+		vk::DescriptorSet _descriptorSet;
         const ID _id;
 		std::map<const MaterialType, Value> _values;
 		std::map<const MaterialType, Texture *> _textures;

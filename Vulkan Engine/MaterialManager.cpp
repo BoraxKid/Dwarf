@@ -1,20 +1,43 @@
 #include "MaterialManager.h"
+#include "Mesh.h"
 
 namespace Dwarf
 {
-	MaterialManager::MaterialManager(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue)
-        : _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _lastID(0)
+	MaterialManager::MaterialManager(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent)
+        : _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _renderPass(renderPass), _swapChainExtent(swapChainExtent), _lastID(0)
 	{
+        this->createDescriptorSetLayout();
+        this->createPipelineLayout();
 	}
 
 	MaterialManager::~MaterialManager()
 	{
+        std::map<const Material::ID, Material *>::iterator iterMaterials = this->_materials.begin();
+        std::map<const Material::ID, Material *>::iterator iterMaterials2 = this->_materials.end();
+        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines = this->_pipelines.begin();
+        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines2 = this->_pipelines.begin();
+
+        while (iterMaterials != iterMaterials2)
+        {
+            delete (iterMaterials->second);
+            ++iterMaterials;
+        }
+        while (iterPipelines != iterPipelines2)
+        {
+            this->_device.destroyPipeline(iterPipelines->second, CUSTOM_ALLOCATOR);
+            ++iterPipelines;
+        }
 	}
 
 	bool MaterialManager::exist(const Material::ID materialID) const
 	{
 		return (this->_materials.find(materialID) != this->_materials.end());
 	}
+
+    bool MaterialManager::exist(const std::string &materialName) const
+    {
+        return (this->_materialsNames.find(materialName) != this->_materialsNames.end());
+    }
 
 	void MaterialManager::addMaterial(Material *material)
 	{
@@ -26,12 +49,13 @@ namespace Dwarf
     Material *MaterialManager::createMaterial(const std::string &materialName)
     {
         ++this->_lastID;
-        this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_lastID);
+        this->createMaterialPipeline(this->_lastID);
+        this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_lastID);
         if (this->_materialsNames.find(materialName) != this->_materialsNames.end())
             this->_materialsNames[materialName + "_"] = this->_lastID;
         else
             this->_materialsNames[materialName] = this->_lastID;
-        return nullptr;
+        return (this->_materials.at(this->_lastID));
     }
 
     void MaterialManager::createDescriptorSetLayout()
@@ -54,6 +78,36 @@ namespace Dwarf
         if (this->_pipelineLayout != (vk::PipelineLayout)VK_NULL_HANDLE)
             this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
         this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);
+    }
+
+    void MaterialManager::createMaterialPipeline(const Material::ID materialID)
+    {
+        std::vector<char> vertShaderCode = Tools::readFile("shaders/vert.spv");
+        std::vector<char> fragShaderCode = Tools::readFile("shaders/frag.spv");
+        vk::ShaderModule vertShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), vertShaderCode.size(), reinterpret_cast<uint32_t *>(vertShaderCode.data())), CUSTOM_ALLOCATOR);
+        vk::ShaderModule fragShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), fragShaderCode.size(), reinterpret_cast<uint32_t *>(fragShaderCode.data())), CUSTOM_ALLOCATOR);
+        vk::PipelineShaderStageCreateInfo shaderStages[] = { vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertShaderModule, "main"), vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragShaderModule, "main") };
+        vk::VertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
+        std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions = Vertex::getAttributeDescriptions();
+        vk::PipelineVertexInputStateCreateInfo vertexInputInfo(vk::PipelineVertexInputStateCreateFlags(), 1, &bindingDescription, static_cast<uint32_t>(attributeDescriptions.size()), attributeDescriptions.data());
+        vk::PipelineInputAssemblyStateCreateInfo inputAssembly(vk::PipelineInputAssemblyStateCreateFlags(), vk::PrimitiveTopology::eTriangleList, VK_FALSE);
+        vk::Viewport viewport(0.0f, 0.0f, static_cast<float>(this->_swapChainExtent.width), static_cast<float>(this->_swapChainExtent.height), 0.0f, 1.0f);
+        vk::Rect2D scissor(vk::Offset2D(), this->_swapChainExtent);
+        vk::PipelineViewportStateCreateInfo viewportState(vk::PipelineViewportStateCreateFlags(), 1, &viewport, 1, &scissor);
+        vk::PipelineRasterizationStateCreateInfo rasterizer(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eFront, vk::FrontFace::eCounterClockwise, VK_FALSE, 0.0f, 0.0f, 0.0f, 1.0f);
+        vk::PipelineMultisampleStateCreateInfo multisampling(vk::PipelineMultisampleStateCreateFlags(), vk::SampleCountFlagBits::e1, VK_FALSE, 1.0f, nullptr, VK_FALSE, VK_FALSE);
+        vk::PipelineDepthStencilStateCreateInfo depthStencil(vk::PipelineDepthStencilStateCreateFlags(), VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
+        vk::PipelineColorBlendAttachmentState colorBlendAttachment(VK_FALSE, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
+        vk::PipelineColorBlendStateCreateInfo colorBlending(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment);
+        vk::GraphicsPipelineCreateInfo pipelineInfo(vk::PipelineCreateFlags(), 2, shaderStages, &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, this->_pipelineLayout, this->_renderPass, 0, VK_NULL_HANDLE, -1);
+
+        if (this->_pipelines.find(materialID) == this->_pipelines.end())
+            this->_pipelines[materialID] = (vk::Pipeline)VK_NULL_HANDLE;
+        if (this->_pipelines.at(materialID) != (vk::Pipeline)VK_NULL_HANDLE)
+            this->_device.destroyPipeline(this->_pipelines.at(materialID), CUSTOM_ALLOCATOR);
+        this->_pipelines.at(materialID) = this->_device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo, CUSTOM_ALLOCATOR);
+        this->_device.destroyShaderModule(vertShaderModule, CUSTOM_ALLOCATOR);
+        this->_device.destroyShaderModule(fragShaderModule, CUSTOM_ALLOCATOR);
     }
 
     bool MaterialManager::isSame(const Material::ID &leftMaterialID, Material *rightMaterial) const

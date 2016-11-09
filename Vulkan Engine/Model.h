@@ -9,7 +9,7 @@ namespace Dwarf
 	class Model
 	{
 	public:
-		Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename, const std::string &textureFilename);
+		Model(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const std::string &textureFilename);
 		virtual ~Model();
 
 		void init(vk::PhysicalDeviceMemoryProperties memProperties, vk::DescriptorPool &descriptorPool, vk::DescriptorSetLayout &descriptorSetLayout);

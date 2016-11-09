@@ -97,7 +97,7 @@ namespace Dwarf
 		/// \brief Create the descriptor set layout
 		void createDescriptorSetLayout();
 		/// \brief Create a graphics pipeline
-		void createGraphicsPiepline();
+		void createGraphicsPipeline();
 		/// \brief Create the command pool
 		void createCommandPool();
 		/// \brief Create the depth image

@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Material::ID id)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _id(id)
+	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, Material::ID id)
+		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _id(id)
 	{
 	}
 
@@ -25,82 +25,82 @@ namespace Dwarf
 
 	void Material::setAmbient(Color value)
 	{
-		this->_values.at(AMBIENT).value.c = value;
+		this->_values[AMBIENT].value.c = value;
 	}
 
 	void Material::setDiffuse(Color value)
 	{
-		this->_values.at(DIFFUSE).value.c = value;
+		this->_values[DIFFUSE].value.c = value;
 	}
 
 	void Material::setSpecular(Color value)
 	{
-		this->_values.at(SPECULAR).value.c = value;
+		this->_values[SPECULAR].value.c = value;
 	}
 
 	void Material::setTransmittance(Color value)
 	{
-		this->_values.at(TRANSMITTANCE).value.c = value;
+		this->_values[TRANSMITTANCE].value.c = value;
 	}
 
 	void Material::setEmission(Color value)
 	{
-		this->_values.at(EMISSION).value.c = value;
+		this->_values[EMISSION].value.c = value;
 	}
 
 	void Material::setShininess(float value)
 	{
-		this->_values.at(SHININESS).value.f = value;
+		this->_values[SHININESS].value.f = value;
 	}
 
 	void Material::setIor(float value)
 	{
-		this->_values.at(IOR).value.f = value;
+		this->_values[IOR].value.f = value;
 	}
 
 	void Material::setDissolve(float value)
 	{
-		this->_values.at(DISSOLVE).value.f = value;
+		this->_values[DISSOLVE].value.f = value;
 	}
 
 	void Material::setIllum(int value)
 	{
-		this->_values.at(ILLUM).value.i = value;
+		this->_values[ILLUM].value.i = value;
 	}
 
 	void Material::setRoughness(float value)
 	{
-		this->_values.at(ROUGHNESS).value.f = value;
+		this->_values[ROUGHNESS].value.f = value;
 	}
 
 	void Material::setMetallic(float value)
 	{
-		this->_values.at(METALLIC).value.f = value;
+		this->_values[METALLIC].value.f = value;
 	}
 
 	void Material::setSheen(float value)
 	{
-		this->_values.at(SHEEN).value.f = value;
+		this->_values[SHEEN].value.f = value;
 	}
 
 	void Material::setClearcoatThickness(float value)
 	{
-		this->_values.at(CLEARCOAT_THICKNESS).value.f = value;
+		this->_values[CLEARCOAT_THICKNESS].value.f = value;
 	}
 
 	void Material::setClearcoatRoughness(float value)
 	{
-		this->_values.at(CLEARCOAT_ROUGHNESS).value.f = value;
+		this->_values[CLEARCOAT_ROUGHNESS].value.f = value;
 	}
 
 	void Material::setAnisotropy(float value)
 	{
-		this->_values.at(ANISOTROPY).value.f = value;
+		this->_values[ANISOTROPY].value.f = value;
 	}
 
 	void Material::setAnisotropyRotation(float value)
 	{
-		this->_values.at(ANISOTROPY_ROTATION).value.f = value;
+		this->_values[ANISOTROPY_ROTATION].value.f = value;
 	}
 
 	void Material::createAmbientTexture(const std::string &textureName)

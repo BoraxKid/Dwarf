@@ -5,28 +5,20 @@
 
 namespace Dwarf
 {
-	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string &meshFilename)
+	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Dwarf::MaterialManager &materialManager, const std::string &meshFilename)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
 	{
-		this->loadFromFile(meshFilename);
+		this->loadFromFile(materialManager, meshFilename);
 	}
 
 	Mesh::~Mesh()
 	{
-		std::vector<Material *>::iterator iter = this->_materials.begin();
-		std::vector<Material *>::iterator iter2 = this->_materials.end();
-
-		while (iter != iter2)
-		{
-			delete (*iter);
-			++iter;
-		}
-		this->_materials.clear();
+		this->_verticesPerMaterials.clear();
 		this->_device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
 	}
 
-	void Mesh::loadFromFile(const std::string &filename)
+	void Mesh::loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -34,12 +26,12 @@ namespace Dwarf
 		std::string error;
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "materials/"))
 			Tools::exitOnError(error);
-		/*std::vector<tinyobj::material_t>::iterator iter = materials.begin();
+		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
 		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
 		Material *material = nullptr;
 		while (iter != iter2)
 		{
-			material = new Material(this->_device, this->_commandPool, this->_graphicsQueue, iter->name);
+            material = materialManager.createMaterial(iter->name);
 			material->setAmbient(Color(iter->ambient[0], iter->ambient[1], iter->ambient[2]));
 			material->setDiffuse(Color(iter->diffuse[0], iter->diffuse[1], iter->diffuse[2]));
 			material->setSpecular(Color(iter->specular[0], iter->specular[1], iter->specular[2]));
@@ -80,10 +72,10 @@ namespace Dwarf
 				material->createEmissiveTexture(iter->emissive_texname);
 			if (!iter->normal_texname.empty())
 				material->createNormalTexture(iter->normal_texname);
-			this->_materials.push_back(material);
+			this->_verticesPerMaterials[material] = std::vector<Vertex>();
 			material = nullptr;
 			++iter;
-		}*/
+		}
 		std::vector<tinyobj::shape_t>::const_iterator iterShapes = shapes.begin();
 		std::vector<tinyobj::shape_t>::const_iterator iterShapes2 = shapes.end();
 		std::vector<tinyobj::index_t>::const_iterator iterIndices;
@@ -97,9 +89,11 @@ namespace Dwarf
 		{
 			iterIndices = iterShapes->mesh.indices.begin();
 			iterIndices2 = iterShapes->mesh.indices.end();
+            iterShapes->mesh.material_ids[1];
 			while (iterIndices != iterIndices2)
 			{
 				vertex = Vertex();
+                
 				vertex.pos = glm::vec3(attrib.vertices.at(3 * iterIndices->vertex_index + 0), attrib.vertices.at(3 * iterIndices->vertex_index + 1), attrib.vertices.at(3 * iterIndices->vertex_index + 2));
 				if (!attrib.texcoords.empty())
 				vertex.uv = glm::vec2(attrib.texcoords.at(2 * iterIndices->texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * iterIndices->texcoord_index + 1));

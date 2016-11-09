@@ -15,13 +15,14 @@ namespace Dwarf
 		this->createImageViews();
 		this->createRenderPass();
 		this->createDescriptorSetLayout();
-		this->createGraphicsPiepline();
+		this->createGraphicsPipeline();
 		this->createCommandPool();
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createUniformBuffer();
-		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/CamaroSS.obj", "textures/CamaroSS.png"));
-		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, "models/geosphere.obj", "textures/furyroad.jpg"));
+        this->_materialManager = new MaterialManager(this->_device, this->_commandPool, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/CamaroSS.obj", "textures/CamaroSS.png"));
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/geosphere.obj", "textures/furyroad.jpg"));
 		this->createDescriptorPool();
 		std::vector<Model *>::iterator iterModels = this->_models.begin();
 		std::vector<Model *>::iterator iterModels2 = this->_models.end();
@@ -308,7 +309,7 @@ namespace Dwarf
 		this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);
 	}
 
-	void Renderer::createGraphicsPiepline()
+	void Renderer::createGraphicsPipeline()
 	{
 		std::vector<char> vertShaderCode = Tools::readFile("shaders/vert.spv");
 		std::vector<char> fragShaderCode = Tools::readFile("shaders/frag.spv");
@@ -683,7 +684,7 @@ namespace Dwarf
 		this->createSwapChain();
 		this->createImageViews();
 		this->createRenderPass();
-		this->createGraphicsPiepline();
+		this->createGraphicsPipeline();
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createCommandBuffers();
