@@ -13,7 +13,6 @@ namespace Dwarf
 
 	Mesh::~Mesh()
 	{
-		this->_verticesPerMaterials.clear();
 		this->_device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
 	}
@@ -29,6 +28,7 @@ namespace Dwarf
 		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
 		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
 		Material *material = nullptr;
+        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default")));
 		while (iter != iter2)
 		{
             material = materialManager.createMaterial(iter->name);
@@ -72,41 +72,57 @@ namespace Dwarf
 				material->createEmissiveTexture(iter->emissive_texname);
 			if (!iter->normal_texname.empty())
 				material->createNormalTexture(iter->normal_texname);
-			this->_verticesPerMaterials[material] = std::vector<Vertex>();
+            this->_submeshes.push_back(Submesh(material));
 			material = nullptr;
 			++iter;
 		}
-		std::vector<tinyobj::shape_t>::const_iterator iterShapes = shapes.begin();
-		std::vector<tinyobj::shape_t>::const_iterator iterShapes2 = shapes.end();
-		std::vector<tinyobj::index_t>::const_iterator iterIndices;
-		std::vector<tinyobj::index_t>::const_iterator iterIndices2;
-		std::unordered_map<Vertex, int> uniqueVertices;
 		Vertex vertex;
-		this->_vertices.clear();
-		this->_indices.clear();
-
-		while (iterShapes != iterShapes2)
-		{
-			iterIndices = iterShapes->mesh.indices.begin();
-			iterIndices2 = iterShapes->mesh.indices.end();
-            iterShapes->mesh.material_ids[1];
-			while (iterIndices != iterIndices2)
-			{
-				vertex = Vertex();
-                
-				vertex.pos = glm::vec3(attrib.vertices.at(3 * iterIndices->vertex_index + 0), attrib.vertices.at(3 * iterIndices->vertex_index + 1), attrib.vertices.at(3 * iterIndices->vertex_index + 2));
-				if (!attrib.texcoords.empty())
-				vertex.uv = glm::vec2(attrib.texcoords.at(2 * iterIndices->texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * iterIndices->texcoord_index + 1));
-				if (uniqueVertices.count(vertex) == 0)
-				{
-					uniqueVertices[vertex] = static_cast<int>(this->_vertices.size());
-					this->_vertices.push_back(vertex);
-				}
-				this->_indices.push_back(uniqueVertices.at(vertex));
-				++iterIndices;
-			}
-			++iterShapes;
-		}
+        size_t s = 0;
+        size_t indexOffset;
+        size_t f;
+        size_t fv;
+        size_t v;
+        int materialID;
+        tinyobj::index_t i;
+        std::vector<std::unordered_map<Vertex, int>> perMaterialUniqueVertices(this->_submeshes.size());
+        std::vector<std::vector<uint32_t>> submeshIndices(this->_submeshes.size());
+        std::vector<std::vector<Vertex>> submeshVertices(this->_submeshes.size());
+        while (s < shapes.size())
+        {
+            indexOffset = 0;
+            f = 0;
+            while (f < shapes.at(s).mesh.num_face_vertices.size())
+            {
+                materialID = shapes.at(s).mesh.material_ids.at(f) + 1; // + 1 because the material ID at 0 is the default one
+                fv = shapes.at(s).mesh.num_face_vertices.at(f);
+                v = 0;
+                while (v < fv)
+                {
+                    i = shapes.at(s).mesh.indices.at(indexOffset + v);
+                    vertex = Vertex();
+                    vertex.pos = glm::vec3(attrib.vertices.at(3 * i.vertex_index + 0), attrib.vertices.at(3 * i.vertex_index + 1), attrib.vertices.at(3 * i.vertex_index + 2));
+                    if (!attrib.texcoords.empty())
+                        vertex.uv = glm::vec2(attrib.texcoords.at(2 * i.texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * i.texcoord_index + 1));
+                    if (perMaterialUniqueVertices.at(materialID).count(vertex) == 0)
+                    {
+                        perMaterialUniqueVertices.at(materialID)[vertex] = static_cast<int>(submeshVertices.at(materialID).size());
+                        submeshVertices.at(materialID).push_back(vertex);
+                    }
+                    submeshIndices.at(materialID).push_back(perMaterialUniqueVertices.at(materialID).at(vertex));
+                    ++v;
+                }
+                indexOffset += fv;
+                ++f;
+            }
+            ++s;
+        }
+        s = 0;
+        while (s < this->_submeshes.size())
+        {
+            this->_submeshes.at(s).setVertices(submeshVertices.at(s));
+            this->_submeshes.at(s).setIndices(submeshIndices.at(s));
+            ++s;
+        }
 	}
 
 	void Mesh::createBuffers(vk::PhysicalDeviceMemoryProperties memProperties)

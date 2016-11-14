@@ -8,6 +8,7 @@ namespace Dwarf
 	{
         this->createDescriptorSetLayout();
         this->createPipelineLayout();
+        this->createMaterial("default");
 	}
 
 	MaterialManager::~MaterialManager()
@@ -45,6 +46,13 @@ namespace Dwarf
 			return; // TODO: add error handling
 		this->_materials[material->getID()] = material;
 	}
+
+    Material *MaterialManager::getMaterial(const std::string &materialName) const
+    {
+        if (this->exist(materialName))
+            return (this->_materials.at(this->_materialsNames.at(materialName)));
+        return (nullptr);
+    }
 
     Material *MaterialManager::createMaterial(const std::string &materialName)
     {

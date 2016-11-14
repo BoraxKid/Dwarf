@@ -16,6 +16,7 @@ namespace Dwarf
         bool exist(const Material::ID materialID) const;
         bool exist(const std::string &materialName) const;
 		void addMaterial(Material *material);
+        Material *getMaterial(const std::string &materialName) const;
         Material *createMaterial(const std::string &materialName);
 
 	private:
