@@ -66,7 +66,7 @@ namespace Dwarf
 		this->updateViewMatrix();
 	}
 
-	glm::mat4 Camera::getMVP() const
+	const glm::mat4 &Camera::getMVP() const
 	{
 		return (this->_mvp);
 	}

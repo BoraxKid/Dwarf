@@ -16,7 +16,7 @@ namespace Dwarf
         std::map<const Material::ID, Material *>::iterator iterMaterials = this->_materials.begin();
         std::map<const Material::ID, Material *>::iterator iterMaterials2 = this->_materials.end();
         std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines = this->_pipelines.begin();
-        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines2 = this->_pipelines.begin();
+        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines2 = this->_pipelines.end();
 
         while (iterMaterials != iterMaterials2)
         {
@@ -28,7 +28,11 @@ namespace Dwarf
             this->_device.destroyPipeline(iterPipelines->second, CUSTOM_ALLOCATOR);
             ++iterPipelines;
         }
-	}
+
+        this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
+        this->_device.destroyDescriptorPool(this->_descriptorPool, CUSTOM_ALLOCATOR);
+        this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
+    }
 
 	bool MaterialManager::exist(const Material::ID materialID) const
 	{
@@ -56,21 +60,41 @@ namespace Dwarf
 
     Material *MaterialManager::createMaterial(const std::string &materialName)
     {
-        ++this->_lastID;
-        this->createMaterialPipeline(this->_lastID);
-        this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_lastID);
         if (this->_materialsNames.find(materialName) != this->_materialsNames.end())
-            this->_materialsNames[materialName + "_"] = this->_lastID;
+            return (this->_materials.at(this->_materialsNames.at(materialName)));
         else
+        {
+            ++this->_lastID;
+            this->createMaterialPipeline(this->_lastID);
+            this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID);
             this->_materialsNames[materialName] = this->_lastID;
-        return (this->_materials.at(this->_lastID));
+            return (this->_materials.at(this->_lastID));
+        }
+    }
+
+    void MaterialManager::createDescriptorPool()
+    {
+        uint32_t descriptorCount = static_cast<uint32_t>(this->_materials.size());
+        std::vector<vk::DescriptorPoolSize> poolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
+        vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
+        this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
+
+        vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, 1, &this->_descriptorSetLayout);
+        std::map<const Material::ID, Material *>::const_iterator iter = this->_materials.begin();
+        std::map<const Material::ID, Material *>::const_iterator iterEnd = this->_materials.end();
+        while (iter != iterEnd)
+        {
+            this->_descriptorSets[iter->first] = this->_device.allocateDescriptorSets(allocInfo).at(0);
+            iter->second->setDescriptorSet(this->_descriptorSets[iter->first]);
+            ++iter;
+        }
     }
 
     void MaterialManager::createDescriptorSetLayout()
     {
         std::vector<vk::DescriptorSetLayoutBinding> bindings =
         {
-            vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex),
+            vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment),
             vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment)
         };
         vk::DescriptorSetLayoutCreateInfo layoutInfo(vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(bindings.size()), bindings.data());

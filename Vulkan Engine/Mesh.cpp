@@ -13,8 +13,13 @@ namespace Dwarf
 
 	Mesh::~Mesh()
 	{
-		this->_device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
+        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
+        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
+        while (iter != iterEnd)
+        {
+            iter->cleanup(this->_device);
+            ++iter;
+        }
 	}
 
 	void Mesh::loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename)
@@ -76,6 +81,7 @@ namespace Dwarf
 			material = nullptr;
 			++iter;
 		}
+
 		Vertex vertex;
         size_t s = 0;
         size_t indexOffset;
@@ -127,79 +133,44 @@ namespace Dwarf
 
 	void Mesh::createBuffers(vk::PhysicalDeviceMemoryProperties memProperties)
 	{
-		vk::DeviceSize vertexBufferSize = sizeof(Vertex) * this->_vertices.size();
-		vk::DeviceSize indexBufferSize = sizeof(uint32_t) * this->_indices.size();
-		vk::DeviceSize uniformBufferSize = sizeof(UniformBufferObject);
-		vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), vertexBufferSize, vk::BufferUsageFlagBits::eVertexBuffer);
-		vk::Buffer vertexBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-		bufferInfo.setSize(indexBufferSize);
-		bufferInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer);
-		vk::Buffer indexBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-		bufferInfo.setSize(uniformBufferSize);
-		bufferInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
-		vk::Buffer uniformBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
+        vk::CommandBufferAllocateInfo cmbBufferAllocInfo(this->_commandPool, vk::CommandBufferLevel::eSecondary, static_cast<uint32_t>(this->_submeshes.size()));
+        std::vector<vk::CommandBuffer> commandBuffers = this->_device.allocateCommandBuffers(cmbBufferAllocInfo);
 
-		vk::MemoryRequirements memRequirements[3];
-		memRequirements[0] = this->_device.getBufferMemoryRequirements(vertexBuffer);
-		memRequirements[1] = this->_device.getBufferMemoryRequirements(indexBuffer);
-		memRequirements[2] = this->_device.getBufferMemoryRequirements(uniformBuffer);
-		this->_vertexBufferOffset = 0;
-		this->_indexBufferOffset = memRequirements[0].size + (memRequirements[1].alignment - (memRequirements[0].size % memRequirements[1].alignment));
-		this->_uniformBufferOffset = (this->_indexBufferOffset + memRequirements[1].size) + (memRequirements[2].size - ((this->_indexBufferOffset + memRequirements[1].size) % memRequirements[2].alignment));
-		bufferInfo.setSize(this->_uniformBufferOffset + memRequirements[2].size);
-		bufferInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-		vk::Buffer stagingBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-		uint32_t memTypes = memRequirements[0].memoryTypeBits & memRequirements[1].memoryTypeBits & memRequirements[2].memoryTypeBits;
-		vk::MemoryAllocateInfo allocInfo(bufferInfo.size, Tools::getMemoryType(memProperties, memTypes, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
-		vk::DeviceMemory stagingBufferMemory = this->_device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
-		this->_device.bindBufferMemory(stagingBuffer, stagingBufferMemory, 0);
-		void *data = this->_device.mapMemory(stagingBufferMemory, this->_vertexBufferOffset, memRequirements[0].size);
-		memcpy(data, this->_vertices.data(), static_cast<size_t>(vertexBufferSize));
-		this->_device.unmapMemory(stagingBufferMemory);
-		data = this->_device.mapMemory(stagingBufferMemory, this->_indexBufferOffset, memRequirements[1].size);
-		memcpy(data, this->_indices.data(), static_cast<size_t>(indexBufferSize));
-		this->_device.unmapMemory(stagingBufferMemory);
-		bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), this->_uniformBufferOffset + uniformBufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eUniformBuffer);
-		this->_buffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-		memRequirements[0] = this->_device.getBufferMemoryRequirements(this->_buffer);
-		allocInfo = vk::MemoryAllocateInfo(memRequirements[0].size, Tools::getMemoryType(memProperties, memRequirements[0].memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
-		if (this->_buffersMemory != (vk::DeviceMemory)VK_NULL_HANDLE)
-			this->_device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
-		this->_buffersMemory = this->_device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
-		this->_device.bindBufferMemory(this->_buffer, this->_buffersMemory, 0);
-		vk::CommandBuffer commandBuffer = Tools::beginSingleTimeCommands(this->_device, this->_commandPool);
-		commandBuffer.copyBuffer(stagingBuffer, this->_buffer, vk::BufferCopy(0, 0, this->_uniformBufferOffset + uniformBufferSize));
-		Tools::endSingleTimeCommands(this->_device, this->_graphicsQueue, this->_commandPool, commandBuffer);
-
-		this->_device.freeMemory(stagingBufferMemory, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(stagingBuffer, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(uniformBuffer, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(indexBuffer, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(vertexBuffer, CUSTOM_ALLOCATOR);
+        size_t i = 0;
+        while (i != this->_submeshes.size())
+        {
+            this->_submeshes.at(i).createBuffers(this->_device, this->_commandPool, this->_graphicsQueue, memProperties);
+            this->_submeshes.at(i).setCommandBuffer(commandBuffers.at(i));
+            ++i;
+        }
 	}
 
-	vk::Buffer Mesh::getBuffer() const
-	{
-		return (this->_buffer);
-	}
+    void Mesh::buildCommandBuffers(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp)
+    {
+        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
+        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
 
-	size_t Mesh::getIndicesCount() const
-	{
-		return (this->_indices.size());
-	}
+        while (iter != iterEnd)
+        {
+            iter->buildCommandBuffer(inheritanceInfo, mvp);
+            ++iter;
+        }
+    }
 
-	vk::DeviceSize Mesh::getVertexBufferOffset() const
-	{
-		return (this->_vertexBufferOffset);
-	}
+    std::vector<vk::CommandBuffer> Mesh::getCommandBuffers()
+    {
+        std::vector<vk::CommandBuffer> commandBuffers;
+        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
+        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
+        vk::CommandBuffer tempCommandBuffer;
 
-	vk::DeviceSize Mesh::getIndexBufferOffset() const
-	{
-		return (this->_indexBufferOffset);
-	}
-
-	vk::DeviceSize Mesh::getUniformBufferOffset() const
-	{
-		return (this->_uniformBufferOffset);
-	}
+        while (iter != iterEnd)
+        {
+            tempCommandBuffer = iter->getCommandBuffer();
+            if (tempCommandBuffer)
+                commandBuffers.push_back(tempCommandBuffer);
+            ++iter;
+        }
+        return (commandBuffers);
+    }
 }

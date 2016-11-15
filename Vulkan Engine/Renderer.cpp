@@ -14,21 +14,19 @@ namespace Dwarf
 		this->createSwapChain();
 		this->createImageViews();
 		this->createRenderPass();
-		this->createDescriptorSetLayout();
-		this->createGraphicsPipeline();
 		this->createCommandPool();
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createUniformBuffer();
         this->_materialManager = new MaterialManager(this->_device, this->_commandPool, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/CamaroSS.obj", "textures/CamaroSS.png"));
+		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/sportsCar.obj"));
 		//this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/geosphere.obj", "textures/furyroad.jpg"));
-		this->createDescriptorPool();
+        this->_materialManager->createDescriptorPool();
 		std::vector<Model *>::iterator iterModels = this->_models.begin();
 		std::vector<Model *>::iterator iterModels2 = this->_models.end();
 		while (iterModels != iterModels2)
 		{
-			(*iterModels)->init(this->_physicalDevice.getMemoryProperties(), this->_descriptorPool, this->_descriptorSetLayout);
+			(*iterModels)->init(this->_physicalDevice.getMemoryProperties());
 			++iterModels;
 		}
 		this->createCommandBuffers();
@@ -45,11 +43,11 @@ namespace Dwarf
 			delete (*iterModels);
 			++iterModels;
 		}
+        delete (this->_materialManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
 		if (!this->_commandBuffers.empty())
 			this->_device.freeCommandBuffers(this->_commandPool, this->_commandBuffers);
-		this->_device.destroyDescriptorPool(this->_descriptorPool, CUSTOM_ALLOCATOR);
 		this->_device.freeMemory(this->_uniformBufferMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyBuffer(this->_uniformBuffer, CUSTOM_ALLOCATOR);
 		this->_device.freeMemory(this->_uniformStagingBufferMemory, CUSTOM_ALLOCATOR);
@@ -58,9 +56,6 @@ namespace Dwarf
 		this->_device.freeMemory(this->_depthImageMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyImage(this->_depthImage, CUSTOM_ALLOCATOR);
 		this->_device.destroyCommandPool(this->_commandPool, CUSTOM_ALLOCATOR);
-		this->_device.destroyPipeline(this->_graphicsPipeline, CUSTOM_ALLOCATOR);
-		this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
-		this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
 		this->_device.destroyRenderPass(this->_renderPass, CUSTOM_ALLOCATOR);
 		std::vector<vk::Framebuffer>::iterator iterFramebuffers = this->_swapChainFramebuffers.begin();
 		std::vector<vk::Framebuffer>::iterator iterFramebuffers2 = this->_swapChainFramebuffers.end();
@@ -293,50 +288,6 @@ namespace Dwarf
 		this->_renderPass = this->_device.createRenderPass(renderPassInfo, CUSTOM_ALLOCATOR);
 	}
 
-	void Renderer::createDescriptorSetLayout()
-	{
-		vk::DescriptorSetLayoutBinding uboLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-		vk::DescriptorSetLayoutBinding samplerLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-		std::array<vk::DescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		vk::DescriptorSetLayoutCreateInfo layoutInfo(vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(bindings.size()), bindings.data());
-		if (this->_descriptorSetLayout != (vk::DescriptorSetLayout)VK_NULL_HANDLE)
-			this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
-		this->_descriptorSetLayout = this->_device.createDescriptorSetLayout(layoutInfo, CUSTOM_ALLOCATOR);
-		vk::PushConstantRange pushConstantInfo(vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4));
-		vk::PipelineLayoutCreateInfo pipelineLayoutInfo(vk::PipelineLayoutCreateFlags(), 1, &this->_descriptorSetLayout, 1, &pushConstantInfo);
-		if (this->_pipelineLayout != (vk::PipelineLayout)VK_NULL_HANDLE)
-			this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
-		this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);
-	}
-
-	void Renderer::createGraphicsPipeline()
-	{
-		std::vector<char> vertShaderCode = Tools::readFile("shaders/vert.spv");
-		std::vector<char> fragShaderCode = Tools::readFile("shaders/frag.spv");
-		vk::ShaderModule vertShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), vertShaderCode.size(), reinterpret_cast<uint32_t *>(vertShaderCode.data())), CUSTOM_ALLOCATOR);
-		vk::ShaderModule fragShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), fragShaderCode.size(), reinterpret_cast<uint32_t *>(fragShaderCode.data())), CUSTOM_ALLOCATOR);
-		vk::PipelineShaderStageCreateInfo shaderStages[] = { vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertShaderModule, "main"), vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragShaderModule, "main") };
-		vk::VertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
-		std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions = Vertex::getAttributeDescriptions();
-		vk::PipelineVertexInputStateCreateInfo vertexInputInfo(vk::PipelineVertexInputStateCreateFlags(), 1, &bindingDescription, static_cast<uint32_t>(attributeDescriptions.size()), attributeDescriptions.data());
-		vk::PipelineInputAssemblyStateCreateInfo inputAssembly(vk::PipelineInputAssemblyStateCreateFlags(), vk::PrimitiveTopology::eTriangleList, VK_FALSE);
-		vk::Viewport viewport(0.0f, 0.0f, static_cast<float>(this->_swapChainExtent.width), static_cast<float>(this->_swapChainExtent.height), 0.0f, 1.0f);
-		vk::Rect2D scissor(vk::Offset2D(), this->_swapChainExtent);
-		vk::PipelineViewportStateCreateInfo viewportState(vk::PipelineViewportStateCreateFlags(), 1, &viewport, 1, &scissor);
-		vk::PipelineRasterizationStateCreateInfo rasterizer(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eFront, vk::FrontFace::eCounterClockwise, VK_FALSE, 0.0f, 0.0f, 0.0f, 1.0f);
-		vk::PipelineMultisampleStateCreateInfo multisampling(vk::PipelineMultisampleStateCreateFlags(), vk::SampleCountFlagBits::e1, VK_FALSE, 1.0f, nullptr, VK_FALSE, VK_FALSE);
-		vk::PipelineDepthStencilStateCreateInfo depthStencil(vk::PipelineDepthStencilStateCreateFlags(), VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
-		vk::PipelineColorBlendAttachmentState colorBlendAttachment(VK_FALSE, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-		vk::PipelineColorBlendStateCreateInfo colorBlending(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment);
-		vk::GraphicsPipelineCreateInfo pipelineInfo(vk::PipelineCreateFlags(), 2, shaderStages, &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, this->_pipelineLayout, this->_renderPass, 0, VK_NULL_HANDLE, -1);
-		
-		if (this->_graphicsPipeline != (vk::Pipeline)VK_NULL_HANDLE)
-			this->_device.destroyPipeline(this->_graphicsPipeline, CUSTOM_ALLOCATOR);
-		this->_graphicsPipeline = this->_device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo, CUSTOM_ALLOCATOR);
-		this->_device.destroyShaderModule(vertShaderModule, CUSTOM_ALLOCATOR);
-		this->_device.destroyShaderModule(fragShaderModule, CUSTOM_ALLOCATOR);
-	}
-
 	void Renderer::createCommandPool()
 	{
 		Renderer::QueueFamilyIndices queueFamilyIndices = this->findQueueFamilies(this->_physicalDevice);
@@ -393,14 +344,6 @@ namespace Dwarf
 		this->createBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_uniformBuffer, this->_uniformBufferMemory);
 	}
 
-	void Renderer::createDescriptorPool()
-	{
-		uint32_t descriptorCount = static_cast<uint32_t>(this->_models.size());
-		std::array<vk::DescriptorPoolSize, 2> poolSizes = {	vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
-		vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
-		this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
-	}
-
 	void Renderer::createCommandBuffers()
 	{
 		if (this->_commandBuffers.size() == this->_swapChainFramebuffers.size())
@@ -446,8 +389,8 @@ namespace Dwarf
 			iter->beginRenderPass(renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 			while (iterModels != iterModels2)
 			{
-				(*iterModels)->buildCommandBuffer(inheritanceInfo, this->_graphicsPipeline, this->_pipelineLayout, this->_camera.getMVP());
-				iter->executeCommands((*iterModels)->getCommandBuffer());
+				(*iterModels)->buildCommandBuffers(inheritanceInfo, this->_camera.getMVP());
+				iter->executeCommands((*iterModels)->getCommandBuffers());
 				++iterModels;
 			}
 			iter->endRenderPass();
@@ -665,26 +608,13 @@ namespace Dwarf
 		Tools::endSingleTimeCommands(this->_device, this->_graphicsQueue, this->_commandPool, commandBuffer);
 	}
 
-	void Renderer::updatePushConstants(vk::CommandBuffer &commandBuffer)
-	{
-		static auto startTime = std::chrono::high_resolution_clock::now();
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
-
-		glm::mat4 pushConstant = glm::perspective(glm::radians(45.0f), static_cast<float>(this->_swapChainExtent.width) / static_cast<float>(this->_swapChainExtent.height), 0.1f, 10.0f);
-		pushConstant[1][1] *= -1.0f;
-		pushConstant *= glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		pushConstant *= glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		commandBuffer.pushConstants<glm::mat4>(this->_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, pushConstant);
-	}
-
 	void Renderer::recreateSwapChain()
 	{
 		this->_device.waitIdle();
 		this->createSwapChain();
 		this->createImageViews();
 		this->createRenderPass();
-		this->createGraphicsPipeline();
+        // TODO: Re create pipelines
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createCommandBuffers();

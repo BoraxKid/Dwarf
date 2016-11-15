@@ -22,7 +22,7 @@ namespace Dwarf
 		void translate(glm::vec3 delta);
 		void rotate(glm::vec3 delta);
 		void setRotation(glm::vec3 rotation);
-		glm::mat4 getMVP() const;
+		const glm::mat4 &getMVP() const;
 
 		bool _left;
 		bool _right;

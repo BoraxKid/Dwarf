@@ -91,14 +91,33 @@ namespace Dwarf
 	bool operator==(const Value &lhs, const Value &rhs);
 	bool operator!=(const Value &lhs, const Value &rhs);
 
+    struct MaterialUniformBuffer
+    {
+        glm::vec4 Ka; // ambient
+        glm::vec4 Kd; // diffuse
+        glm::vec4 Ks; // specular
+        glm::vec4 Tf; // transmittance
+        glm::vec4 Ke; // emission
+        float Ns; // shininess
+        float Ni; // ior
+        float d; // dissolve
+        int illum; // illum
+    };
+
 	class Material
 	{
 	public:
         typedef int ID;
-		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, ID id);
+		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, ID id);
 		virtual ~Material();
+        void buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset);
 		bool isSame(const Material &material) const;
         ID getID() const;
+        const vk::Pipeline &getPipeline() const;
+        const vk::PipelineLayout &getPipelineLayout() const;
+        const vk::DescriptorSet &getDescriptorSet() const;
+        const MaterialUniformBuffer &getUniformBuffer() const;
+        void setDescriptorSet(vk::DescriptorSet descriptorSet);
 		void setAmbient(Color value);
 		void setDiffuse(Color value);
 		void setSpecular(Color value);
@@ -135,8 +154,10 @@ namespace Dwarf
 		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 		const vk::Pipeline &_pipeline;
+        const vk::PipelineLayout &_pipelineLayout;
 		vk::DescriptorSet _descriptorSet;
         const ID _id;
+        MaterialUniformBuffer _mub;
 		std::map<const MaterialType, Value> _values;
 		std::map<const MaterialType, Texture *> _textures;
 	};

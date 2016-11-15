@@ -2,14 +2,24 @@
 
 namespace Dwarf
 {
-	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, Material::ID id)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _id(id)
+	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, Material::ID id)
+		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _pipelineLayout(pipelineLayout), _id(id)
 	{
+        this->init();
 	}
 
 	Material::~Material()
 	{
 	}
+
+    void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset)
+    {
+        //vk::DescriptorImageInfo &imageInfo = this->_texture->createTexture(memProperties, descriptorPool, descriptorSetLayout);
+
+        vk::DescriptorBufferInfo bufferInfo(buffer, uniformBufferOffset, sizeof(MaterialUniformBuffer));
+        std::vector<vk::WriteDescriptorSet> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo)/*, vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo)*/ };
+        this->_device.updateDescriptorSets(descriptorWrites, nullptr);
+    }
 
 	bool Material::isSame(const Material &material) const
 	{
@@ -23,49 +33,83 @@ namespace Dwarf
         return (this->_id);
     }
 
+    const vk::Pipeline &Material::getPipeline() const
+    {
+        return (this->_pipeline);
+    }
+
+    const vk::PipelineLayout &Material::getPipelineLayout() const
+    {
+        return (this->_pipelineLayout);
+    }
+
+    const vk::DescriptorSet &Material::getDescriptorSet() const
+    {
+        return (this->_descriptorSet);
+    }
+
+    const MaterialUniformBuffer &Material::getUniformBuffer() const
+    {
+        return (this->_mub);
+    }
+
+    void Material::setDescriptorSet(vk::DescriptorSet descriptorSet)
+    {
+        this->_descriptorSet = descriptorSet;
+    }
+
 	void Material::setAmbient(Color value)
 	{
 		this->_values[AMBIENT].value.c = value;
+        this->_mub.Ka = value.getColor();
 	}
 
 	void Material::setDiffuse(Color value)
 	{
 		this->_values[DIFFUSE].value.c = value;
+        this->_mub.Kd = value.getColor();
 	}
 
 	void Material::setSpecular(Color value)
 	{
 		this->_values[SPECULAR].value.c = value;
+        this->_mub.Ks = value.getColor();
 	}
 
 	void Material::setTransmittance(Color value)
 	{
 		this->_values[TRANSMITTANCE].value.c = value;
+        this->_mub.Tf = value.getColor();
 	}
 
 	void Material::setEmission(Color value)
 	{
 		this->_values[EMISSION].value.c = value;
+        this->_mub.Ke = value.getColor();
 	}
 
 	void Material::setShininess(float value)
 	{
 		this->_values[SHININESS].value.f = value;
+        this->_mub.Ns = value;
 	}
 
 	void Material::setIor(float value)
 	{
 		this->_values[IOR].value.f = value;
+        this->_mub.Ni = value;
 	}
 
 	void Material::setDissolve(float value)
 	{
 		this->_values[DISSOLVE].value.f = value;
+        this->_mub.d = value;
 	}
 
 	void Material::setIllum(int value)
 	{
 		this->_values[ILLUM].value.i = value;
+        this->_mub.illum = value;
 	}
 
 	void Material::setRoughness(float value)

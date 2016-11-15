@@ -47,9 +47,13 @@ namespace Dwarf
     public:
         Submesh(Material *material);
         virtual ~Submesh();
+        void cleanup(const vk::Device &device);
+        void createBuffers(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, vk::PhysicalDeviceMemoryProperties memProperties);
+        void buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp);
         void setVertices(const std::vector<Vertex> &vertices);
         void setIndices(const std::vector<uint32_t> &indices);
-        void createBuffers(vk::PhysicalDeviceMemoryProperties memProperties);
+        void setCommandBuffer(vk::CommandBuffer commandBuffer);
+        vk::CommandBuffer getCommandBuffer() const;
 
     private:
         Material *_material;
@@ -60,6 +64,7 @@ namespace Dwarf
         vk::DeviceSize _vertexBufferOffset;
         vk::DeviceSize _indexBufferOffset;
         vk::DeviceSize _uniformBufferOffset;
+        vk::CommandBuffer _commandBuffer;
     };
 }
 

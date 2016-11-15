@@ -30,7 +30,7 @@ const std::vector<const char *> gDeviceExtensions = {
 #ifdef _DEBUG
 const bool gEnableValidationLayers = true;
 #else
-const bool gEnableValidationLayers = false;
+const bool gEnableValidationLayers = true;
 #endif
 
 /// \namespace Dwarf
@@ -94,10 +94,6 @@ namespace Dwarf
 		void createImageViews();
 		/// \brief Create the render pass
 		void createRenderPass();
-		/// \brief Create the descriptor set layout
-		void createDescriptorSetLayout();
-		/// \brief Create a graphics pipeline
-		void createGraphicsPipeline();
 		/// \brief Create the command pool
 		void createCommandPool();
 		/// \brief Create the depth image
@@ -107,8 +103,6 @@ namespace Dwarf
 		/// \brief Create a uniform buffer
 		/// \todo remove
 		void createUniformBuffer();
-		/// \brief Create the descriptor pool
-		void createDescriptorPool();
 		/// \brief Create the command buffers
 		void createCommandBuffers();
 		/// \brief Build and execute command buffers
@@ -132,7 +126,6 @@ namespace Dwarf
 		
 		void createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
 		void copyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
-		void updatePushConstants(vk::CommandBuffer &commandBuffer);
 		void recreateSwapChain();
 
 		static void onWindowResized(GLFWwindow *window, int width, int height);
@@ -165,10 +158,10 @@ namespace Dwarf
 		std::vector<vk::Framebuffer> _swapChainFramebuffers;
 
 		vk::RenderPass _renderPass;
-		vk::DescriptorSetLayout _descriptorSetLayout;
-		vk::PipelineLayout _pipelineLayout;
+		//vk::DescriptorSetLayout _descriptorSetLayout;
+		//vk::PipelineLayout _pipelineLayout;
 
-		vk::Pipeline _graphicsPipeline;
+		//vk::Pipeline _graphicsPipeline;
 
 		vk::CommandPool _commandPool;
 
@@ -181,7 +174,7 @@ namespace Dwarf
 		vk::Buffer _uniformBuffer;
 		vk::DeviceMemory _uniformBufferMemory;
 
-		vk::DescriptorPool _descriptorPool;
+		//vk::DescriptorPool _descriptorPool;
 
 		std::vector<vk::CommandBuffer> _commandBuffers;
 

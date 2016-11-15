@@ -28,12 +28,8 @@ namespace Dwarf
 
 		void loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename);
 		void createBuffers(vk::PhysicalDeviceMemoryProperties memProperties);
-
-		vk::Buffer getBuffer() const;
-		size_t getIndicesCount() const;
-		vk::DeviceSize getVertexBufferOffset() const;
-		vk::DeviceSize getIndexBufferOffset() const;
-		vk::DeviceSize getUniformBufferOffset() const;
+        void buildCommandBuffers(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp);
+        std::vector<vk::CommandBuffer> getCommandBuffers();
 
 	private:
 		const vk::Device &_device;
@@ -41,12 +37,6 @@ namespace Dwarf
 		const vk::Queue &_graphicsQueue;
 
         std::vector<Submesh> _submeshes;
-
-		vk::DeviceMemory _buffersMemory;
-		vk::Buffer _buffer;
-		vk::DeviceSize _vertexBufferOffset;
-		vk::DeviceSize _indexBufferOffset;
-		vk::DeviceSize _uniformBufferOffset;
 	};
 }
 

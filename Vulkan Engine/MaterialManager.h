@@ -18,6 +18,7 @@ namespace Dwarf
 		void addMaterial(Material *material);
         Material *getMaterial(const std::string &materialName) const;
         Material *createMaterial(const std::string &materialName);
+        void createDescriptorPool();
 
 	private:
         void createDescriptorSetLayout();
@@ -32,10 +33,12 @@ namespace Dwarf
         const vk::Extent2D &_swapChainExtent;
         vk::DescriptorSetLayout _descriptorSetLayout;
         vk::PipelineLayout _pipelineLayout;
+        vk::DescriptorPool _descriptorPool;
         Material::ID _lastID;
         std::map<const std::string, Material::ID> _materialsNames;
         std::map<const Material::ID, Material *> _materials;
         std::map<const Material::ID, vk::Pipeline> _pipelines;
+        std::map<const Material::ID, vk::DescriptorSet> _descriptorSets;
 	};
 }
 
