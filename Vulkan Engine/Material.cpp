@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, Material::ID id, const std::string &name)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _pipelineLayout(pipelineLayout), _id(id), _name(name)
+	Material::Material(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, Material::ID id, const std::string &name)
+		: _device(device), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _pipelineLayout(pipelineLayout), _id(id), _name(name)
 	{
         this->init();
 	}
@@ -56,6 +56,11 @@ namespace Dwarf
     const MaterialUniformBuffer &Material::getUniformBuffer() const
     {
         return (this->_mub);
+    }
+
+    void Material::setCommandPool(vk::CommandPool *commandPool)
+    {
+        this->_commandPool = commandPool;
     }
 
     void Material::setDescriptorSet(vk::DescriptorSet descriptorSet)

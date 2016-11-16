@@ -108,7 +108,7 @@ namespace Dwarf
 	{
 	public:
         typedef int ID;
-		Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, ID id, const std::string &name);
+		Material(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, ID id, const std::string &name);
 		virtual ~Material();
         void buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset);
 		bool isSame(const Material &material) const;
@@ -118,6 +118,7 @@ namespace Dwarf
         const vk::PipelineLayout &getPipelineLayout() const;
         const vk::DescriptorSet &getDescriptorSet() const;
         const MaterialUniformBuffer &getUniformBuffer() const;
+        void setCommandPool(vk::CommandPool *commandPool);
         void setDescriptorSet(vk::DescriptorSet descriptorSet);
 		void setAmbient(Color value);
 		void setDiffuse(Color value);
@@ -152,10 +153,10 @@ namespace Dwarf
 		void init();
 
 		const vk::Device &_device;
-		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 		const vk::Pipeline &_pipeline;
         const vk::PipelineLayout &_pipelineLayout;
+        vk::CommandPool *_commandPool;
 		vk::DescriptorSet _descriptorSet;
         const ID _id;
         const std::string _name;

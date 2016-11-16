@@ -11,17 +11,17 @@ namespace Dwarf
 	class Texture
 	{
 	public:
-		Texture(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal);
+		Texture(const vk::Device &device, vk::CommandPool *commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal);
 		virtual ~Texture();
 
 		vk::DescriptorImageInfo &createTexture(vk::PhysicalDeviceMemoryProperties memProperties, vk::DescriptorPool &descriptorPool, vk::DescriptorSetLayout &descriptorSetLayout);
 
 	private:
 		const vk::Device &_device;
-		const vk::CommandPool &_commandPool;
 		const vk::Queue &_graphicsQueue;
 		const std::string _textureName;
 
+        vk::CommandPool *_commandPool;
 		vk::DeviceMemory _textureImageMemory;
 		vk::Sampler _textureSampler;
 		vk::Image _textureImage;

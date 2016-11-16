@@ -5,8 +5,8 @@
 
 namespace Dwarf
 {
-	Mesh::Mesh(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, Dwarf::MaterialManager &materialManager, const std::string &meshFilename)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue)
+	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename)
+		: _device(device)
 	{
 		this->loadFromFile(materialManager, meshFilename);
 	}
@@ -17,7 +17,8 @@ namespace Dwarf
         std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
         while (iter != iterEnd)
         {
-            iter->cleanup(this->_device);
+            if (iter->getVerticesCount() != 0 && iter->getIndicesCount() != 0)
+                iter->cleanup(this->_device);
             ++iter;
         }
 	}
@@ -107,6 +108,10 @@ namespace Dwarf
                     i = shapes.at(s).mesh.indices.at(indexOffset + v);
                     vertex = Vertex();
                     vertex.pos = glm::vec3(attrib.vertices.at(3 * i.vertex_index + 0), attrib.vertices.at(3 * i.vertex_index + 1), attrib.vertices.at(3 * i.vertex_index + 2));
+                    if (!attrib.normals.empty())
+                    {
+                        vertex.normal = glm::vec3(attrib.normals.at(3 * i.normal_index + 0), attrib.normals.at(3 * i.normal_index + 1), attrib.normals.at(3 * i.normal_index + 2));
+                    }
                     if (!attrib.texcoords.empty())
                         vertex.uv = glm::vec2(attrib.texcoords.at(2 * i.texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * i.texcoord_index + 1));
                     if (perMaterialUniqueVertices.at(materialID).count(vertex) == 0)
@@ -131,46 +136,17 @@ namespace Dwarf
         }
 	}
 
-	void Mesh::createBuffers(vk::PhysicalDeviceMemoryProperties memProperties)
-	{
-        vk::CommandBufferAllocateInfo cmbBufferAllocInfo(this->_commandPool, vk::CommandBufferLevel::eSecondary, static_cast<uint32_t>(this->_submeshes.size()));
-        std::vector<vk::CommandBuffer> commandBuffers = this->_device.allocateCommandBuffers(cmbBufferAllocInfo);
-
-        size_t i = 0;
-        while (i != this->_submeshes.size())
-        {
-            this->_submeshes.at(i).createBuffers(this->_device, this->_commandPool, this->_graphicsQueue, memProperties);
-            this->_submeshes.at(i).setCommandBuffer(commandBuffers.at(i));
-            ++i;
-        }
-	}
-
-    void Mesh::buildCommandBuffers(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp)
+    std::vector<IBuildable *> Mesh::getBuildables()
     {
+        std::vector<IBuildable *> buildables;
         std::vector<Submesh>::iterator iter = this->_submeshes.begin();
         std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
-
         while (iter != iterEnd)
         {
-            iter->buildCommandBuffer(inheritanceInfo, mvp);
+            if (iter->getVerticesCount() != 0 && iter->getIndicesCount() != 0)
+                buildables.push_back(&(*iter));
             ++iter;
         }
-    }
-
-    std::vector<vk::CommandBuffer> Mesh::getCommandBuffers()
-    {
-        std::vector<vk::CommandBuffer> commandBuffers;
-        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
-        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
-        vk::CommandBuffer tempCommandBuffer;
-
-        while (iter != iterEnd)
-        {
-            tempCommandBuffer = iter->getCommandBuffer();
-            if (tempCommandBuffer)
-                commandBuffers.push_back(tempCommandBuffer);
-            ++iter;
-        }
-        return (commandBuffers);
+        return (buildables);
     }
 }

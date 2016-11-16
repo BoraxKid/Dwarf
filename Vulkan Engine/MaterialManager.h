@@ -11,7 +11,7 @@ namespace Dwarf
 	class MaterialManager
 	{
 	public:
-		MaterialManager(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent);
+		MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent);
 		virtual ~MaterialManager();
         bool exist(const Material::ID materialID) const;
         bool exist(const std::string &materialName) const;
@@ -27,7 +27,6 @@ namespace Dwarf
 		bool isSame(const Material::ID &leftMaterialID, Material *rightMaterial) const;
 
         const vk::Device &_device;
-        const vk::CommandPool &_commandPool;
         const vk::Queue &_graphicsQueue;
         const vk::RenderPass &_renderPass;
         const vk::Extent2D &_swapChainExtent;

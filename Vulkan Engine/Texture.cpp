@@ -5,7 +5,7 @@
 
 namespace Dwarf
 {
-	Texture::Texture(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout)
+	Texture::Texture(const vk::Device &device, vk::CommandPool *commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout)
 		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _textureName(textureName), _textureImageLayout(imageLayout)
 	{
 	}
@@ -37,10 +37,10 @@ namespace Dwarf
 		this->_device.unmapMemory(stagingImageMemory);
 		stbi_image_free(pixels);
 		Tools::createImage(this->_device, memProperties, this->_width, this->_height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_textureImage, this->_textureImageMemory);
-		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPool, stagingImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferSrcOptimal);
-		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPool, this->_textureImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferDstOptimal);
-		Tools::copyImage(this->_device, this->_graphicsQueue, this->_commandPool, stagingImage, this->_textureImage, this->_width, this->_height);
-		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPool, this->_textureImage, vk::ImageLayout::eTransferDstOptimal, this->_textureImageLayout);
+		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, *this->_commandPool, stagingImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferSrcOptimal);
+		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, *this->_commandPool, this->_textureImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferDstOptimal);
+		Tools::copyImage(this->_device, this->_graphicsQueue, *this->_commandPool, stagingImage, this->_textureImage, this->_width, this->_height);
+		Tools::transitionImageLayout(this->_device, this->_graphicsQueue, *this->_commandPool, this->_textureImage, vk::ImageLayout::eTransferDstOptimal, this->_textureImageLayout);
 		this->_device.freeMemory(stagingImageMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyImage(stagingImage, CUSTOM_ALLOCATOR);
 		Tools::createImageView(this->_device, this->_textureImage, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, this->_textureImageView);

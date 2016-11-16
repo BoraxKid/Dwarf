@@ -5,7 +5,10 @@ namespace Dwarf
 	Renderer::Renderer(int width, int height, const std::string &title)
 		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f)
 	{
-		this->createWindow(width, height, title);
+        this->_numThreads = std::thread::hardware_concurrency();
+        this->_threadPool.setThreadCount(this->_numThreads);
+        this->_commandBufferBuilder = new CommandBufferBuilder(this->_device, this->_renderPass, this->_swapChainFramebuffers, this->_swapChainExtent, this->_threadPool, this->_numThreads);
+        this->createWindow(width, height, title);
 		this->createInstance();
 		this->setupDebugCallback();
 		this->createSurface();
@@ -18,15 +21,16 @@ namespace Dwarf
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createUniformBuffer();
-        this->_materialManager = new MaterialManager(this->_device, this->_commandPool, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-		this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/sportsCar.obj"));
-		//this->_models.push_back(new Model(this->_device, this->_commandPool, this->_graphicsQueue, *this->_materialManager, "models/geosphere.obj", "textures/furyroad.jpg"));
+        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/CamaroSS.obj"));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/geosphere.obj"));
         this->_materialManager->createDescriptorPool();
-		std::vector<Model *>::iterator iterModels = this->_models.begin();
-		std::vector<Model *>::iterator iterModels2 = this->_models.end();
+
+		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
+		std::vector<Mesh *>::iterator iterModels2 = this->_models.end();
 		while (iterModels != iterModels2)
 		{
-			(*iterModels)->init(this->_physicalDevice.getMemoryProperties());
+            this->_commandBufferBuilder->addBuildables((*iterModels)->getBuildables());
 			++iterModels;
 		}
 		this->createCommandBuffers();
@@ -36,13 +40,14 @@ namespace Dwarf
 
 	Renderer::~Renderer()
 	{
-		std::vector<Model *>::iterator iterModels = this->_models.begin();
-		std::vector<Model *>::iterator iterModels2 = this->_models.end();
+		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
+		std::vector<Mesh *>::iterator iterModels2 = this->_models.end();
 		while (iterModels != iterModels2)
 		{
 			delete (*iterModels);
 			++iterModels;
 		}
+        delete (this->_commandBufferBuilder);
         delete (this->_materialManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
@@ -296,6 +301,7 @@ namespace Dwarf
 		if (this->_commandPool != (vk::CommandPool)VK_NULL_HANDLE)
 			this->_device.destroyCommandPool(this->_commandPool, CUSTOM_ALLOCATOR);
 		this->_commandPool = this->_device.createCommandPool(poolInfo, CUSTOM_ALLOCATOR);
+        this->_commandBufferBuilder->createCommandPools(queueFamilyIndices.graphicsFamily);
 	}
 
 	void Renderer::createDepthResources()
@@ -366,12 +372,14 @@ namespace Dwarf
 			vk::CommandBufferAllocateInfo allocInfo(this->_commandPool, vk::CommandBufferLevel::ePrimary, static_cast<uint32_t>(this->_commandBuffers.size()));
 			this->_commandBuffers = this->_device.allocateCommandBuffers(allocInfo);
 		}
+        this->_commandBufferBuilder->createCommandBuffers(this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
 		this->buildCommandBuffers();
 	}
 
 	void Renderer::buildCommandBuffers()
 	{
-		vk::CommandBufferBeginInfo beginInfo;
+        this->_commandBufferBuilder->buildCommandBuffers(this->_commandBuffers, this->_camera.getMVP());
+		/*vk::CommandBufferBeginInfo beginInfo;
 		std::array<vk::ClearValue, 2> clearValues = { vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f})), vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0)) };
 		vk::RenderPassBeginInfo renderPassInfo(this->_renderPass, vk::Framebuffer(), vk::Rect2D(vk::Offset2D(0, 0), this->_swapChainExtent), static_cast<uint32_t>(clearValues.size()), clearValues.data());
 		vk::CommandBufferInheritanceInfo inheritanceInfo(this->_renderPass);
@@ -397,7 +405,7 @@ namespace Dwarf
 			iter->endRenderPass();
 			iter->end();
 			++iter;
-		}
+		}*/
 	}
 
 	void Renderer::createSemaphores()
@@ -409,7 +417,7 @@ namespace Dwarf
 
 	void Renderer::drawFrame()
 	{
-		vk::ResultValue<uint32_t> imageIndex = this->_device.acquireNextImageKHR(this->_swapChain, std::numeric_limits<uint64_t>::max(), this->_imageAvailableSemaphore, VK_NULL_HANDLE);
+        vk::ResultValue<uint32_t> imageIndex = this->_device.acquireNextImageKHR(this->_swapChain, std::numeric_limits<uint64_t>::max(), this->_imageAvailableSemaphore, VK_NULL_HANDLE);
 		if (imageIndex.result == vk::Result::eErrorOutOfDateKHR)
 		{
 			this->recreateSwapChain();
@@ -541,8 +549,8 @@ namespace Dwarf
 
 		while (iter != iter2)
 		{
-			if (*iter == vk::PresentModeKHR::eMailbox)
-				return (*iter);
+            if (*iter == vk::PresentModeKHR::eMailbox)
+                return (*iter);
 			++iter;
 		}
 		return (vk::PresentModeKHR::eFifo);

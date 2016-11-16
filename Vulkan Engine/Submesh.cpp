@@ -17,7 +17,7 @@ namespace Dwarf
         device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
     }
 
-    void Submesh::createBuffers(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, vk::PhysicalDeviceMemoryProperties memProperties)
+    void Submesh::createBuffers(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &memProperties)
     {
         vk::DeviceSize vertexBufferSize = sizeof(Vertex) * this->_vertices.size();
         vk::DeviceSize indexBufferSize = sizeof(uint32_t) * this->_indices.size();
@@ -77,9 +77,9 @@ namespace Dwarf
             device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
         this->_buffersMemory = device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
         device.bindBufferMemory(this->_buffer, this->_buffersMemory, 0);
-        vk::CommandBuffer commandBuffer = Tools::beginSingleTimeCommands(device, commandPool);
+        vk::CommandBuffer commandBuffer = Tools::beginSingleTimeCommands(device, *this->_commandPool);
         commandBuffer.copyBuffer(stagingBuffer, this->_buffer, vk::BufferCopy(0, 0, this->_uniformBufferOffset + uniformBufferSize));
-        Tools::endSingleTimeCommands(device, graphicsQueue, commandPool, commandBuffer);
+        Tools::endSingleTimeCommands(device, graphicsQueue, *this->_commandPool, commandBuffer);
 
         device.freeMemory(stagingBufferMemory, CUSTOM_ALLOCATOR);
         device.destroyBuffer(stagingBuffer, CUSTOM_ALLOCATOR);
@@ -88,12 +88,9 @@ namespace Dwarf
         device.destroyBuffer(vertexBuffer, CUSTOM_ALLOCATOR);
 
         this->_material->buildDescriptorSet(this->_buffer, this->_uniformBufferOffset);
-
-        vk::CommandBufferAllocateInfo cmbBufferAllocInfo(commandPool, vk::CommandBufferLevel::eSecondary, 1);
-        this->_commandBuffer = device.allocateCommandBuffers(cmbBufferAllocInfo).at(0);
     }
 
-    void Submesh::buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp)
+    void Submesh::buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp) const
     {
         this->_commandBuffer.reset(vk::CommandBufferResetFlags());
         vk::CommandBufferBeginInfo beginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue | vk::CommandBufferUsageFlagBits::eSimultaneousUse, &inheritanceInfo);
@@ -111,6 +108,17 @@ namespace Dwarf
         this->_commandBuffer.end();
     }
 
+    void Submesh::setCommandPool(vk::CommandPool *commandPool)
+    {
+        this->_commandPool = commandPool;
+        this->_material->setCommandPool(commandPool);
+    }
+
+    void Submesh::setCommandBuffer(vk::CommandBuffer commandBuffer)
+    {
+        this->_commandBuffer = commandBuffer;
+    }
+
     void Submesh::setVertices(const std::vector<Vertex> &vertices)
     {
         this->_vertices = vertices;
@@ -121,9 +129,14 @@ namespace Dwarf
         this->_indices = indices;
     }
 
-    void Submesh::setCommandBuffer(vk::CommandBuffer commandBuffer)
+    size_t Submesh::getVerticesCount() const
     {
-        this->_commandBuffer = commandBuffer;
+        return (this->_vertices.size());
+    }
+
+    size_t Submesh::getIndicesCount() const
+    {
+        return (this->_indices.size());
     }
 
     vk::CommandBuffer Submesh::getCommandBuffer() const

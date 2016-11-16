@@ -3,8 +3,8 @@
 
 namespace Dwarf
 {
-	MaterialManager::MaterialManager(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent)
-        : _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _renderPass(renderPass), _swapChainExtent(swapChainExtent), _lastID(0)
+	MaterialManager::MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent)
+        : _device(device), _graphicsQueue(graphicsQueue), _renderPass(renderPass), _swapChainExtent(swapChainExtent), _lastID(0)
 	{
         this->createDescriptorSetLayout();
         this->createPipelineLayout();
@@ -66,7 +66,7 @@ namespace Dwarf
         {
             ++this->_lastID;
             this->createMaterialPipeline(this->_lastID);
-            this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID, materialName);
+            this->_materials[this->_lastID] = new Material(this->_device, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID, materialName);
             this->_materialsNames[materialName] = this->_lastID;
             return (this->_materials.at(this->_lastID));
         }
@@ -114,8 +114,8 @@ namespace Dwarf
 
     void MaterialManager::createMaterialPipeline(const Material::ID materialID)
     {
-        std::vector<char> vertShaderCode = Tools::readFile("shaders/vert.spv");
-        std::vector<char> fragShaderCode = Tools::readFile("shaders/frag.spv");
+        std::vector<char> vertShaderCode = Tools::readFile("shaders/material.vert.spv");
+        std::vector<char> fragShaderCode = Tools::readFile("shaders/material.frag.spv");
         vk::ShaderModule vertShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), vertShaderCode.size(), reinterpret_cast<uint32_t *>(vertShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::ShaderModule fragShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), fragShaderCode.size(), reinterpret_cast<uint32_t *>(fragShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::PipelineShaderStageCreateInfo shaderStages[] = { vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertShaderModule, "main"), vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragShaderModule, "main") };

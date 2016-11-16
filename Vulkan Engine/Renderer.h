@@ -16,8 +16,9 @@
 #include <GLFW/glfw3.h>
 
 #include "Tools.h"
-#include "Model.h"
+#include "Mesh.h"
 #include "Camera.h"
+#include "CommandBufferBuilder.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -30,7 +31,7 @@ const std::vector<const char *> gDeviceExtensions = {
 #ifdef _DEBUG
 const bool gEnableValidationLayers = true;
 #else
-const bool gEnableValidationLayers = true;
+const bool gEnableValidationLayers = false;
 #endif
 
 /// \namespace Dwarf
@@ -158,10 +159,6 @@ namespace Dwarf
 		std::vector<vk::Framebuffer> _swapChainFramebuffers;
 
 		vk::RenderPass _renderPass;
-		//vk::DescriptorSetLayout _descriptorSetLayout;
-		//vk::PipelineLayout _pipelineLayout;
-
-		//vk::Pipeline _graphicsPipeline;
 
 		vk::CommandPool _commandPool;
 
@@ -174,8 +171,6 @@ namespace Dwarf
 		vk::Buffer _uniformBuffer;
 		vk::DeviceMemory _uniformBufferMemory;
 
-		//vk::DescriptorPool _descriptorPool;
-
 		std::vector<vk::CommandBuffer> _commandBuffers;
 
 		vk::Semaphore _imageAvailableSemaphore;
@@ -185,7 +180,10 @@ namespace Dwarf
 		glm::vec2 _mousePos;
 
         MaterialManager *_materialManager;
-		std::vector<Model *> _models;
+		std::vector<Mesh *> _models;
+        ThreadPool _threadPool;
+        CommandBufferBuilder *_commandBufferBuilder;
+        uint32_t _numThreads;
 	};
 }
 
