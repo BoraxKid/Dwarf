@@ -66,7 +66,7 @@ namespace Dwarf
         {
             ++this->_lastID;
             this->createMaterialPipeline(this->_lastID);
-            this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID);
+            this->_materials[this->_lastID] = new Material(this->_device, this->_commandPool, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID, materialName);
             this->_materialsNames[materialName] = this->_lastID;
             return (this->_materials.at(this->_lastID));
         }
@@ -126,7 +126,7 @@ namespace Dwarf
         vk::Viewport viewport(0.0f, 0.0f, static_cast<float>(this->_swapChainExtent.width), static_cast<float>(this->_swapChainExtent.height), 0.0f, 1.0f);
         vk::Rect2D scissor(vk::Offset2D(), this->_swapChainExtent);
         vk::PipelineViewportStateCreateInfo viewportState(vk::PipelineViewportStateCreateFlags(), 1, &viewport, 1, &scissor);
-        vk::PipelineRasterizationStateCreateInfo rasterizer(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eFront, vk::FrontFace::eCounterClockwise, VK_FALSE, 0.0f, 0.0f, 0.0f, 1.0f);
+        vk::PipelineRasterizationStateCreateInfo rasterizer(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, vk::PolygonMode::eLine, vk::CullModeFlagBits::eFront, vk::FrontFace::eCounterClockwise, VK_FALSE, 0.0f, 0.0f, 0.0f, 1.0f);
         vk::PipelineMultisampleStateCreateInfo multisampling(vk::PipelineMultisampleStateCreateFlags(), vk::SampleCountFlagBits::e1, VK_FALSE, 1.0f, nullptr, VK_FALSE, VK_FALSE);
         vk::PipelineDepthStencilStateCreateInfo depthStencil(vk::PipelineDepthStencilStateCreateFlags(), VK_TRUE, VK_TRUE, vk::CompareOp::eLess);
         vk::PipelineColorBlendAttachmentState colorBlendAttachment(VK_FALSE, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);

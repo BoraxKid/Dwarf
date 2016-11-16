@@ -23,5 +23,5 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	outColor = vec4(ubo.Ks.rgb, ubo.d);
+	outColor = ubo.Kd * 1.5;
 }

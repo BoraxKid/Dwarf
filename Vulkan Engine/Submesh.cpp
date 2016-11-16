@@ -50,18 +50,25 @@ namespace Dwarf
         vk::DeviceMemory stagingBufferMemory = device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
 
         device.bindBufferMemory(stagingBuffer, stagingBufferMemory, 0);
-        void *data = device.mapMemory(stagingBufferMemory, this->_vertexBufferOffset, memRequirements[0].size);
-        memcpy(data, this->_vertices.data(), static_cast<size_t>(vertexBufferSize));
-        device.unmapMemory(stagingBufferMemory);
-
-        data = device.mapMemory(stagingBufferMemory, this->_indexBufferOffset, memRequirements[1].size);
-        memcpy(data, this->_indices.data(), static_cast<size_t>(indexBufferSize));
-        device.unmapMemory(stagingBufferMemory);
-
-        data = device.mapMemory(stagingBufferMemory, this->_uniformBufferOffset, memRequirements[2].size);
-        memcpy(data, &this->_material->getUniformBuffer(), static_cast<size_t>(uniformBufferSize));
-        device.unmapMemory(stagingBufferMemory);
-
+        void *data;
+        if (memRequirements[0].size > 0)
+        {
+            data = device.mapMemory(stagingBufferMemory, this->_vertexBufferOffset, memRequirements[0].size);
+            memcpy(data, this->_vertices.data(), static_cast<size_t>(vertexBufferSize));
+            device.unmapMemory(stagingBufferMemory);
+        }
+        if (memRequirements[1].size > 0)
+        {
+            data = device.mapMemory(stagingBufferMemory, this->_indexBufferOffset, memRequirements[1].size);
+            memcpy(data, this->_indices.data(), static_cast<size_t>(indexBufferSize));
+            device.unmapMemory(stagingBufferMemory);
+        }
+        if (memRequirements[2].size > 0)
+        {
+            data = device.mapMemory(stagingBufferMemory, this->_uniformBufferOffset, memRequirements[2].size);
+            memcpy(data, &this->_material->getUniformBuffer(), static_cast<size_t>(uniformBufferSize));
+            device.unmapMemory(stagingBufferMemory);
+        }
         bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), this->_uniformBufferOffset + uniformBufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eUniformBuffer);
         this->_buffer = device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
         memRequirements[0] = device.getBufferMemoryRequirements(this->_buffer);

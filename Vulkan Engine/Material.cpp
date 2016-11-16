@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, Material::ID id)
-		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _pipelineLayout(pipelineLayout), _id(id)
+	Material::Material(const vk::Device &device, const vk::CommandPool &commandPool, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, Material::ID id, const std::string &name)
+		: _device(device), _commandPool(commandPool), _graphicsQueue(graphicsQueue), _pipeline(pipeline), _pipelineLayout(pipelineLayout), _id(id), _name(name)
 	{
         this->init();
 	}
@@ -31,6 +31,11 @@ namespace Dwarf
     Material::ID Material::getID() const
     {
         return (this->_id);
+    }
+
+    const std::string &Material::getName() const
+    {
+        return (this->_name);
     }
 
     const vk::Pipeline &Material::getPipeline() const

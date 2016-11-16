@@ -212,6 +212,7 @@ namespace Dwarf
 			++iter;
 		}
 		vk::PhysicalDeviceFeatures deviceFeatures;
+        deviceFeatures.fillModeNonSolid = VK_TRUE;
 		vk::DeviceCreateInfo createInfo(vk::DeviceCreateFlags(), static_cast<uint32_t>(queueCreateInfos.size()), queueCreateInfos.data(), 0, nullptr, static_cast<uint32_t>(gDeviceExtensions.size()), gDeviceExtensions.data(), &deviceFeatures);
 		if (gEnableValidationLayers)
 		{
