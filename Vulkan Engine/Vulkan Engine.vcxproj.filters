@@ -152,5 +152,8 @@
     <Object Include="models\sportsCar.obj">
       <Filter>Fichiers de ressources\models</Filter>
     </Object>
+    <Object Include="models\bouleMagique.obj">
+      <Filter>Fichiers de ressources\models</Filter>
+    </Object>
   </ItemGroup>
 </Project>

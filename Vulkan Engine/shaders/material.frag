@@ -3,8 +3,9 @@
 
 layout(location = 0) in vec3 inFragColor;
 layout(location = 1) in vec2 inFragTextureCoord;
+layout(location = 2) in vec3 inDiffuseReflection;
 
-layout (set = 0, binding = 0) uniform UBO 
+layout (binding = 0) uniform UBO 
 {
 	vec4 Ka; // ambient
 	vec4 Kd; // diffuse
@@ -23,5 +24,5 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	outColor = ubo.Kd * 1.5;
+	outColor = vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
 }
