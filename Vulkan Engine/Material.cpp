@@ -12,12 +12,19 @@ namespace Dwarf
 	{
 	}
 
-    void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset)
+    void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties)
     {
         //vk::DescriptorImageInfo &imageInfo = this->_texture->createTexture(memProperties, descriptorPool, descriptorSetLayout);
 
         vk::DescriptorBufferInfo bufferInfo(buffer, uniformBufferOffset, sizeof(MaterialUniformBuffer));
         std::vector<vk::WriteDescriptorSet> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo)/*, vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo)*/ };
+        std::map<const MaterialType, Texture *>::iterator iter = this->_textures.begin();
+        std::map<const MaterialType, Texture *>::iterator iter2 = this->_textures.end();
+        while (iter != iter2)
+        {
+            descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &iter->second->createTexture(memProperties)));
+            ++iter;
+        }
         this->_device.updateDescriptorSets(descriptorWrites, nullptr);
     }
 
@@ -61,6 +68,13 @@ namespace Dwarf
     void Material::setCommandPool(vk::CommandPool *commandPool)
     {
         this->_commandPool = commandPool;
+        std::map<const MaterialType, Texture *>::iterator iter = this->_textures.begin();
+        std::map<const MaterialType, Texture *>::iterator iter2 = this->_textures.end();
+        while (iter != iter2)
+        {
+            iter->second->setCommandPool(commandPool);
+            ++iter;
+        }
     }
 
     void Material::setDescriptorSet(vk::DescriptorSet descriptorSet)

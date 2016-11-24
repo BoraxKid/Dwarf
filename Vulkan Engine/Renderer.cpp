@@ -20,10 +20,9 @@ namespace Dwarf
 		this->createCommandPool();
 		this->createDepthResources();
 		this->createFramebuffers();
-		this->createUniformBuffer();
         this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/sportsCar2.obj"));
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/bouleMagique.obj"));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/lost_empire.obj"));
+        //this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/sphere.obj"));
         this->_materialManager->createDescriptorPool();
 
 		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
@@ -53,10 +52,6 @@ namespace Dwarf
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
 		if (!this->_commandBuffers.empty())
 			this->_device.freeCommandBuffers(this->_commandPool, this->_commandBuffers);
-		this->_device.freeMemory(this->_uniformBufferMemory, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(this->_uniformBuffer, CUSTOM_ALLOCATOR);
-		this->_device.freeMemory(this->_uniformStagingBufferMemory, CUSTOM_ALLOCATOR);
-		this->_device.destroyBuffer(this->_uniformStagingBuffer, CUSTOM_ALLOCATOR);
 		this->_device.destroyImageView(this->_depthImageView, CUSTOM_ALLOCATOR);
 		this->_device.freeMemory(this->_depthImageMemory, CUSTOM_ALLOCATOR);
 		this->_device.destroyImage(this->_depthImage, CUSTOM_ALLOCATOR);
@@ -344,13 +339,6 @@ namespace Dwarf
 		}
 	}
 
-	void Renderer::createUniformBuffer()
-	{
-		vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
-		this->createBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, this->_uniformStagingBuffer, this->_uniformStagingBufferMemory);
-		this->createBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_uniformBuffer, this->_uniformBufferMemory);
-	}
-
 	void Renderer::createCommandBuffers()
 	{
 		if (this->_commandBuffers.size() == this->_swapChainFramebuffers.size())
@@ -623,7 +611,7 @@ namespace Dwarf
 		this->createSwapChain();
 		this->createImageViews();
 		this->createRenderPass();
-        // TODO: Re create pipelines
+        this->_materialManager->recreatePipelines();
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createCommandBuffers();
@@ -641,7 +629,7 @@ namespace Dwarf
 	{
 		glm::vec2 cursor(x, y);
 		Renderer *renderer = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(window));
-		renderer->getCamera()->rotate(glm::vec3((renderer->_mousePos.y - cursor.y), -(renderer->_mousePos.x - cursor.x), 0.0f));
+		renderer->getCamera()->rotate(glm::vec3((renderer->_mousePos.y - cursor.y), (renderer->_mousePos.x - cursor.x), 0.0f));
 		renderer->_mousePos = cursor;
 	}
 
@@ -652,14 +640,16 @@ namespace Dwarf
 
 		if (action == GLFW_PRESS)
 		{
-			if (scancode == 32)
-				camera->_left = true;
-			else if (scancode == 30)
-				camera->_right = true;
-			else if (scancode == 17)
-				camera->_up = true;
-			else if (scancode == 31)
-				camera->_down = true;
+            if (scancode == 32)
+                camera->_left = true;
+            else if (scancode == 30)
+                camera->_right = true;
+            else if (scancode == 17)
+                camera->_up = true;
+            else if (scancode == 31)
+                camera->_down = true;
+            else if (scancode == 42)
+                camera->setCameraSpeed(10.0f);
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -671,6 +661,8 @@ namespace Dwarf
 				camera->_up = false;
 			else if (scancode == 31)
 				camera->_down = false;
+            else if (scancode == 42)
+                camera->setCameraSpeed(1.0f);
 		}
 	}
 

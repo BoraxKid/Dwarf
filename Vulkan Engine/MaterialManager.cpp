@@ -74,7 +74,7 @@ namespace Dwarf
 
     void MaterialManager::createDescriptorPool()
     {
-        uint32_t descriptorCount = static_cast<uint32_t>(this->_materials.size());
+        uint32_t descriptorCount = static_cast<uint32_t>(this->_materials.size()) * 2;
         std::vector<vk::DescriptorPoolSize> poolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
         vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
         this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
@@ -86,6 +86,18 @@ namespace Dwarf
         {
             this->_descriptorSets[iter->first] = this->_device.allocateDescriptorSets(allocInfo).at(0);
             iter->second->setDescriptorSet(this->_descriptorSets[iter->first]);
+            ++iter;
+        }
+    }
+
+    void MaterialManager::recreatePipelines()
+    {
+        std::map<const Material::ID, vk::Pipeline>::iterator iter = this->_pipelines.begin();
+        std::map<const Material::ID, vk::Pipeline>::iterator iter2 = this->_pipelines.end();
+
+        while (iter != iter2)
+        {
+            this->createMaterialPipeline(iter->first);
             ++iter;
         }
     }
@@ -116,16 +128,8 @@ namespace Dwarf
     {
         std::vector<char> vertShaderCode;
         std::vector<char> fragShaderCode;
-        if (materialID == 1)
-        {
-            vertShaderCode = Tools::readFile("shaders/shader.vert.spv");
-            fragShaderCode = Tools::readFile("shaders/shader.frag.spv");
-        }
-        else
-        {
-            vertShaderCode = Tools::readFile("shaders/material.vert.spv");
-            fragShaderCode = Tools::readFile("shaders/material.frag.spv");
-        }
+        vertShaderCode = Tools::readFile("shaders/material.vert.spv");
+        fragShaderCode = Tools::readFile("shaders/material.frag.spv");
         vk::ShaderModule vertShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), vertShaderCode.size(), reinterpret_cast<uint32_t *>(vertShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::ShaderModule fragShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), fragShaderCode.size(), reinterpret_cast<uint32_t *>(fragShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::PipelineShaderStageCreateInfo shaderStages[] = { vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertShaderModule, "main"), vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragShaderModule, "main") };

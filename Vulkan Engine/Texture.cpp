@@ -18,12 +18,12 @@ namespace Dwarf
 		this->_device.destroyImage(this->_textureImage, CUSTOM_ALLOCATOR);
 	}
 
-	vk::DescriptorImageInfo &Texture::createTexture(vk::PhysicalDeviceMemoryProperties memProperties, vk::DescriptorPool &descriptorPool, vk::DescriptorSetLayout &descriptorSetLayout)
+	vk::DescriptorImageInfo &Texture::createTexture(vk::PhysicalDeviceMemoryProperties memProperties)
 	{
 		int textureWidth;
 		int textureHeight;
 		int textureChannels;
-		stbi_uc *pixels = stbi_load(this->_textureName.c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+		stbi_uc *pixels = stbi_load(std::string("textures/" + this->_textureName).c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
 		if (!pixels)
 			Tools::exitOnError("Failed to load texture " + this->_textureName + "file");
 		this->_width = static_cast<uint32_t>(textureWidth);
@@ -50,4 +50,9 @@ namespace Dwarf
 		this->_imageInfo = vk::DescriptorImageInfo(this->_textureSampler, this->_textureImageView, this->_textureImageLayout);
 		return (this->_imageInfo);
 	}
+
+    void Texture::setCommandPool(vk::CommandPool *commandPool)
+    {
+        this->_commandPool = commandPool;
+    }
 }

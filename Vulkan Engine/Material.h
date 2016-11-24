@@ -110,7 +110,7 @@ namespace Dwarf
         typedef int ID;
 		Material(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::Pipeline &pipeline, const vk::PipelineLayout &pipelineLayout, ID id, const std::string &name);
 		virtual ~Material();
-        void buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset);
+        void buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties);
 		bool isSame(const Material &material) const;
         ID getID() const;
         const std::string &getName() const;

@@ -70,6 +70,8 @@ namespace Dwarf
             device.unmapMemory(stagingBufferMemory);
         }
         bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), this->_uniformBufferOffset + uniformBufferSize, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eUniformBuffer);
+        if (this->_buffer)
+            device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
         this->_buffer = device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
         memRequirements[0] = device.getBufferMemoryRequirements(this->_buffer);
         allocInfo = vk::MemoryAllocateInfo(memRequirements[0].size, Tools::getMemoryType(memProperties, memRequirements[0].memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
@@ -87,16 +89,16 @@ namespace Dwarf
         device.destroyBuffer(indexBuffer, CUSTOM_ALLOCATOR);
         device.destroyBuffer(vertexBuffer, CUSTOM_ALLOCATOR);
 
-        this->_material->buildDescriptorSet(this->_buffer, this->_uniformBufferOffset);
+        this->_material->buildDescriptorSet(this->_buffer, this->_uniformBufferOffset, memProperties);
     }
 
-    void Submesh::buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp) const
+    void Submesh::buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp, const vk::Extent2D &extent) const
     {
         this->_commandBuffer.reset(vk::CommandBufferResetFlags());
         vk::CommandBufferBeginInfo beginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue | vk::CommandBufferUsageFlagBits::eSimultaneousUse, &inheritanceInfo);
         this->_commandBuffer.begin(beginInfo);
-        this->_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f));
-        this->_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), vk::Extent2D(1280, 720)));
+        this->_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f));
+        this->_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), extent));
         this->_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_material->getPipeline());
 
         this->_commandBuffer.pushConstants<glm::mat4>(this->_material->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex, 0, mvp);

@@ -54,11 +54,11 @@ namespace Dwarf
 			material->setClearcoatRoughness(iter->clearcoat_roughness);
 			material->setAnisotropy(iter->anisotropy);
 			material->setAnisotropyRotation(iter->anisotropy_rotation);
-			if (!iter->ambient_texname.empty())
-				material->createAmbientTexture(iter->ambient_texname);
+			/*if (!iter->ambient_texname.empty())
+				material->createAmbientTexture(iter->ambient_texname);*/
 			if (!iter->diffuse_texname.empty())
 				material->createDiffuseTexture(iter->diffuse_texname);
-			if (!iter->specular_texname.empty())
+			/*if (!iter->specular_texname.empty())
 				material->createSpecularTexture(iter->specular_texname);
 			if (!iter->specular_highlight_texname.empty())
 				material->createSpecularHighlightTexture(iter->specular_highlight_texname);
@@ -77,7 +77,7 @@ namespace Dwarf
 			if (!iter->emissive_texname.empty())
 				material->createEmissiveTexture(iter->emissive_texname);
 			if (!iter->normal_texname.empty())
-				material->createNormalTexture(iter->normal_texname);
+				material->createNormalTexture(iter->normal_texname);*/
             this->_submeshes.push_back(Submesh(material));
 			material = nullptr;
 			++iter;
@@ -108,7 +108,7 @@ namespace Dwarf
                     i = shapes.at(s).mesh.indices.at(indexOffset + v);
                     vertex = Vertex();
                     vertex.pos = glm::vec3(attrib.vertices.at(3 * i.vertex_index + 0), attrib.vertices.at(3 * i.vertex_index + 1), attrib.vertices.at(3 * i.vertex_index + 2));
-                    if (!attrib.normals.empty())
+                    if (!attrib.normals.empty() && attrib.normals.size() >= 3 * i.normal_index + 2)
                     {
                         vertex.normal = glm::vec3(attrib.normals.at(3 * i.normal_index + 0), attrib.normals.at(3 * i.normal_index + 1), attrib.normals.at(3 * i.normal_index + 2));
                     }

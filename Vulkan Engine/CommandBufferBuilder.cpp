@@ -103,7 +103,7 @@ namespace Dwarf
                 iterBuildablesEnd = iterOrdered->end();
                 while (iterBuildables != iterBuildablesEnd)
                 {
-                    this->_threadPool.addJobThread(static_cast<uint32_t>(iterOrdered - this->_orderedBuildables.begin()), std::bind(&IBuildable::buildCommandBuffer, *iterBuildables, inheritanceInfo, mvp));
+                    this->_threadPool.addJobThread(static_cast<uint32_t>(iterOrdered - this->_orderedBuildables.begin()), std::bind(&IBuildable::buildCommandBuffer, *iterBuildables, inheritanceInfo, mvp, this->_swapChainExtent));
                     //(*iterBuildables)->buildCommandBuffer(inheritanceInfo, mvp);
                     ++iterBuildables;
                 }

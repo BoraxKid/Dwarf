@@ -22,6 +22,7 @@ namespace Dwarf
 		void translate(glm::vec3 delta);
 		void rotate(glm::vec3 delta);
 		void setRotation(glm::vec3 rotation);
+        void setCameraSpeed(float movementSpeed);
 		const glm::mat4 &getMVP() const;
 
 		bool _left;

@@ -19,6 +19,7 @@ namespace Dwarf
         Material *getMaterial(const std::string &materialName) const;
         Material *createMaterial(const std::string &materialName);
         void createDescriptorPool();
+        void recreatePipelines();
 
 	private:
         void createDescriptorSetLayout();

@@ -44,7 +44,7 @@ namespace Dwarf
         virtual ~Submesh();
         void cleanup(const vk::Device &device);
         virtual void createBuffers(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &memProperties);
-        virtual void buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp) const;
+        virtual void buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp, const vk::Extent2D &extent) const;
         virtual void setCommandPool(vk::CommandPool *commandPool);
         virtual void setCommandBuffer(vk::CommandBuffer commandBuffer);
         void setVertices(const std::vector<Vertex> &vertices);

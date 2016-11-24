@@ -44,7 +44,7 @@ namespace Dwarf
 
 	void Camera::rotate(glm::vec3 delta)
 	{
-		this->_rotation += delta;
+		this->_rotation += delta * 0.5f;
 		//if (this->_rotation.x <= 10.0f)
 		//	this->_rotation.x = 10.0f;
 		//else if (this->_rotation.x >= 260.0f)
@@ -65,6 +65,11 @@ namespace Dwarf
 		this->_rotation = rotation;
 		this->updateViewMatrix();
 	}
+
+    void Camera::setCameraSpeed(float movementSpeed)
+    {
+        this->_movementSpeed = movementSpeed;
+    }
 
 	const glm::mat4 &Camera::getMVP() const
 	{

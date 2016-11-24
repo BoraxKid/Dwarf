@@ -166,11 +166,6 @@ namespace Dwarf
 		vk::DeviceMemory _depthImageMemory;
 		vk::ImageView _depthImageView;
 
-		vk::Buffer _uniformStagingBuffer;
-		vk::DeviceMemory _uniformStagingBufferMemory;
-		vk::Buffer _uniformBuffer;
-		vk::DeviceMemory _uniformBufferMemory;
-
 		std::vector<vk::CommandBuffer> _commandBuffers;
 
 		vk::Semaphore _imageAvailableSemaphore;
