@@ -21,7 +21,7 @@ namespace Dwarf
 		this->createDepthResources();
 		this->createFramebuffers();
         this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/lost_empire.obj"));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/CamaroSS.obj"));
         //this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/sphere.obj"));
         this->_materialManager->createDescriptorPool();
 
