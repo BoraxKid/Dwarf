@@ -24,5 +24,5 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	outColor = texture(textureSampler, inFragTextureCoord) * vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
+	outColor = /*texture(textureSampler, inFragTextureCoord) * */vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
 }

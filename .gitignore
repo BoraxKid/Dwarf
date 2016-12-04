@@ -249,11 +249,3 @@ include/
 
 # logs
 logs/
-
-materials/
-textures/
-models/
-*.mtl
-*.obj
-*.png
-*.jpg
