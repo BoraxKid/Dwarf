@@ -1,6 +1,6 @@
-C:/Libraries/VulkanSDK/1.0.30.0/Bin/glslangValidator.exe -V shader.vert -o shader.vert.spv
-C:/Libraries/VulkanSDK/1.0.30.0/Bin/glslangValidator.exe -V shader.frag -o shader.frag.spv
-C:/Libraries/VulkanSDK/1.0.30.0/Bin/glslangValidator.exe -V material.vert -o material.vert.spv
-C:/Libraries/VulkanSDK/1.0.30.0/Bin/glslangValidator.exe -V material.frag -o material.frag.spv
+%VULKAN_SDK%/Bin/glslangValidator.exe -V material.vert -o material.vert.spv
+%VULKAN_SDK%/Bin/glslangValidator.exe -V material.frag -o material.frag.spv
+%VULKAN_SDK%/Bin/glslangValidator.exe -V materialTexture.vert -o materialTexture.vert.spv
+%VULKAN_SDK%/Bin/glslangValidator.exe -V materialTexture.frag -o materialTexture.frag.spv
 
 pause

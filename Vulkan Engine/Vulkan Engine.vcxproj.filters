@@ -97,16 +97,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.frag">
-      <Filter>Fichiers de ressources\shaders</Filter>
-    </None>
-    <None Include="shaders\shader.vert">
-      <Filter>Fichiers de ressources\shaders</Filter>
-    </None>
     <None Include="shaders\material.frag">
       <Filter>Fichiers de ressources\shaders</Filter>
     </None>
     <None Include="shaders\material.vert">
+      <Filter>Fichiers de ressources\shaders</Filter>
+    </None>
+    <None Include="shaders\materialTexture.frag">
+      <Filter>Fichiers de ressources\shaders</Filter>
+    </None>
+    <None Include="shaders\materialTexture.vert">
       <Filter>Fichiers de ressources\shaders</Filter>
     </None>
   </ItemGroup>

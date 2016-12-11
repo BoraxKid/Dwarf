@@ -118,6 +118,7 @@ namespace Dwarf
         const vk::PipelineLayout &getPipelineLayout() const;
         const vk::DescriptorSet &getDescriptorSet() const;
         const MaterialUniformBuffer &getUniformBuffer() const;
+        bool hasDiffuseTexture() const;
         void setCommandPool(vk::CommandPool *commandPool);
         void setDescriptorSet(vk::DescriptorSet descriptorSet);
 		void setAmbient(Color value);

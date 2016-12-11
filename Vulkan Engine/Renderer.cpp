@@ -641,9 +641,9 @@ namespace Dwarf
 		if (action == GLFW_PRESS)
 		{
             if (scancode == 32)
-                camera->_left = true;
-            else if (scancode == 30)
                 camera->_right = true;
+            else if (scancode == 30)
+                camera->_left = true;
             else if (scancode == 17)
                 camera->_up = true;
             else if (scancode == 31)
@@ -654,9 +654,9 @@ namespace Dwarf
 		else if (action == GLFW_RELEASE)
 		{
 			if (scancode == 32)
-				camera->_left = false;
-			else if (scancode == 30)
 				camera->_right = false;
+			else if (scancode == 30)
+				camera->_left = false;
 			else if (scancode == 17)
 				camera->_up = false;
 			else if (scancode == 31)

@@ -17,14 +17,14 @@ namespace Dwarf
         bool exist(const std::string &materialName) const;
 		void addMaterial(Material *material);
         Material *getMaterial(const std::string &materialName) const;
-        Material *createMaterial(const std::string &materialName);
+        Material *createMaterial(const std::string &materialName, bool diffuseTexture);
         void createDescriptorPool();
         void recreatePipelines();
 
 	private:
         void createDescriptorSetLayout();
         void createPipelineLayout();
-        void createMaterialPipeline(const Material::ID materialID);
+        void createMaterialPipeline(const Material::ID materialID, bool diffuseTexture);
 		bool isSame(const Material::ID &leftMaterialID, Material *rightMaterial) const;
 
         const vk::Device &_device;

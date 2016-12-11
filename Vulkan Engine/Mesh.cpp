@@ -37,7 +37,7 @@ namespace Dwarf
         this->_submeshes.push_back(Submesh(materialManager.getMaterial("default")));
 		while (iter != iter2)
 		{
-            material = materialManager.createMaterial(iter->name);
+            material = materialManager.createMaterial(iter->name, !iter->diffuse_texname.empty());
 			material->setAmbient(Color(iter->ambient[0], iter->ambient[1], iter->ambient[2]));
 			material->setDiffuse(Color(iter->diffuse[0], iter->diffuse[1], iter->diffuse[2]));
 			material->setSpecular(Color(iter->specular[0], iter->specular[1], iter->specular[2]));

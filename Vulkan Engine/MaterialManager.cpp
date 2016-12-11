@@ -8,7 +8,7 @@ namespace Dwarf
 	{
         this->createDescriptorSetLayout();
         this->createPipelineLayout();
-        this->createMaterial("default");
+        this->createMaterial("default", false);
 	}
 
 	MaterialManager::~MaterialManager()
@@ -58,14 +58,14 @@ namespace Dwarf
         return (nullptr);
     }
 
-    Material *MaterialManager::createMaterial(const std::string &materialName)
+    Material *MaterialManager::createMaterial(const std::string &materialName, bool diffuseTexture)
     {
         if (this->_materialsNames.find(materialName) != this->_materialsNames.end())
             return (this->_materials.at(this->_materialsNames.at(materialName)));
         else
         {
             ++this->_lastID;
-            this->createMaterialPipeline(this->_lastID);
+            this->createMaterialPipeline(this->_lastID, diffuseTexture);
             this->_materials[this->_lastID] = new Material(this->_device, this->_graphicsQueue, this->_pipelines.at(this->_lastID), this->_pipelineLayout, this->_lastID, materialName);
             this->_materialsNames[materialName] = this->_lastID;
             return (this->_materials.at(this->_lastID));
@@ -97,7 +97,7 @@ namespace Dwarf
 
         while (iter != iter2)
         {
-            this->createMaterialPipeline(iter->first);
+            this->createMaterialPipeline(iter->first, this->_materials.at(iter->first)->hasDiffuseTexture());
             ++iter;
         }
     }
@@ -124,12 +124,20 @@ namespace Dwarf
         this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);
     }
 
-    void MaterialManager::createMaterialPipeline(const Material::ID materialID)
+    void MaterialManager::createMaterialPipeline(const Material::ID materialID, bool diffuseTexture)
     {
         std::vector<char> vertShaderCode;
         std::vector<char> fragShaderCode;
-        vertShaderCode = Tools::readFile("shaders/material.vert.spv");
-        fragShaderCode = Tools::readFile("shaders/material.frag.spv");
+        if (diffuseTexture)
+        {
+            vertShaderCode = Tools::readFile("shaders/materialTexture.vert.spv");
+            fragShaderCode = Tools::readFile("shaders/materialTexture.frag.spv");
+        }
+        else
+        {
+            vertShaderCode = Tools::readFile("shaders/material.vert.spv");
+            fragShaderCode = Tools::readFile("shaders/material.frag.spv");
+        }
         vk::ShaderModule vertShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), vertShaderCode.size(), reinterpret_cast<uint32_t *>(vertShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::ShaderModule fragShaderModule = this->_device.createShaderModule(vk::ShaderModuleCreateInfo(vk::ShaderModuleCreateFlags(), fragShaderCode.size(), reinterpret_cast<uint32_t *>(fragShaderCode.data())), CUSTOM_ALLOCATOR);
         vk::PipelineShaderStageCreateInfo shaderStages[] = { vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertShaderModule, "main"), vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragShaderModule, "main") };

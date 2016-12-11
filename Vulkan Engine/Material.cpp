@@ -65,6 +65,11 @@ namespace Dwarf
         return (this->_mub);
     }
 
+    bool Material::hasDiffuseTexture() const
+    {
+        return (this->_textures.find(DIFFUSE) != this->_textures.end());
+    }
+
     void Material::setCommandPool(vk::CommandPool *commandPool)
     {
         this->_commandPool = commandPool;

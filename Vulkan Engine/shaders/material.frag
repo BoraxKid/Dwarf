@@ -18,11 +18,9 @@ layout (binding = 0) uniform UBO
 	int illum; // illum
 } ubo;
 
-layout(binding = 1) uniform sampler2D textureSampler;
-
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-	outColor = /*texture(textureSampler, inFragTextureCoord) * */vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
+	outColor = vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
 }
