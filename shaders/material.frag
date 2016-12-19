@@ -22,5 +22,7 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
+	if (ubo.d < 1.0)
+		discard;
 	outColor = vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
 }
