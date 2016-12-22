@@ -58,11 +58,14 @@ namespace Dwarf
         std::vector<std::vector<IBuildable *>>::iterator iterEnd2 = this->_orderedBuildables.end();
         while (iter2 != iterEnd2)
         {
-            cmdBufferAllocInfo = vk::CommandBufferAllocateInfo(this->_commandPools.at(iter2 - this->_orderedBuildables.begin()), vk::CommandBufferLevel::eSecondary, static_cast<uint32_t>(iter2->size()));
-            commandBuffers = this->_device.allocateCommandBuffers(cmdBufferAllocInfo);
-            i = 0;
             iter = iter2->begin();
             iterEnd = iter2->end();
+            if (iter != iterEnd)
+            {
+                cmdBufferAllocInfo = vk::CommandBufferAllocateInfo(this->_commandPools.at(iter2 - this->_orderedBuildables.begin()), vk::CommandBufferLevel::eSecondary, static_cast<uint32_t>(iter2->size()));
+                commandBuffers = this->_device.allocateCommandBuffers(cmdBufferAllocInfo);
+            }
+            i = 0;
             while (iter != iterEnd)
             {
                 (*iter)->setCommandPool(&this->_commandPools.at(iter2 - this->_orderedBuildables.begin()));

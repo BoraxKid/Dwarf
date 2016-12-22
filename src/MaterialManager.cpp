@@ -28,7 +28,6 @@ namespace Dwarf
             this->_device.destroyPipeline(iterPipelines->second, CUSTOM_ALLOCATOR);
             ++iterPipelines;
         }
-
         this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
         this->_device.destroyDescriptorPool(this->_descriptorPool, CUSTOM_ALLOCATOR);
         this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);

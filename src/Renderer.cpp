@@ -21,10 +21,9 @@ namespace Dwarf
 		this->createDepthResources();
 		this->createFramebuffers();
         this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/sportsCar.obj"));
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "models/sphere.obj"));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj"));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj"));
         this->_materialManager->createDescriptorPool();
-
 		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
 		std::vector<Mesh *>::iterator iterModels2 = this->_models.end();
 		while (iterModels != iterModels2)

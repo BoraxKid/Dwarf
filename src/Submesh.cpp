@@ -31,7 +31,7 @@ namespace Dwarf
         bufferInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
         vk::Buffer uniformBuffer = device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
 
-        vk::MemoryRequirements memRequirements[3];
+        vk::MemoryRequirements memRequirements[4];
         memRequirements[0] = device.getBufferMemoryRequirements(vertexBuffer);
         memRequirements[1] = device.getBufferMemoryRequirements(indexBuffer);
         memRequirements[2] = device.getBufferMemoryRequirements(uniformBuffer);
@@ -44,7 +44,10 @@ namespace Dwarf
         bufferInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
 
         vk::Buffer stagingBuffer = device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-        uint32_t memTypes = memRequirements[0].memoryTypeBits & memRequirements[1].memoryTypeBits & memRequirements[2].memoryTypeBits;
+        memRequirements[3] = device.getBufferMemoryRequirements(stagingBuffer);
+
+        bufferInfo.setSize(memRequirements[3].size);
+        uint32_t memTypes = memRequirements[3].memoryTypeBits;
 
         vk::MemoryAllocateInfo allocInfo(bufferInfo.size, Tools::getMemoryType(memProperties, memTypes, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
         vk::DeviceMemory stagingBufferMemory = device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);

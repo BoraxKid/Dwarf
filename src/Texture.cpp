@@ -23,7 +23,7 @@ namespace Dwarf
 		int textureWidth;
 		int textureHeight;
 		int textureChannels;
-		stbi_uc *pixels = stbi_load(std::string("textures/" + this->_textureName).c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+		stbi_uc *pixels = stbi_load(std::string("resources/textures/" + this->_textureName).c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
 		if (!pixels)
 			Tools::exitOnError("Failed to load texture " + this->_textureName + "file");
 		this->_width = static_cast<uint32_t>(textureWidth);

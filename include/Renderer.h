@@ -31,7 +31,7 @@ const std::vector<const char *> gDeviceExtensions = {
 #ifdef _DEBUG
 const bool gEnableValidationLayers = true;
 #else
-const bool gEnableValidationLayers = false;
+const bool gEnableValidationLayers = true;
 #endif
 
 /// \namespace Dwarf

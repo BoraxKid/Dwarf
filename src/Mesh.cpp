@@ -29,7 +29,7 @@ namespace Dwarf
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string error;
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "materials/"))
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "resources/materials/"))
 			Tools::exitOnError(error);
 		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
 		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
@@ -109,9 +109,7 @@ namespace Dwarf
                     vertex = Vertex();
                     vertex.pos = glm::vec3(attrib.vertices.at(3 * i.vertex_index + 0), attrib.vertices.at(3 * i.vertex_index + 1), attrib.vertices.at(3 * i.vertex_index + 2));
                     if (!attrib.normals.empty() && attrib.normals.size() >= 3 * i.normal_index + 2)
-                    {
                         vertex.normal = glm::vec3(attrib.normals.at(3 * i.normal_index + 0), attrib.normals.at(3 * i.normal_index + 1), attrib.normals.at(3 * i.normal_index + 2));
-                    }
                     if (!attrib.texcoords.empty())
                         vertex.uv = glm::vec2(attrib.texcoords.at(2 * i.texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * i.texcoord_index + 1));
                     if (perMaterialUniqueVertices.at(materialID).count(vertex) == 0)

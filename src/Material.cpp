@@ -10,6 +10,14 @@ namespace Dwarf
 
 	Material::~Material()
 	{
+        std::map<const MaterialType, Texture *>::iterator iterTextures = this->_textures.begin();
+        std::map<const MaterialType, Texture *>::iterator iterTextures2 = this->_textures.end();
+
+        while (iterTextures != iterTextures2)
+        {
+            delete (iterTextures->second);
+            ++iterTextures;
+        }
 	}
 
     void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties)
