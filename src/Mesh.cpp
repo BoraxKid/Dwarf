@@ -6,9 +6,10 @@
 namespace Dwarf
 {
 	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename)
-		: _device(device)
+		: _device(device), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
 	{
 		this->loadFromFile(materialManager, meshFilename);
+        this->updateTransformationMatrix();
 	}
 
 	Mesh::~Mesh()
@@ -34,7 +35,7 @@ namespace Dwarf
 		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
 		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
 		Material *material = nullptr;
-        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default")));
+        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix));
 		while (iter != iter2)
 		{
             material = materialManager.createMaterial(iter->name, !iter->diffuse_texname.empty());
@@ -78,7 +79,7 @@ namespace Dwarf
 				material->createEmissiveTexture(iter->emissive_texname);
 			if (!iter->normal_texname.empty())
 				material->createNormalTexture(iter->normal_texname);*/
-            this->_submeshes.push_back(Submesh(material));
+            this->_submeshes.push_back(Submesh(material, this->_transformationMatrix));
 			material = nullptr;
 			++iter;
 		}
@@ -134,6 +135,37 @@ namespace Dwarf
         }
 	}
 
+    void Mesh::update(const float &elapsedTime)
+    {
+        float speed = 50.0f;
+        if (this->_up)
+            this->_position.x += speed * elapsedTime;
+        if (this->_down)
+            this->_position.x -= speed * elapsedTime;
+        if (this->_left)
+            this->_position.y += speed * elapsedTime;
+        if (this->_right)
+            this->_position.y -= speed * elapsedTime;
+        if (this->_up || this->_down || this->_left || this->_right)
+            this->updateTransformationMatrix();
+    }
+
+    void Mesh::updateTransformationMatrix()
+    {
+        glm::dmat4 scaleM = glm::dmat4();
+        glm::dmat4 rotM = glm::dmat4();
+        glm::dmat4 posM = glm::dmat4();
+
+        scaleM = glm::scale(scaleM, this->_scale);
+        rotM = glm::rotate(rotM, glm::radians(this->_rotation.x), glm::dvec3(1.0, 0.0, 0.0));
+        rotM = glm::rotate(rotM, glm::radians(this->_rotation.y), glm::dvec3(0.0, 1.0, 0.0));
+        rotM = glm::rotate(rotM, glm::radians(this->_rotation.z), glm::dvec3(0.0, 0.0, 1.0));
+        posM = glm::translate(posM, this->_position);
+
+        this->_preciseTransformationMatrix = scaleM * rotM * posM;
+        this->_transformationMatrix = this->_preciseTransformationMatrix;
+    }
+
     std::vector<IBuildable *> Mesh::getBuildables()
     {
         std::vector<IBuildable *> buildables;
@@ -146,5 +178,60 @@ namespace Dwarf
             ++iter;
         }
         return (buildables);
+    }
+
+    void Mesh::setMove(int move)
+    {
+        switch (move)
+        {
+        case 0:
+            this->_up = true;
+            break;
+        case 1:
+            this->_down = true;
+            break;
+        case 2:
+            this->_left = true;
+            break;
+        case 3:
+            this->_right = true;
+            break;
+        case 4:
+            this->_up = false;
+            break;
+        case 5:
+            this->_down = false;
+            break;
+        case 6:
+            this->_left = false;
+            break;
+        case 7:
+            this->_right = false;
+            break;
+        default:
+            break;
+        }
+    }
+
+    void Mesh::setScale(int axis, double value)
+    {
+        if (axis == 0)
+            this->_scale.x += value;
+        else if (axis == 1)
+            this->_scale.y += value;
+        else if (axis == 2)
+            this->_scale.z += value;
+        this->updateTransformationMatrix();
+    }
+
+    void Mesh::setRotation(int axis, double value)
+    {
+        if (axis == 0)
+            this->_rotation.x += value;
+        else if (axis == 1)
+            this->_rotation.y += value;
+        else if (axis == 2)
+            this->_rotation.z += value;
+        this->updateTransformationMatrix();
     }
 }

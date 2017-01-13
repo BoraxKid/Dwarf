@@ -40,7 +40,7 @@ namespace Dwarf
     class Submesh : public IBuildable
     {
     public:
-        Submesh(Material *material);
+        Submesh(Material *material, const glm::mat4 &transformMatrix);
         virtual ~Submesh();
         void cleanup(const vk::Device &device);
         virtual void createBuffers(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &memProperties);
@@ -55,6 +55,7 @@ namespace Dwarf
 
     private:
         Material *_material;
+        const glm::mat4 &_transform;
         vk::CommandPool *_commandPool;
         std::vector<Vertex> _vertices;
         std::vector<uint32_t> _indices;

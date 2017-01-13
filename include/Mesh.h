@@ -27,12 +27,26 @@ namespace Dwarf
 		virtual ~Mesh();
 
 		void loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename);
+        void update(const float &elapsedTime);
+        void updateTransformationMatrix();
         std::vector<IBuildable *> getBuildables();
+        void setMove(int move);
+        void setScale(int axis, double value);
+        void setRotation(int axis, double value);
 
 	private:
 		const vk::Device &_device;
 
         std::vector<Submesh> _submeshes;
+        glm::dvec3 _position;
+        glm::dvec3 _rotation;
+        glm::dvec3 _scale;
+        glm::dmat4 _preciseTransformationMatrix;
+        glm::mat4 _transformationMatrix;
+        bool _left;
+        bool _right;
+        bool _up;
+        bool _down;
 	};
 }
 

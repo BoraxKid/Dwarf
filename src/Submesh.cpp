@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-    Submesh::Submesh(Material *material)
-        : _material(material)
+    Submesh::Submesh(Material *material, const glm::mat4 &transformMatrix)
+        : _material(material), _transform(transformMatrix)
     {
     }
 
@@ -104,7 +104,8 @@ namespace Dwarf
         this->_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), extent));
         this->_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_material->getPipeline());
 
-        this->_commandBuffer.pushConstants<glm::mat4>(this->_material->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex, 0, mvp);
+        glm::mat4 tmp = mvp * this->_transform;
+        this->_commandBuffer.pushConstants<glm::mat4>(this->_material->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex, 0, tmp);
 
         this->_commandBuffer.bindVertexBuffers(0, this->_buffer, this->_vertexBufferOffset);
         this->_commandBuffer.bindIndexBuffer(this->_buffer, this->_indexBufferOffset, vk::IndexType::eUint32);

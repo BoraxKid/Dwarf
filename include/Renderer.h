@@ -135,6 +135,7 @@ namespace Dwarf
 		static vk::Bool32 debugCallback(vk::DebugReportFlagsEXT flags, vk::DebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char *layerPrefix, const char *msg, void *userData);
 
 		Camera *getCamera();
+        Mesh *getModel() { return (this->_models.at(0)); }
 
 		const std::string &_title;
 		GLFWwindow *_window;
