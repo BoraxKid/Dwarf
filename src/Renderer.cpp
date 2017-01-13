@@ -95,7 +95,6 @@ namespace Dwarf
 			glfwPollEvents();
 			start = std::chrono::high_resolution_clock::now();
 			this->_camera.update(frameTimer);
-            this->_models.at(0)->update(frameTimer);
 			this->buildCommandBuffers();
 			this->drawFrame();
 			++frameCounter;
@@ -651,26 +650,26 @@ namespace Dwarf
                 camera->_down = true;
             else if (scancode == 42)
                 camera->setCameraSpeed(10.0f);
-            else if (scancode == 328)
-                model->setMove(0);
-            else if (scancode == 336)
-                model->setMove(1);
-            else if (scancode == 331)
-                model->setMove(2);
-            else if (scancode == 333)
-                model->setMove(3);
-            else if (scancode == 79)
-                model->setScale(0, 0.1);
-            else if (scancode == 80)
-                model->setScale(1, 0.1);
-            else if (scancode == 81)
-                model->setScale(2, 0.1);
-            else if (scancode == 75)
-                model->setRotation(0, 1);
-            else if (scancode == 76)
-                model->setRotation(1, 1);
-            else if (scancode == 77)
-                model->setRotation(2, 1);
+            //else if (scancode == 328)
+            //    model->setMove(0);
+            //else if (scancode == 336)
+            //    model->setMove(1);
+            //else if (scancode == 331)
+            //    model->setMove(2);
+            //else if (scancode == 333)
+            //    model->setMove(3);
+            //else if (scancode == 79)
+            //    model->setScale(0, 0.1);
+            //else if (scancode == 80)
+            //    model->setScale(1, 0.1);
+            //else if (scancode == 81)
+            //    model->setScale(2, 0.1);
+            //else if (scancode == 75)
+            //    model->setRotation(0, 1);
+            //else if (scancode == 76)
+            //    model->setRotation(1, 1);
+            //else if (scancode == 77)
+            //    model->setRotation(2, 1);
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -684,14 +683,14 @@ namespace Dwarf
 				camera->_down = false;
             else if (scancode == 42)
                 camera->setCameraSpeed(1.0f);
-            else if (scancode == 328)
-                model->setMove(4);
-            else if (scancode == 336)
-                model->setMove(5);
-            else if (scancode == 331)
-                model->setMove(6);
-            else if (scancode == 333)
-                model->setMove(7);
+            //else if (scancode == 328)
+            //    model->setMove(4);
+            //else if (scancode == 336)
+            //    model->setMove(5);
+            //else if (scancode == 331)
+            //    model->setMove(6);
+            //else if (scancode == 333)
+            //    model->setMove(7);
 		}
 	}
 

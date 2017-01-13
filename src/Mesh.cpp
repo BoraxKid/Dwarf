@@ -135,34 +135,9 @@ namespace Dwarf
         }
 	}
 
-    void Mesh::update(const float &elapsedTime)
-    {
-        float speed = 50.0f;
-        if (this->_up)
-            this->_position.x += speed * elapsedTime;
-        if (this->_down)
-            this->_position.x -= speed * elapsedTime;
-        if (this->_left)
-            this->_position.y += speed * elapsedTime;
-        if (this->_right)
-            this->_position.y -= speed * elapsedTime;
-        if (this->_up || this->_down || this->_left || this->_right)
-            this->updateTransformationMatrix();
-    }
-
     void Mesh::updateTransformationMatrix()
     {
-        glm::dmat4 scaleM = glm::dmat4();
-        glm::dmat4 rotM = glm::dmat4();
-        glm::dmat4 posM = glm::dmat4();
-
-        scaleM = glm::scale(scaleM, this->_scale);
-        rotM = glm::rotate(rotM, glm::radians(this->_rotation.x), glm::dvec3(1.0, 0.0, 0.0));
-        rotM = glm::rotate(rotM, glm::radians(this->_rotation.y), glm::dvec3(0.0, 1.0, 0.0));
-        rotM = glm::rotate(rotM, glm::radians(this->_rotation.z), glm::dvec3(0.0, 0.0, 1.0));
-        posM = glm::translate(posM, this->_position);
-
-        this->_preciseTransformationMatrix = scaleM * rotM * posM;
+        this->_preciseTransformationMatrix = this->_scaleMatrix * this->_rotationMatrix * this->_positionMatrix;
         this->_transformationMatrix = this->_preciseTransformationMatrix;
     }
 
@@ -180,58 +155,71 @@ namespace Dwarf
         return (buildables);
     }
 
-    void Mesh::setMove(int move)
+    void Mesh::move(double x, double y, double z)
     {
-        switch (move)
-        {
-        case 0:
-            this->_up = true;
-            break;
-        case 1:
-            this->_down = true;
-            break;
-        case 2:
-            this->_left = true;
-            break;
-        case 3:
-            this->_right = true;
-            break;
-        case 4:
-            this->_up = false;
-            break;
-        case 5:
-            this->_down = false;
-            break;
-        case 6:
-            this->_left = false;
-            break;
-        case 7:
-            this->_right = false;
-            break;
-        default:
-            break;
-        }
+        this->move(glm::dvec3(x, y, z));
     }
 
-    void Mesh::setScale(int axis, double value)
+    void Mesh::move(glm::dvec3 movement)
     {
-        if (axis == 0)
-            this->_scale.x += value;
-        else if (axis == 1)
-            this->_scale.y += value;
-        else if (axis == 2)
-            this->_scale.z += value;
+        this->setPosition(this->_position + movement);
+    }
+
+    void Mesh::setPosition(double x, double y, double z)
+    {
+        this->setPosition(glm::dvec3(x, y, z));
+    }
+
+    void Mesh::setPosition(glm::dvec3 position)
+    {
+        this->_position = position;
+        this->_positionMatrix = glm::translate(glm::dmat4(), this->_position);
         this->updateTransformationMatrix();
     }
 
-    void Mesh::setRotation(int axis, double value)
+    void Mesh::scale(double x, double y, double z)
     {
-        if (axis == 0)
-            this->_rotation.x += value;
-        else if (axis == 1)
-            this->_rotation.y += value;
-        else if (axis == 2)
-            this->_rotation.z += value;
+        this->scale(glm::dvec3(x, y, z));
+    }
+
+    void Mesh::scale(glm::dvec3 scale)
+    {
+        this->setScale(this->_scale + scale);
+    }
+
+    void Mesh::setScale(double x, double y, double z)
+    {
+        this->setScale(glm::dvec3(x, y, z));
+    }
+
+    void Mesh::setScale(glm::dvec3 scale)
+    {
+        this->_scale = scale;
+        this->_scaleMatrix = glm::scale(glm::dmat4(), this->_scale);
+        this->updateTransformationMatrix();
+    }
+
+    void Mesh::rotate(double x, double y, double z)
+    {
+        this->rotate(glm::dvec3(x, y, z));
+    }
+
+    void Mesh::rotate(glm::dvec3 rotation)
+    {
+        this->setRotation(this->_rotation + rotation);
+    }
+
+    void Mesh::setRotation(double x, double y, double z)
+    {
+        this->setRotation(glm::dvec3(x, y, z));
+    }
+
+    void Mesh::setRotation(glm::dvec3 rotation)
+    {
+        this->_rotation = rotation;
+        this->_rotationMatrix = glm::rotate(glm::dmat4(), glm::radians(this->_rotation.x), glm::dvec3(1.0, 0.0, 0.0));
+        this->_rotationMatrix = glm::rotate(this->_rotationMatrix, glm::radians(this->_rotation.y), glm::dvec3(0.0, 1.0, 0.0));
+        this->_rotationMatrix = glm::rotate(this->_rotationMatrix, glm::radians(this->_rotation.z), glm::dvec3(0.0, 0.0, 1.0));
         this->updateTransformationMatrix();
     }
 }
