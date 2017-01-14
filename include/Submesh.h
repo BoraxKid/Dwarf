@@ -42,7 +42,7 @@ namespace Dwarf
     public:
         Submesh(Material *material, const glm::mat4 &transformMatrix);
         virtual ~Submesh();
-        void cleanup(const vk::Device &device);
+        void cleanup(const vk::Device &device) const;
         virtual void createBuffers(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &memProperties);
         virtual void buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp, const vk::Extent2D &extent) const;
         virtual void setCommandPool(vk::CommandPool *commandPool);

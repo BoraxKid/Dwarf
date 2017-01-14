@@ -23,7 +23,7 @@ namespace Dwarf
 		std::vector<const char *> getRequiredExtensions(bool validationLayerEnabled);
 		VkResult CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugReportCallbackEXT *pCallback);
 		void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks *pAllocator);
-		uint32_t getMemoryType(vk::PhysicalDeviceMemoryProperties memProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+		uint32_t getMemoryType(const vk::PhysicalDeviceMemoryProperties &memProperties, uint32_t typeFilter, const vk::MemoryPropertyFlags &properties);
 		void createImage(const vk::Device &device, vk::PhysicalDeviceMemoryProperties memProperties, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image &image, vk::DeviceMemory &imageMemory);
 		void copyImage(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, vk::Image srcImage, vk::Image dstImage, uint32_t width, uint32_t height);
 		void createImageView(const vk::Device &device, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageView &imageView);

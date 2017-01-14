@@ -24,13 +24,8 @@ namespace Dwarf
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sportsCar.obj"));
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj"));
         this->_materialManager->createDescriptorPool();
-		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
-		std::vector<Mesh *>::iterator iterModels2 = this->_models.end();
-		while (iterModels != iterModels2)
-		{
-            this->_commandBufferBuilder->addBuildables((*iterModels)->getBuildables());
-			++iterModels;
-		}
+        for (auto &model : this->_models)
+            this->_commandBufferBuilder->addBuildables(model->getBuildables());
 		this->createCommandBuffers();
 		this->createSemaphores();
 		this->run();
@@ -38,13 +33,8 @@ namespace Dwarf
 
 	Renderer::~Renderer()
 	{
-		std::vector<Mesh *>::iterator iterModels = this->_models.begin();
-		std::vector<Mesh *>::iterator iterModels2 = this->_models.end();
-		while (iterModels != iterModels2)
-		{
-			delete (*iterModels);
-			++iterModels;
-		}
+		for (auto &model : this->_models)
+            delete (model);
         delete (this->_commandBufferBuilder);
         delete (this->_materialManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
@@ -56,20 +46,10 @@ namespace Dwarf
 		this->_device.destroyImage(this->_depthImage, CUSTOM_ALLOCATOR);
 		this->_device.destroyCommandPool(this->_commandPool, CUSTOM_ALLOCATOR);
 		this->_device.destroyRenderPass(this->_renderPass, CUSTOM_ALLOCATOR);
-		std::vector<vk::Framebuffer>::iterator iterFramebuffers = this->_swapChainFramebuffers.begin();
-		std::vector<vk::Framebuffer>::iterator iterFramebuffers2 = this->_swapChainFramebuffers.end();
-		while (iterFramebuffers != iterFramebuffers2)
-		{
-			this->_device.destroyFramebuffer(*iterFramebuffers, CUSTOM_ALLOCATOR);
-			++iterFramebuffers;
-		}
-		std::vector<vk::ImageView>::iterator iterImageViews = this->_swapChainImageViews.begin();
-		std::vector<vk::ImageView>::iterator iterImageViews2 = this->_swapChainImageViews.end();
-		while (iterImageViews != iterImageViews2)
-		{
-			this->_device.destroyImageView(*iterImageViews, CUSTOM_ALLOCATOR);
-			++iterImageViews;
-		}
+		for (const auto &framebuffer : this->_swapChainFramebuffers)
+            this->_device.destroyFramebuffer(framebuffer, CUSTOM_ALLOCATOR);
+        for (const auto &imageView : this->_swapChainImageViews)
+            this->_device.destroyImageView(imageView, CUSTOM_ALLOCATOR);
 		this->_device.destroySwapchainKHR(this->_swapChain, CUSTOM_ALLOCATOR);
 		this->_device.destroy(CUSTOM_ALLOCATOR);
 		this->_instance.destroySurfaceKHR(this->_surface, CUSTOM_ALLOCATOR);
@@ -157,15 +137,10 @@ namespace Dwarf
 
 #ifdef _DEBUG
 		std::vector<vk::ExtensionProperties> extensions = vk::enumerateInstanceExtensionProperties();
-		std::vector<vk::ExtensionProperties>::const_iterator iter = extensions.begin();
-		std::vector<vk::ExtensionProperties>::const_iterator iter2 = extensions.end();
 
 		LOG(INFO) << "Available extensions:";
-		while (iter != iter2)
-		{
-			LOG(INFO) << "\t" << iter->extensionName;
-			++iter;
-		}
+		for (const auto &extension : extensions)
+			LOG(INFO) << "\t" << extension.extensionName;
 #endif
 	}
 
@@ -178,20 +153,17 @@ namespace Dwarf
 
 	void Renderer::pickPhysicalDevice()
 	{
-		std::vector<vk::PhysicalDevice> devices = this->_instance.enumeratePhysicalDevices();
-		std::vector<vk::PhysicalDevice>::iterator iter = devices.begin();
-		std::vector<vk::PhysicalDevice>::iterator iter2 = devices.end();
-
-		while (iter != iter2)
-		{
-			if (this->isDeviceSuitable(*iter))
-			{
-				this->_physicalDevice = *iter;
-				break;
-			}
-			++iter;
-		}
-		if (this->_physicalDevice == (vk::PhysicalDevice)VK_NULL_HANDLE)
+		std::vector<vk::PhysicalDevice> physicalDevices = this->_instance.enumeratePhysicalDevices();
+		
+        for (const auto &physicalDevice : physicalDevices)
+        {
+            if (this->isDeviceSuitable(physicalDevice))
+            {
+                this->_physicalDevice = physicalDevice;
+                break;
+            }
+        }
+		if (!this->_physicalDevice)
 			Tools::exitOnError("No suitable GPU");
 	}
 
@@ -200,16 +172,14 @@ namespace Dwarf
 		Renderer::QueueFamilyIndices indices = this->findQueueFamilies(this->_physicalDevice);
 		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
-		std::set<uint32_t>::const_iterator iter = uniqueQueueFamilies.begin();
-		std::set<uint32_t>::const_iterator iter2 = uniqueQueueFamilies.end();
 		float queuePriority = 1.0f;
 
-		while (iter != iter2)
-		{
-			vk::DeviceQueueCreateInfo queueCreateInfo(vk::DeviceQueueCreateFlags(), *iter, 1, &queuePriority);
-			queueCreateInfos.push_back(queueCreateInfo);
-			++iter;
-		}
+        vk::DeviceQueueCreateInfo queueCreateInfo(vk::DeviceQueueCreateFlags(), 0, 1, &queuePriority);
+        for (const auto &uniqueQueueFamily : uniqueQueueFamilies)
+        {
+            queueCreateInfo.queueFamilyIndex = uniqueQueueFamily;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
 		vk::PhysicalDeviceFeatures deviceFeatures;
         deviceFeatures.fillModeNonSolid = VK_TRUE;
 		vk::DeviceCreateInfo createInfo(vk::DeviceCreateFlags(), static_cast<uint32_t>(queueCreateInfos.size()), queueCreateInfos.data(), 0, nullptr, static_cast<uint32_t>(gDeviceExtensions.size()), gDeviceExtensions.data(), &deviceFeatures);
@@ -218,7 +188,7 @@ namespace Dwarf
 			createInfo.enabledLayerCount = static_cast<uint32_t>(gValidationLayers.size());
 			createInfo.ppEnabledLayerNames = gValidationLayers.data();
 		}
-		if (this->_device != (vk::Device)VK_NULL_HANDLE)
+		if (this->_device)
 			this->_device.destroy(CUSTOM_ALLOCATOR);
 		this->_device = this->_physicalDevice.createDevice(createInfo, CUSTOM_ALLOCATOR);
 		this->_graphicsQueue = this->_device.getQueue(indices.graphicsFamily, 0);
@@ -245,7 +215,7 @@ namespace Dwarf
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		vk::SwapchainKHR newSwapChain = this->_device.createSwapchainKHR(createInfo, CUSTOM_ALLOCATOR);
-		if (this->_swapChain != (vk::SwapchainKHR)VK_NULL_HANDLE)
+		if (this->_swapChain)
 			this->_device.destroySwapchainKHR(this->_swapChain, CUSTOM_ALLOCATOR);
 		this->_swapChain = newSwapChain;
 		this->_swapChainImages = this->_device.getSwapchainImagesKHR(this->_swapChain);
@@ -256,21 +226,12 @@ namespace Dwarf
 
 	void Renderer::createImageViews()
 	{
-		std::vector<vk::ImageView>::iterator iter = this->_swapChainImageViews.begin();
-		std::vector<vk::ImageView>::iterator iter2 = this->_swapChainImageViews.end();
-		while (iter != iter2)
-		{
-			this->_device.destroyImageView(*iter, CUSTOM_ALLOCATOR);
-			++iter;
-		}
+        for (const auto &imageView : this->_swapChainImageViews)
+            this->_device.destroyImageView(imageView, CUSTOM_ALLOCATOR);
 		this->_swapChainImageViews.resize(this->_swapChainImages.size());
-		iter = this->_swapChainImageViews.begin();
-		iter2 = this->_swapChainImageViews.end();
-		while (iter != iter2)
-		{
-			Tools::createImageView(this->_device, this->_swapChainImages.at(iter - this->_swapChainImageViews.begin()), this->_swapChainImageFormat, vk::ImageAspectFlagBits::eColor, *iter);
-			++iter;
-		}
+        size_t i = 0;
+        for (auto &imageView : this->_swapChainImageViews)
+            Tools::createImageView(this->_device, this->_swapChainImages.at(i++), this->_swapChainImageFormat, vk::ImageAspectFlagBits::eColor, imageView);
 	}
 
 	void Renderer::createRenderPass()
@@ -283,7 +244,7 @@ namespace Dwarf
 		vk::SubpassDependency dependency(VK_SUBPASS_EXTERNAL, 0, vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eMemoryRead, vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite);
 		std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 		vk::RenderPassCreateInfo renderPassInfo(vk::RenderPassCreateFlags(), static_cast<uint32_t>(attachments.size()), attachments.data(), 1, &subPass, 1, &dependency);
-		if (this->_renderPass != (vk::RenderPass)VK_NULL_HANDLE)
+		if (this->_renderPass)
 			this->_device.destroyRenderPass(this->_renderPass, CUSTOM_ALLOCATOR);
 		this->_renderPass = this->_device.createRenderPass(renderPassInfo, CUSTOM_ALLOCATOR);
 	}
@@ -292,7 +253,7 @@ namespace Dwarf
 	{
 		Renderer::QueueFamilyIndices queueFamilyIndices = this->findQueueFamilies(this->_physicalDevice);
 		vk::CommandPoolCreateInfo poolInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, queueFamilyIndices.graphicsFamily);
-		if (this->_commandPool != (vk::CommandPool)VK_NULL_HANDLE)
+		if (this->_commandPool)
 			this->_device.destroyCommandPool(this->_commandPool, CUSTOM_ALLOCATOR);
 		this->_commandPool = this->_device.createCommandPool(poolInfo, CUSTOM_ALLOCATOR);
         this->_commandBufferBuilder->createCommandPools(queueFamilyIndices.graphicsFamily);
@@ -301,11 +262,11 @@ namespace Dwarf
 	void Renderer::createDepthResources()
 	{
 		vk::Format depthFormat = this->findDepthFormat();
-		if (this->_depthImageView != (vk::ImageView)VK_NULL_HANDLE)
+		if (this->_depthImageView)
 			this->_device.destroyImageView(this->_depthImageView, CUSTOM_ALLOCATOR);
-		if (this->_depthImageMemory != (vk::DeviceMemory)VK_NULL_HANDLE)
+		if (this->_depthImageMemory)
 			this->_device.freeMemory(this->_depthImageMemory, CUSTOM_ALLOCATOR);
-		if (this->_depthImage != (vk::Image)VK_NULL_HANDLE)
+		if (this->_depthImage)
 			this->_device.destroyImage(this->_depthImage, CUSTOM_ALLOCATOR);
 		Tools::createImage(this->_device, this->_physicalDevice.getMemoryProperties(), this->_swapChainExtent.width, this->_swapChainExtent.height, depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_depthImage, this->_depthImageMemory);
 		Tools::createImageView(this->_device, this->_depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth, this->_depthImageView);
@@ -314,27 +275,19 @@ namespace Dwarf
 
 	void Renderer::createFramebuffers()
 	{
-		std::vector<vk::Framebuffer>::iterator iterFramebuffers = this->_swapChainFramebuffers.begin();
-		std::vector<vk::Framebuffer>::iterator iterFramebuffers2 = this->_swapChainFramebuffers.end();
-		while (iterFramebuffers != iterFramebuffers2)
-		{
-			this->_device.destroyFramebuffer(*iterFramebuffers, CUSTOM_ALLOCATOR);
-			++iterFramebuffers;
-		}
+        for (const auto &framebuffer : this->_swapChainFramebuffers)
+            this->_device.destroyFramebuffer(framebuffer, CUSTOM_ALLOCATOR);
 		this->_swapChainFramebuffers.resize(this->_swapChainImageViews.size());
-		std::vector<vk::ImageView>::iterator iterImageViews = this->_swapChainImageViews.begin();
-		std::vector<vk::ImageView>::iterator iterImageViews2 = this->_swapChainImageViews.end();
 		std::array<vk::ImageView, 2> attachments;
 		attachments.at(1) = this->_depthImageView;
 		vk::FramebufferCreateInfo framebufferInfo(vk::FramebufferCreateFlags(), this->_renderPass, static_cast<uint32_t>(attachments.size()), nullptr, this->_swapChainExtent.width, this->_swapChainExtent.height, 1);
-		size_t i;
-		while (iterImageViews != iterImageViews2)
+		size_t i = 0;
+        for (const auto &imageView : this->_swapChainImageViews)
 		{
-			i = iterImageViews - this->_swapChainImageViews.begin();
-			attachments.at(0) = *iterImageViews;
+			attachments.at(0) = imageView;
 			framebufferInfo.setPAttachments(attachments.data());
 			this->_swapChainFramebuffers.at(i) = this->_device.createFramebuffer(framebufferInfo, CUSTOM_ALLOCATOR);
-			++iterImageViews;
+            ++i;
 		}
 	}
 
@@ -342,14 +295,8 @@ namespace Dwarf
 	{
 		if (this->_commandBuffers.size() == this->_swapChainFramebuffers.size())
 		{
-			std::vector<vk::CommandBuffer>::iterator iter = this->_commandBuffers.begin();
-			std::vector<vk::CommandBuffer>::iterator iter2 = this->_commandBuffers.end();
-
-			while (iter != iter2)
-			{
-				iter->reset(vk::CommandBufferResetFlags());
-				++iter;
-			}
+            for (const auto &commandBuffer : this->_commandBuffers)
+                commandBuffer.reset(vk::CommandBufferResetFlags(vk::CommandBufferResetFlagBits::eReleaseResources));
 		}
 		else
 		{
@@ -366,33 +313,6 @@ namespace Dwarf
 	void Renderer::buildCommandBuffers()
 	{
         this->_commandBufferBuilder->buildCommandBuffers(this->_commandBuffers, this->_camera.getMVP());
-		/*vk::CommandBufferBeginInfo beginInfo;
-		std::array<vk::ClearValue, 2> clearValues = { vk::ClearValue(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f})), vk::ClearValue(vk::ClearDepthStencilValue(1.0f, 0)) };
-		vk::RenderPassBeginInfo renderPassInfo(this->_renderPass, vk::Framebuffer(), vk::Rect2D(vk::Offset2D(0, 0), this->_swapChainExtent), static_cast<uint32_t>(clearValues.size()), clearValues.data());
-		vk::CommandBufferInheritanceInfo inheritanceInfo(this->_renderPass);
-
-		std::vector<Model *>::iterator iterModels = this->_models.begin();
-		std::vector<Model *>::iterator iterModels2 = this->_models.end();
-		std::vector<vk::CommandBuffer>::iterator iter = this->_commandBuffers.begin();
-		std::vector<vk::CommandBuffer>::iterator iter2 = this->_commandBuffers.end();
-		while (iter != iter2)
-		{
-			iterModels = this->_models.begin();
-			iterModels2 = this->_models.end();
-			renderPassInfo.framebuffer = this->_swapChainFramebuffers.at(iter - this->_commandBuffers.begin());
-			inheritanceInfo.framebuffer = this->_swapChainFramebuffers.at(iter - this->_commandBuffers.begin());
-			iter->begin(beginInfo);
-			iter->beginRenderPass(renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
-			while (iterModels != iterModels2)
-			{
-				(*iterModels)->buildCommandBuffers(inheritanceInfo, this->_camera.getMVP());
-				iter->executeCommands((*iterModels)->getCommandBuffers());
-				++iterModels;
-			}
-			iter->endRenderPass();
-			iter->end();
-			++iter;
-		}*/
 	}
 
 	void Renderer::createSemaphores()
@@ -440,7 +360,7 @@ namespace Dwarf
 			throw (std::runtime_error("Failed to set up debug callback"));
 	}
 
-	bool Renderer::isDeviceSuitable(vk::PhysicalDevice device)
+	bool Renderer::isDeviceSuitable(const vk::PhysicalDevice &device) const
 	{
 		Renderer::QueueFamilyIndices indices = this->findQueueFamilies(device);
 		bool extensionsSupported = this->checkDeviceExtensionSupport(device);
@@ -454,52 +374,44 @@ namespace Dwarf
 		return (indices.isComplete() && extensionsSupported && swapChainAdequate);
 	}
 
-	Renderer::QueueFamilyIndices Renderer::findQueueFamilies(vk::PhysicalDevice device)
+	Renderer::QueueFamilyIndices Renderer::findQueueFamilies(const vk::PhysicalDevice &device) const
 	{
 		Renderer::QueueFamilyIndices indices;
 		std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
-		std::vector<vk::QueueFamilyProperties>::const_iterator iter = queueFamilies.begin();
-		std::vector<vk::QueueFamilyProperties>::const_iterator iter2 = queueFamilies.end();
 
-		uint32_t i;
+		uint32_t i = 0;
 		vk::Bool32 presentSupport;
-		while (iter != iter2)
-		{
-			i = static_cast<uint32_t>(iter - queueFamilies.begin());
-			if (iter->queueCount > 0 && iter->queueFlags & vk::QueueFlagBits::eGraphics)
-			{
-				indices.graphicsFamily = i;
-				indices.graphicsFamilySet = true;
-			}
-			presentSupport = device.getSurfaceSupportKHR(i, this->_surface);
-			if (iter->queueCount > 0 && presentSupport)
-			{
-				indices.presentFamily = i;
-				indices.presentFamilySet = true;
-			}
-			if (indices.isComplete())
-				break;
-			++iter;
-		}
+        for (const auto &queueFamily : queueFamilies)
+        {
+            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
+            {
+                indices.graphicsFamily = i;
+                indices.graphicsFamilySet = true;
+            }
+            presentSupport = device.getSurfaceSupportKHR(i, this->_surface);
+            if (queueFamily.queueCount > 0 && presentSupport)
+            {
+                indices.presentFamily = i;
+                indices.presentFamilySet = true;
+            }
+            if (indices.isComplete())
+                break;
+            ++i;
+        }
 		return (indices);
 	}
 
-	bool Renderer::checkDeviceExtensionSupport(vk::PhysicalDevice device)
+	bool Renderer::checkDeviceExtensionSupport(const vk::PhysicalDevice &device) const
 	{
 		std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties(CUSTOM_ALLOCATOR);
-		std::vector<vk::ExtensionProperties>::const_iterator iter = availableExtensions.begin();
-		std::vector<vk::ExtensionProperties>::const_iterator iter2 = availableExtensions.end();
 		std::set<std::string> requiredExtensions(gDeviceExtensions.begin(), gDeviceExtensions.end());
 
-		while (iter != iter2)
-		{
-			requiredExtensions.erase(iter->extensionName);
-			++iter;
-		}
+        for (const auto &extension : availableExtensions)
+            requiredExtensions.erase(extension.extensionName);
 		return (requiredExtensions.empty());
 	}
 
-	Renderer::SwapChainSupportDetails Renderer::querySwapChainSupport(vk::PhysicalDevice device)
+	Renderer::SwapChainSupportDetails Renderer::querySwapChainSupport(const vk::PhysicalDevice &device) const
 	{
 		Renderer::SwapChainSupportDetails details;
 		details.capabilities = device.getSurfaceCapabilitiesKHR(this->_surface);
@@ -510,9 +422,6 @@ namespace Dwarf
 
 	vk::SurfaceFormatKHR Renderer::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats)
 	{
-		std::vector<vk::SurfaceFormatKHR>::const_iterator iter = availableFormats.begin();
-		std::vector<vk::SurfaceFormatKHR>::const_iterator iter2 = availableFormats.end();
-
 		if (availableFormats.size() == 1 && availableFormats.at(0).format == vk::Format::eUndefined)
 		{
 			vk::SurfaceFormatKHR tmp;
@@ -520,25 +429,20 @@ namespace Dwarf
 			tmp.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
 			return (tmp);
 		}
-		while (iter != iter2)
+		for (const auto &format : availableFormats)
 		{
-			if (iter->format == vk::Format::eB8G8R8A8Unorm && iter->colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-				return (*iter);
-			++iter;
+			if (format.format == vk::Format::eB8G8R8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+				return (format);
 		}
 		return (availableFormats.at(0));
 	}
 
 	vk::PresentModeKHR Renderer::chooseSwapPresentFormat(const std::vector<vk::PresentModeKHR> &availablePresentModes)
 	{
-		std::vector<vk::PresentModeKHR>::const_iterator iter = availablePresentModes.begin();
-		std::vector<vk::PresentModeKHR>::const_iterator iter2 = availablePresentModes.end();
-
-		while (iter != iter2)
+		for (const auto &presentMode : availablePresentModes)
 		{
-            if (*iter == vk::PresentModeKHR::eMailbox)
-                return (*iter);
-			++iter;
+            if (presentMode == vk::PresentModeKHR::eMailbox)
+                return (presentMode);
 		}
 		return (vk::PresentModeKHR::eFifo);
 	}
@@ -556,36 +460,33 @@ namespace Dwarf
 		}
 	}
 
-	vk::Format Renderer::findDepthFormat()
+	vk::Format Renderer::findDepthFormat() const
 	{
 		return (this->findSupportedFormat({ vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
 	}
 
-	vk::Format Renderer::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+	vk::Format Renderer::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const
 	{
-		std::vector<vk::Format>::const_iterator iter = candidates.begin();
-		std::vector<vk::Format>::const_iterator iter2 = candidates.end();
 		vk::FormatProperties properties;
 
-		while (iter != iter2)
+		for (const auto &candidate : candidates)
 		{
-			properties = this->_physicalDevice.getFormatProperties(*iter);
+			properties = this->_physicalDevice.getFormatProperties(candidate);
 			if (tiling == vk::ImageTiling::eLinear && (properties.linearTilingFeatures & features) == features)
-				return (*iter);
+				return (candidate);
 			else if (tiling == vk::ImageTiling::eOptimal && (properties.optimalTilingFeatures & features) == features)
-				return (*iter);
-			++iter;
+				return (candidate);
 		}
 		Tools::exitOnError("Can't find a supported format");
 		return (vk::Format());
 	}
 
-	uint32_t Renderer::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+	uint32_t Renderer::findMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags &properties) const
 	{
 		return (Tools::getMemoryType(this->_physicalDevice.getMemoryProperties(), typeFilter, properties));
 	}
 
-	void Renderer::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory)
+	void Renderer::createBuffer(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage, const vk::MemoryPropertyFlags &properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory) const
 	{
 		vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), size, usage);
 		buffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
@@ -596,7 +497,7 @@ namespace Dwarf
 		this->_device.bindBufferMemory(buffer, bufferMemory, 0);
 	}
 
-	void Renderer::copyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+	void Renderer::copyBuffer(const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, const vk::DeviceSize &size) const
 	{
 		vk::CommandBuffer commandBuffer = Tools::beginSingleTimeCommands(this->_device, this->_commandPool);
 		vk::BufferCopy copyRegion(0, 0, size);

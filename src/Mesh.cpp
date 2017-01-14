@@ -14,13 +14,10 @@ namespace Dwarf
 
 	Mesh::~Mesh()
 	{
-        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
-        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
-        while (iter != iterEnd)
+        for (const auto &submesh : this->_submeshes)
         {
-            if (iter->getVerticesCount() != 0 && iter->getIndicesCount() != 0)
-                iter->cleanup(this->_device);
-            ++iter;
+            if (submesh.getVerticesCount() != 0 && submesh.getIndicesCount() != 0)
+                submesh.cleanup(this->_device);
         }
 	}
 
@@ -32,56 +29,53 @@ namespace Dwarf
 		std::string error;
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "resources/materials/"))
 			Tools::exitOnError(error);
-		std::vector<tinyobj::material_t>::iterator iter = materials.begin();
-		std::vector<tinyobj::material_t>::iterator iter2 = materials.end();
-		Material *material = nullptr;
+		Material *tmpMaterial = nullptr;
         this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix));
-		while (iter != iter2)
+		for (const auto &material : materials)
 		{
-            material = materialManager.createMaterial(iter->name, !iter->diffuse_texname.empty());
-			material->setAmbient(Color(iter->ambient[0], iter->ambient[1], iter->ambient[2]));
-			material->setDiffuse(Color(iter->diffuse[0], iter->diffuse[1], iter->diffuse[2]));
-			material->setSpecular(Color(iter->specular[0], iter->specular[1], iter->specular[2]));
-			material->setTransmittance(Color(iter->transmittance[0], iter->transmittance[1], iter->transmittance[2]));
-			material->setEmission(Color(iter->emission[0], iter->emission[1], iter->emission[2]));
-			material->setShininess(iter->shininess);
-			material->setIor(iter->ior);
-			material->setDissolve(iter->dissolve);
-			material->setIllum(iter->illum);
-			material->setRoughness(iter->roughness);
-			material->setMetallic(iter->metallic);
-			material->setSheen(iter->sheen);
-			material->setClearcoatThickness(iter->clearcoat_thickness);
-			material->setClearcoatRoughness(iter->clearcoat_roughness);
-			material->setAnisotropy(iter->anisotropy);
-			material->setAnisotropyRotation(iter->anisotropy_rotation);
-			/*if (!iter->ambient_texname.empty())
-				material->createAmbientTexture(iter->ambient_texname);*/
-			if (!iter->diffuse_texname.empty())
-				material->createDiffuseTexture(iter->diffuse_texname);
-			/*if (!iter->specular_texname.empty())
-				material->createSpecularTexture(iter->specular_texname);
-			if (!iter->specular_highlight_texname.empty())
-				material->createSpecularHighlightTexture(iter->specular_highlight_texname);
-			if (!iter->bump_texname.empty())
-				material->createBumpTexture(iter->bump_texname);
-			if (!iter->displacement_texname.empty())
-				material->createDisplacementTexture(iter->displacement_texname);
-			if (!iter->alpha_texname.empty())
-				material->createAlphaTexture(iter->alpha_texname);
-			if (!iter->roughness_texname.empty())
-				material->createRoughnessTexture(iter->roughness_texname);
-			if (!iter->metallic_texname.empty())
-				material->createMetallicTexture(iter->metallic_texname);
-			if (!iter->sheen_texname.empty())
-				material->createSheenTexture(iter->sheen_texname);
-			if (!iter->emissive_texname.empty())
-				material->createEmissiveTexture(iter->emissive_texname);
-			if (!iter->normal_texname.empty())
-				material->createNormalTexture(iter->normal_texname);*/
-            this->_submeshes.push_back(Submesh(material, this->_transformationMatrix));
-			material = nullptr;
-			++iter;
+            tmpMaterial = materialManager.createMaterial(material.name, !material.diffuse_texname.empty());
+            tmpMaterial->setAmbient(Color(material.ambient[0], material.ambient[1], material.ambient[2]));
+            tmpMaterial->setDiffuse(Color(material.diffuse[0], material.diffuse[1], material.diffuse[2]));
+            tmpMaterial->setSpecular(Color(material.specular[0], material.specular[1], material.specular[2]));
+            tmpMaterial->setTransmittance(Color(material.transmittance[0], material.transmittance[1], material.transmittance[2]));
+            tmpMaterial->setEmission(Color(material.emission[0], material.emission[1], material.emission[2]));
+            tmpMaterial->setShininess(material.shininess);
+            tmpMaterial->setIor(material.ior);
+            tmpMaterial->setDissolve(material.dissolve);
+            tmpMaterial->setIllum(material.illum);
+            tmpMaterial->setRoughness(material.roughness);
+            tmpMaterial->setMetallic(material.metallic);
+            tmpMaterial->setSheen(material.sheen);
+            tmpMaterial->setClearcoatThickness(material.clearcoat_thickness);
+            tmpMaterial->setClearcoatRoughness(material.clearcoat_roughness);
+            tmpMaterial->setAnisotropy(material.anisotropy);
+            tmpMaterial->setAnisotropyRotation(material.anisotropy_rotation);
+			/*if (!material.ambient_texname.empty())
+				tmpMaterial->createAmbientTexture(material.ambient_texname);*/
+			if (!material.diffuse_texname.empty())
+                tmpMaterial->createDiffuseTexture(material.diffuse_texname);
+			/*if (!material.specular_texname.empty())
+				tmpMaterial->createSpecularTexture(material.specular_texname);
+			if (!material.specular_highlight_texname.empty())
+				tmpMaterial->createSpecularHighlightTexture(material.specular_highlight_texname);
+			if (!material.bump_texname.empty())
+				tmpMaterial->createBumpTexture(material.bump_texname);
+			if (!material.displacement_texname.empty())
+				tmpMaterial->createDisplacementTexture(material.displacement_texname);
+			if (!material.alpha_texname.empty())
+				tmpMaterial->createAlphaTexture(material.alpha_texname);
+			if (!material.roughness_texname.empty())
+				tmpMaterial->createRoughnessTexture(material.roughness_texname);
+			if (!material.metallic_texname.empty())
+				tmpMaterial->createMetallicTexture(material.metallic_texname);
+			if (!material.sheen_texname.empty())
+				tmpMaterial->createSheenTexture(material.sheen_texname);
+			if (!material.emissive_texname.empty())
+				tmpMaterial->createEmissiveTexture(material.emissive_texname);
+			if (!material.normal_texname.empty())
+				tmpMaterial->createNormalTexture(material.normal_texname);*/
+            this->_submeshes.push_back(Submesh(tmpMaterial, this->_transformationMatrix));
+            tmpMaterial = nullptr;
 		}
 
 		Vertex vertex;
@@ -144,13 +138,10 @@ namespace Dwarf
     std::vector<IBuildable *> Mesh::getBuildables()
     {
         std::vector<IBuildable *> buildables;
-        std::vector<Submesh>::iterator iter = this->_submeshes.begin();
-        std::vector<Submesh>::iterator iterEnd = this->_submeshes.end();
-        while (iter != iterEnd)
+        for (auto &submesh : this->_submeshes)
         {
-            if (iter->getVerticesCount() != 0 && iter->getIndicesCount() != 0)
-                buildables.push_back(&(*iter));
-            ++iter;
+            if (submesh.getVerticesCount() != 0 && submesh.getIndicesCount() != 0)
+                buildables.push_back(&submesh);
         }
         return (buildables);
     }

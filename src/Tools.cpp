@@ -6,29 +6,22 @@ namespace Dwarf
 	{
 		bool checkValidationLayerSupport(const std::vector<const char *> validationLayers)
 		{
-			std::vector<const char *>::const_iterator iter = validationLayers.begin();
-			std::vector<const char *>::const_iterator iter2 = validationLayers.end();
 			std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
-			std::vector<vk::LayerProperties>::const_iterator iter3;
-			std::vector<vk::LayerProperties>::const_iterator iter4 = availableLayers.end();
 			bool layerFound;
 
-			while (iter != iter2)
+			for (const auto &validationLayer : validationLayers)
 			{
-				iter3 = availableLayers.begin();
 				layerFound = false;
-				while (iter3 != iter4)
+				for (const auto &availableLayer : availableLayers)
 				{
-					if (strcmp(*iter, iter3->layerName) == 0)
+					if (strcmp(validationLayer, availableLayer.layerName) == 0)
 					{
 						layerFound = true;
 						break;
 					}
-					++iter3;
 				}
 				if (!layerFound)
 					return (false);
-				++iter;
 			}
 			return (true);
 		}
@@ -67,7 +60,7 @@ namespace Dwarf
 				func(instance, callback, pAllocator);
 		}
 
-		uint32_t getMemoryType(vk::PhysicalDeviceMemoryProperties memProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+		uint32_t getMemoryType(const vk::PhysicalDeviceMemoryProperties &memProperties, uint32_t typeFilter, const vk::MemoryPropertyFlags &properties)
 		{
 			uint32_t i = 0;
 			while (i < memProperties.memoryTypeCount)

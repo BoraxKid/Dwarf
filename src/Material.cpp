@@ -10,14 +10,8 @@ namespace Dwarf
 
 	Material::~Material()
 	{
-        std::map<const MaterialType, Texture *>::iterator iterTextures = this->_textures.begin();
-        std::map<const MaterialType, Texture *>::iterator iterTextures2 = this->_textures.end();
-
-        while (iterTextures != iterTextures2)
-        {
-            delete (iterTextures->second);
-            ++iterTextures;
-        }
+        for (auto &texture : this->_textures)
+            delete (texture.second);
 	}
 
     void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties)
@@ -26,13 +20,8 @@ namespace Dwarf
 
         vk::DescriptorBufferInfo bufferInfo(buffer, uniformBufferOffset, sizeof(MaterialUniformBuffer));
         std::vector<vk::WriteDescriptorSet> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo)/*, vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo)*/ };
-        std::map<const MaterialType, Texture *>::iterator iter = this->_textures.begin();
-        std::map<const MaterialType, Texture *>::iterator iter2 = this->_textures.end();
-        while (iter != iter2)
-        {
-            descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &iter->second->createTexture(memProperties)));
-            ++iter;
-        }
+        for (auto &texture : this->_textures)
+            descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &texture.second->createTexture(memProperties)));
         this->_device.updateDescriptorSets(descriptorWrites, nullptr);
     }
 
@@ -81,13 +70,8 @@ namespace Dwarf
     void Material::setCommandPool(vk::CommandPool *commandPool)
     {
         this->_commandPool = commandPool;
-        std::map<const MaterialType, Texture *>::iterator iter = this->_textures.begin();
-        std::map<const MaterialType, Texture *>::iterator iter2 = this->_textures.end();
-        while (iter != iter2)
-        {
-            iter->second->setCommandPool(commandPool);
-            ++iter;
-        }
+        for (auto &texture : this->_textures)
+            texture.second->setCommandPool(commandPool);
     }
 
     void Material::setDescriptorSet(vk::DescriptorSet descriptorSet)

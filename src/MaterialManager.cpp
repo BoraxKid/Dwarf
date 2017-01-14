@@ -13,21 +13,10 @@ namespace Dwarf
 
 	MaterialManager::~MaterialManager()
 	{
-        std::map<const Material::ID, Material *>::iterator iterMaterials = this->_materials.begin();
-        std::map<const Material::ID, Material *>::iterator iterMaterials2 = this->_materials.end();
-        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines = this->_pipelines.begin();
-        std::map<const Material::ID, vk::Pipeline>::iterator iterPipelines2 = this->_pipelines.end();
-
-        while (iterMaterials != iterMaterials2)
-        {
-            delete (iterMaterials->second);
-            ++iterMaterials;
-        }
-        while (iterPipelines != iterPipelines2)
-        {
-            this->_device.destroyPipeline(iterPipelines->second, CUSTOM_ALLOCATOR);
-            ++iterPipelines;
-        }
+        for (auto &material : this->_materials)
+            delete (material.second);
+        for (const auto &pipeline : this->_pipelines)
+            this->_device.destroyPipeline(pipeline.second, CUSTOM_ALLOCATOR);
         this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
         this->_device.destroyDescriptorPool(this->_descriptorPool, CUSTOM_ALLOCATOR);
         this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
@@ -77,28 +66,22 @@ namespace Dwarf
         std::vector<vk::DescriptorPoolSize> poolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
         vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
         this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
-
-        vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, 1, &this->_descriptorSetLayout);
-        std::map<const Material::ID, Material *>::const_iterator iter = this->_materials.begin();
-        std::map<const Material::ID, Material *>::const_iterator iterEnd = this->_materials.end();
-        while (iter != iterEnd)
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts(this->_materials.size(), this->_descriptorSetLayout);
+        vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, static_cast<uint32_t>(this->_materials.size()), descriptorSetLayouts.data());
+        std::vector<vk::DescriptorSet> descriptorSets = this->_device.allocateDescriptorSets(allocInfo);
+        uint32_t i = 0;
+        for (const auto &material : this->_materials)
         {
-            this->_descriptorSets[iter->first] = this->_device.allocateDescriptorSets(allocInfo).at(0);
-            iter->second->setDescriptorSet(this->_descriptorSets[iter->first]);
-            ++iter;
+            this->_descriptorSets[material.first] = descriptorSets.at(i);
+            material.second->setDescriptorSet(this->_descriptorSets.at(material.first));
+            ++i;
         }
     }
 
     void MaterialManager::recreatePipelines()
     {
-        std::map<const Material::ID, vk::Pipeline>::iterator iter = this->_pipelines.begin();
-        std::map<const Material::ID, vk::Pipeline>::iterator iter2 = this->_pipelines.end();
-
-        while (iter != iter2)
-        {
-            this->createMaterialPipeline(iter->first, this->_materials.at(iter->first)->hasDiffuseTexture());
-            ++iter;
-        }
+        for (const auto &pipeline : this->_pipelines)
+            this->createMaterialPipeline(pipeline.first, this->_materials.at(pipeline.first)->hasDiffuseTexture());
     }
 
     void MaterialManager::createDescriptorSetLayout()

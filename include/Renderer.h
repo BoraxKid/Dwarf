@@ -31,7 +31,7 @@ const std::vector<const char *> gDeviceExtensions = {
 #ifdef _DEBUG
 const bool gEnableValidationLayers = true;
 #else
-const bool gEnableValidationLayers = true;
+const bool gEnableValidationLayers = false;
 #endif
 
 /// \namespace Dwarf
@@ -101,9 +101,6 @@ namespace Dwarf
 		void createDepthResources();
 		/// \brief Create frame buffers
 		void createFramebuffers();
-		/// \brief Create a uniform buffer
-		/// \todo remove
-		void createUniformBuffer();
 		/// \brief Create the command buffers
 		void createCommandBuffers();
 		/// \brief Build and execute command buffers
@@ -114,19 +111,19 @@ namespace Dwarf
 		void drawFrame();
 
 		void setupDebugCallback();
-		bool isDeviceSuitable(vk::PhysicalDevice device);
-		QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device);
-		bool checkDeviceExtensionSupport(vk::PhysicalDevice device);
-		SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device);
+        bool isDeviceSuitable(const vk::PhysicalDevice &device) const;
+		QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device) const;
+        bool checkDeviceExtensionSupport(const vk::PhysicalDevice &device) const;
+        SwapChainSupportDetails querySwapChainSupport(const vk::PhysicalDevice &device) const;
 		vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
 		vk::PresentModeKHR chooseSwapPresentFormat(const std::vector<vk::PresentModeKHR> &availablePresentModes);
 		vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities);
-		vk::Format findDepthFormat();
-		vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
-		uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+		vk::Format findDepthFormat() const;
+		vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const;
+		uint32_t findMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags &properties) const;
 		
-		void createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory);
-		void copyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
+		void createBuffer(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage, const vk::MemoryPropertyFlags &properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory) const;
+		void copyBuffer(const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, const vk::DeviceSize &size) const;
 		void recreateSwapChain();
 
 		static void onWindowResized(GLFWwindow *window, int width, int height);

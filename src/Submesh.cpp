@@ -11,7 +11,7 @@ namespace Dwarf
     {
     }
 
-    void Submesh::cleanup(const vk::Device &device)
+    void Submesh::cleanup(const vk::Device &device) const
     {
         device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
         device.destroyBuffer(this->_buffer, CUSTOM_ALLOCATOR);
