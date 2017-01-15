@@ -1,5 +1,5 @@
-#ifndef THREADPOOL_H_
-#define THREADPOOL_H_
+#ifndef DWARF_THREADPOOL_H_
+#define DWARF_THREADPOOL_H_
 #pragma once
 
 #include <vector>
@@ -53,4 +53,4 @@ namespace Dwarf
     };
 }
 
-#endif // THREADPOOL_H_
+#endif // DWARF_THREADPOOL_H_

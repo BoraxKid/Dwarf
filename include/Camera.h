@@ -1,5 +1,5 @@
-#ifndef CAMERA_H_
-#define CAMERA_H_
+#ifndef DWARF_CAMERA_H_
+#define DWARF_CAMERA_H_
 #pragma once
 
 #define GLM_FORCE_RADIANS
@@ -46,4 +46,4 @@ namespace Dwarf
 	};
 }
 
-#endif // CAMERA_H_
+#endif // DWARF_CAMERA_H_

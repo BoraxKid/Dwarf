@@ -1,5 +1,5 @@
-#ifndef MESH_H_
-#define MESH_H_
+#ifndef DWARF_MESH_H_
+#define DWARF_MESH_H_
 #pragma once
 
 #include <unordered_map>
@@ -23,28 +23,28 @@ namespace Dwarf
 	class Mesh
 	{
 	public:
-		Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename);
+        Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorSet &lightDescriptorSet);
 		virtual ~Mesh();
 
 		void loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename);
         void updateTransformationMatrix();
         std::vector<IBuildable *> getBuildables();
         void move(double x, double y, double z);
-        void move(glm::dvec3 movement);
+        void move(const glm::dvec3 &movement);
         void setPosition(double x, double y, double z);
-        void setPosition(glm::dvec3 position);
+        void setPosition(const glm::dvec3 &position);
         void scale(double x, double y, double z);
-        void scale(glm::dvec3 scale);
+        void scale(const glm::dvec3 &scale);
         void setScale(double x, double y, double z);
-        void setScale(glm::dvec3 scale);
+        void setScale(const glm::dvec3 &scale);
         void rotate(double x, double y, double z);
-        void rotate(glm::dvec3 rotation);
+        void rotate(const glm::dvec3 &rotation);
         void setRotation(double x, double y, double z);
-        void setRotation(glm::dvec3 rotation);
+        void setRotation(const glm::dvec3 &rotation);
 
 	private:
 		const vk::Device &_device;
-
+        const vk::DescriptorSet &_lightDescriptorSet;
         std::vector<Submesh> _submeshes;
         glm::dvec3 _position;
         glm::dvec3 _rotation;
@@ -61,4 +61,4 @@ namespace Dwarf
 	};
 }
 
-#endif // MESH_H_
+#endif // DWARF_MESH_H_

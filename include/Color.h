@@ -1,5 +1,5 @@
-#ifndef COLOR_H_
-#define COLOR_H_
+#ifndef DWARF_COLOR_H_
+#define DWARF_COLOR_H_
 #pragma once
 
 #define GLM_FORCE_RADIANS
@@ -31,4 +31,4 @@ namespace Dwarf
 	bool operator!=(const Color &lhs, const Color &rhs);
 }
 
-#endif // COLOR_H_
+#endif // DWARF_COLOR_H_

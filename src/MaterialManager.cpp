@@ -3,11 +3,12 @@
 
 namespace Dwarf
 {
-	MaterialManager::MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent)
+	MaterialManager::MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent, LightManager &lightManager)
         : _device(device), _graphicsQueue(graphicsQueue), _renderPass(renderPass), _swapChainExtent(swapChainExtent), _lastID(0)
 	{
         this->createDescriptorSetLayout();
-        this->createPipelineLayout();
+        this->createPipelineLayout(lightManager.createDescriptorSetLayout());
+        lightManager.setPipelineLayout(this->_pipelineLayout);
         this->createMaterial("default", false);
 	}
 
@@ -89,24 +90,26 @@ namespace Dwarf
         std::vector<vk::DescriptorSetLayoutBinding> bindings =
         {
             vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment),
-            vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment)
+            vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment),
+            vk::DescriptorSetLayoutBinding(2, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex)
         };
         vk::DescriptorSetLayoutCreateInfo layoutInfo(vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(bindings.size()), bindings.data());
-        if (this->_descriptorSetLayout != (vk::DescriptorSetLayout)VK_NULL_HANDLE)
+        if (this->_descriptorSetLayout)
             this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
         this->_descriptorSetLayout = this->_device.createDescriptorSetLayout(layoutInfo, CUSTOM_ALLOCATOR);
     }
 
-    void MaterialManager::createPipelineLayout()
+    void MaterialManager::createPipelineLayout(const vk::DescriptorSetLayout &lightDescriptorSetLayout)
     {
-        vk::PushConstantRange pushConstantInfo(vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4));
-        vk::PipelineLayoutCreateInfo pipelineLayoutInfo(vk::PipelineLayoutCreateFlags(), 1, &this->_descriptorSetLayout, 1, &pushConstantInfo);
-        if (this->_pipelineLayout != (vk::PipelineLayout)VK_NULL_HANDLE)
+        vk::PushConstantRange pushConstantInfo(vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4) * 2);
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { this->_descriptorSetLayout, lightDescriptorSetLayout };
+        vk::PipelineLayoutCreateInfo pipelineLayoutInfo(vk::PipelineLayoutCreateFlags(), 2, descriptorSetLayouts.data(), 1, &pushConstantInfo);
+        if (this->_pipelineLayout)
             this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
         this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);
     }
 
-    void MaterialManager::createMaterialPipeline(const Material::ID materialID, bool diffuseTexture)
+    void MaterialManager::createMaterialPipeline(const Material::ID &materialID, bool diffuseTexture)
     {
         std::vector<char> vertShaderCode;
         std::vector<char> fragShaderCode;
@@ -137,11 +140,9 @@ namespace Dwarf
         vk::PipelineColorBlendStateCreateInfo colorBlending(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment);
         vk::GraphicsPipelineCreateInfo pipelineInfo(vk::PipelineCreateFlags(), 2, shaderStages, &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, this->_pipelineLayout, this->_renderPass, 0, VK_NULL_HANDLE, -1);
 
-        if (this->_pipelines.find(materialID) == this->_pipelines.end())
-            this->_pipelines[materialID] = (vk::Pipeline)VK_NULL_HANDLE;
-        if (this->_pipelines.at(materialID) != (vk::Pipeline)VK_NULL_HANDLE)
+        if (this->_pipelines.find(materialID) != this->_pipelines.end())
             this->_device.destroyPipeline(this->_pipelines.at(materialID), CUSTOM_ALLOCATOR);
-        this->_pipelines.at(materialID) = this->_device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo, CUSTOM_ALLOCATOR);
+        this->_pipelines[materialID] = this->_device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo, CUSTOM_ALLOCATOR);
         this->_device.destroyShaderModule(vertShaderModule, CUSTOM_ALLOCATOR);
         this->_device.destroyShaderModule(fragShaderModule, CUSTOM_ALLOCATOR);
     }

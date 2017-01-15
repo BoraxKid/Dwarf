@@ -1,5 +1,5 @@
-#ifndef TOOLS_H_
-#define TOOLS_H_
+#ifndef DWARF_TOOLS_H_
+#define DWARF_TOOLS_H_
 #pragma once
 
 #include <vector>
@@ -67,4 +67,4 @@ namespace Dwarf
 	}
 }
 
-#endif // TOOLS_H_
+#endif // DWARF_TOOLS_H_

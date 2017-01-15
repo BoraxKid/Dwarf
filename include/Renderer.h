@@ -1,5 +1,5 @@
-#ifndef RENDERER_H_
-#define RENDERER_H_
+#ifndef DWARF_RENDERER_H_
+#define DWARF_RENDERER_H_
 #pragma once
 
 #include <chrono>
@@ -31,7 +31,7 @@ const std::vector<const char *> gDeviceExtensions = {
 #ifdef _DEBUG
 const bool gEnableValidationLayers = true;
 #else
-const bool gEnableValidationLayers = false;
+const bool gEnableValidationLayers = true;
 #endif
 
 /// \namespace Dwarf
@@ -70,7 +70,7 @@ namespace Dwarf
 			std::vector<vk::PresentModeKHR> presentModes;
 		};
 
-		Renderer(int width = 1280, int height = 720, const std::string &title = "Vulkan Renderer");
+		Renderer(int width = 1280, int height = 720, const std::string &title = "Vulkan Renderer", bool fifo = false);
 		virtual ~Renderer();
 
 		/// \brief Update and displaye on screen every frame
@@ -132,9 +132,8 @@ namespace Dwarf
 		static vk::Bool32 debugCallback(vk::DebugReportFlagsEXT flags, vk::DebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char *layerPrefix, const char *msg, void *userData);
 
 		Camera *getCamera();
-        Mesh *getModel() { return (this->_models.at(0)); }
 
-		const std::string &_title;
+		std::string _title;
 		GLFWwindow *_window;
 		vk::Instance _instance;
 		VkDebugReportCallbackEXT _callback;
@@ -172,12 +171,20 @@ namespace Dwarf
 		Camera _camera;
 		glm::vec2 _mousePos;
 
+        LightManager *_lightManager;
         MaterialManager *_materialManager;
 		std::vector<Mesh *> _models;
         ThreadPool _threadPool;
         CommandBufferBuilder *_commandBufferBuilder;
         uint32_t _numThreads;
+        bool _fifo;
+        struct {
+            bool left = false;
+            bool right = false;
+            bool down = false;
+            bool up = false;
+        } _movance;
 	};
 }
 
-#endif // RENDERER_H_
+#endif // DWARF_RENDERER_H_

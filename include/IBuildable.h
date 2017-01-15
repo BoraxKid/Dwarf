@@ -1,8 +1,8 @@
-#ifndef IBUILDABLE_H_
-#define IBUILDABLE_H_
+#ifndef DWARF_IBUILDABLE_H_
+#define DWARF_IBUILDABLE_H_
 #pragma once
 
-#include <vulkan\vulkan.hpp>
+#include <vulkan/vulkan.hpp>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -24,4 +24,4 @@ namespace Dwarf
     };
 }
 
-#endif // IBUILDABLE_H_
+#endif // DWARF_IBUILDABLE_H_

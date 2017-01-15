@@ -1,5 +1,5 @@
-#ifndef MATERIAL_H_
-#define MATERIAL_H_
+#ifndef DWARF_MATERIAL_H_
+#define DWARF_MATERIAL_H_
 #pragma once
 
 #include <map>
@@ -161,7 +161,7 @@ namespace Dwarf
 		vk::DescriptorSet _descriptorSet;
         const ID _id;
         const std::string _name;
-        MaterialUniformBuffer _mub;
+        MaterialUniformBuffer _uniformBuffer;
 		std::map<const MaterialType, Value> _values;
 		std::map<const MaterialType, Texture *> _textures;
 	};
@@ -170,4 +170,4 @@ namespace Dwarf
 	bool operator!=(const Material &lhs, const Material &rhs);
 }
 
-#endif // MATERIAL_H_
+#endif // DWARF_MATERIAL_H_

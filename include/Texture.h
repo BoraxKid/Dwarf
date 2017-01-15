@@ -1,5 +1,5 @@
-#ifndef TEXTURE_H_
-#define TEXTURE_H_
+#ifndef DWARF_TEXTURE_H_
+#define DWARF_TEXTURE_H_
 #pragma once
 
 #include <vulkan/vulkan.hpp>
@@ -36,4 +36,4 @@ namespace Dwarf
 	};
 }
 
-#endif // TEXTURE_H_
+#endif // DWARF_TEXTURE_H_

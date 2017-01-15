@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-    Submesh::Submesh(Material *material, const glm::mat4 &transformMatrix)
-        : _material(material), _transform(transformMatrix)
+    Submesh::Submesh(Material *material, const glm::mat4 &transformMatrix, const vk::DescriptorSet &lightDescriptorSet)
+        : _lightDescriptorSet(lightDescriptorSet), _material(material), _transform(transformMatrix)
     {
     }
 
@@ -78,7 +78,7 @@ namespace Dwarf
         this->_buffer = device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
         memRequirements[0] = device.getBufferMemoryRequirements(this->_buffer);
         allocInfo = vk::MemoryAllocateInfo(memRequirements[0].size, Tools::getMemoryType(memProperties, memRequirements[0].memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
-        if (this->_buffersMemory != (vk::DeviceMemory)VK_NULL_HANDLE)
+        if (this->_buffersMemory)
             device.freeMemory(this->_buffersMemory, CUSTOM_ALLOCATOR);
         this->_buffersMemory = device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
         device.bindBufferMemory(this->_buffer, this->_buffersMemory, 0);
@@ -104,12 +104,13 @@ namespace Dwarf
         this->_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), extent));
         this->_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_material->getPipeline());
 
-        glm::mat4 tmp = mvp * this->_transform;
+        std::array<glm::mat4, 2> tmp = { mvp, this->_transform };
         this->_commandBuffer.pushConstants<glm::mat4>(this->_material->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex, 0, tmp);
 
         this->_commandBuffer.bindVertexBuffers(0, this->_buffer, this->_vertexBufferOffset);
         this->_commandBuffer.bindIndexBuffer(this->_buffer, this->_indexBufferOffset, vk::IndexType::eUint32);
-        this->_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, this->_material->getPipelineLayout(), 0, this->_material->getDescriptorSet(), nullptr);
+        std::array<vk::DescriptorSet, 2> descriptorSets = { this->_material->getDescriptorSet(), this->_lightDescriptorSet };
+        this->_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, this->_material->getPipelineLayout(), 0, descriptorSets, nullptr);
         this->_commandBuffer.drawIndexed(static_cast<uint32_t>(this->_indices.size()), 1, 0, 0, 0);
         this->_commandBuffer.end();
     }

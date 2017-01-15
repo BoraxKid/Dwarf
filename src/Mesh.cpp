@@ -5,8 +5,8 @@
 
 namespace Dwarf
 {
-	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename)
-		: _device(device), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
+	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorSet &lightDescriptorSet)
+		: _device(device), _lightDescriptorSet(lightDescriptorSet), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
 	{
 		this->loadFromFile(materialManager, meshFilename);
         this->updateTransformationMatrix();
@@ -30,7 +30,7 @@ namespace Dwarf
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "resources/materials/"))
 			Tools::exitOnError(error);
 		Material *tmpMaterial = nullptr;
-        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix));
+        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix, this->_lightDescriptorSet));
 		for (const auto &material : materials)
 		{
             tmpMaterial = materialManager.createMaterial(material.name, !material.diffuse_texname.empty());
@@ -74,7 +74,7 @@ namespace Dwarf
 				tmpMaterial->createEmissiveTexture(material.emissive_texname);
 			if (!material.normal_texname.empty())
 				tmpMaterial->createNormalTexture(material.normal_texname);*/
-            this->_submeshes.push_back(Submesh(tmpMaterial, this->_transformationMatrix));
+            this->_submeshes.push_back(Submesh(tmpMaterial, this->_transformationMatrix, this->_lightDescriptorSet));
             tmpMaterial = nullptr;
 		}
 
@@ -151,7 +151,7 @@ namespace Dwarf
         this->move(glm::dvec3(x, y, z));
     }
 
-    void Mesh::move(glm::dvec3 movement)
+    void Mesh::move(const glm::dvec3 &movement)
     {
         this->setPosition(this->_position + movement);
     }
@@ -161,7 +161,7 @@ namespace Dwarf
         this->setPosition(glm::dvec3(x, y, z));
     }
 
-    void Mesh::setPosition(glm::dvec3 position)
+    void Mesh::setPosition(const glm::dvec3 &position)
     {
         this->_position = position;
         this->_positionMatrix = glm::translate(glm::dmat4(), this->_position);
@@ -173,7 +173,7 @@ namespace Dwarf
         this->scale(glm::dvec3(x, y, z));
     }
 
-    void Mesh::scale(glm::dvec3 scale)
+    void Mesh::scale(const glm::dvec3 &scale)
     {
         this->setScale(this->_scale + scale);
     }
@@ -183,7 +183,7 @@ namespace Dwarf
         this->setScale(glm::dvec3(x, y, z));
     }
 
-    void Mesh::setScale(glm::dvec3 scale)
+    void Mesh::setScale(const glm::dvec3 &scale)
     {
         this->_scale = scale;
         this->_scaleMatrix = glm::scale(glm::dmat4(), this->_scale);
@@ -195,7 +195,7 @@ namespace Dwarf
         this->rotate(glm::dvec3(x, y, z));
     }
 
-    void Mesh::rotate(glm::dvec3 rotation)
+    void Mesh::rotate(const glm::dvec3 &rotation)
     {
         this->setRotation(this->_rotation + rotation);
     }
@@ -205,7 +205,7 @@ namespace Dwarf
         this->setRotation(glm::dvec3(x, y, z));
     }
 
-    void Mesh::setRotation(glm::dvec3 rotation)
+    void Mesh::setRotation(const glm::dvec3 &rotation)
     {
         this->_rotation = rotation;
         this->_rotationMatrix = glm::rotate(glm::dmat4(), glm::radians(this->_rotation.x), glm::dvec3(1.0, 0.0, 0.0));

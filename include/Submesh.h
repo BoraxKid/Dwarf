@@ -1,5 +1,5 @@
-#ifndef SUBMESH_H_
-#define SUBMESH_H_
+#ifndef DWARF_SUBMESH_H_
+#define DWARF_SUBMESH_H_
 #pragma once
 
 #include "Tools.h"
@@ -40,7 +40,7 @@ namespace Dwarf
     class Submesh : public IBuildable
     {
     public:
-        Submesh(Material *material, const glm::mat4 &transformMatrix);
+        Submesh(Material *material, const glm::mat4 &transformMatrix, const vk::DescriptorSet &lightDescriptorSet);
         virtual ~Submesh();
         void cleanup(const vk::Device &device) const;
         virtual void createBuffers(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &memProperties);
@@ -54,6 +54,7 @@ namespace Dwarf
         virtual vk::CommandBuffer getCommandBuffer() const;
 
     private:
+        const vk::DescriptorSet &_lightDescriptorSet;
         Material *_material;
         const glm::mat4 &_transform;
         vk::CommandPool *_commandPool;
@@ -81,4 +82,4 @@ namespace std
     };
 }
 
-#endif // SUBMESH_H_
+#endif // DWARF_SUBMESH_H_

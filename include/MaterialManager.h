@@ -1,17 +1,18 @@
-#ifndef MATERIALMANAGER_H_
-#define MATERIALMANAGER_H_
+#ifndef DWARF_MATERIALMANAGER_H_
+#define DWARF_MATERIALMANAGER_H_
 #pragma once
 
 #include <map>
 
 #include "Material.h"
+#include "LightManager.h"
 
 namespace Dwarf
 {
 	class MaterialManager
 	{
 	public:
-		MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent);
+		MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent, LightManager &lightManager);
 		virtual ~MaterialManager();
         bool exist(const Material::ID materialID) const;
         bool exist(const std::string &materialName) const;
@@ -23,8 +24,8 @@ namespace Dwarf
 
 	private:
         void createDescriptorSetLayout();
-        void createPipelineLayout();
-        void createMaterialPipeline(const Material::ID materialID, bool diffuseTexture);
+        void createPipelineLayout(const vk::DescriptorSetLayout &lightDescriptorSetLayout);
+        void createMaterialPipeline(const Material::ID &materialID, bool diffuseTexture);
 		bool isSame(const Material::ID &leftMaterialID, Material *rightMaterial) const;
 
         const vk::Device &_device;
@@ -42,4 +43,4 @@ namespace Dwarf
 	};
 }
 
-#endif // MATERIALMANAGER_H_
+#endif // DWARF_MATERIALMANAGER_H_

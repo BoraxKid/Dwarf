@@ -1,5 +1,5 @@
-#ifndef COMMANDBUFFERBUILDER_H_
-#define COMMANDBUFFERBUILDER_H_
+#ifndef DWARF_COMMANDBUFFERBUILDER_H_
+#define DWARF_COMMANDBUFFERBUILDER_H_
 #pragma once
 
 #include <vector>
@@ -34,4 +34,4 @@ namespace Dwarf
     };
 }
 
-#endif // COMMANDBUFFERBUILDER_H_
+#endif // DWARF_COMMANDBUFFERBUILDER_H_

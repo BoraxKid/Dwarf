@@ -59,7 +59,7 @@ namespace Dwarf
 
     const MaterialUniformBuffer &Material::getUniformBuffer() const
     {
-        return (this->_mub);
+        return (this->_uniformBuffer);
     }
 
     bool Material::hasDiffuseTexture() const
@@ -82,55 +82,55 @@ namespace Dwarf
 	void Material::setAmbient(Color value)
 	{
 		this->_values[AMBIENT].value.c = value;
-        this->_mub.Ka = value.getColor();
+        this->_uniformBuffer.Ka = value.getColor();
 	}
 
 	void Material::setDiffuse(Color value)
 	{
 		this->_values[DIFFUSE].value.c = value;
-        this->_mub.Kd = value.getColor();
+        this->_uniformBuffer.Kd = value.getColor();
 	}
 
 	void Material::setSpecular(Color value)
 	{
 		this->_values[SPECULAR].value.c = value;
-        this->_mub.Ks = value.getColor();
+        this->_uniformBuffer.Ks = value.getColor();
 	}
 
 	void Material::setTransmittance(Color value)
 	{
 		this->_values[TRANSMITTANCE].value.c = value;
-        this->_mub.Tf = value.getColor();
+        this->_uniformBuffer.Tf = value.getColor();
 	}
 
 	void Material::setEmission(Color value)
 	{
 		this->_values[EMISSION].value.c = value;
-        this->_mub.Ke = value.getColor();
+        this->_uniformBuffer.Ke = value.getColor();
 	}
 
 	void Material::setShininess(float value)
 	{
 		this->_values[SHININESS].value.f = value;
-        this->_mub.Ns = value;
+        this->_uniformBuffer.Ns = value;
 	}
 
 	void Material::setIor(float value)
 	{
 		this->_values[IOR].value.f = value;
-        this->_mub.Ni = value;
+        this->_uniformBuffer.Ni = value;
 	}
 
 	void Material::setDissolve(float value)
 	{
 		this->_values[DISSOLVE].value.f = value;
-        this->_mub.d = value;
+        this->_uniformBuffer.d = value;
 	}
 
 	void Material::setIllum(int value)
 	{
 		this->_values[ILLUM].value.i = value;
-        this->_mub.illum = value;
+        this->_uniformBuffer.illum = value;
 	}
 
 	void Material::setRoughness(float value)

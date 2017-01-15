@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Renderer::Renderer(int width, int height, const std::string &title)
-		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f)
+	Renderer::Renderer(int width, int height, const std::string &title, bool fifo)
+		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo)
 	{
         this->_numThreads = std::thread::hardware_concurrency();
         this->_threadPool.setThreadCount(this->_numThreads);
@@ -20,15 +20,16 @@ namespace Dwarf
 		this->createCommandPool();
 		this->createDepthResources();
 		this->createFramebuffers();
-        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sportsCar.obj"));
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj"));
+        this->_lightManager = new LightManager(this->_device);
+        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent, *this->_lightManager);
+        this->_lightManager->buildDescriptorSet(this->_physicalDevice.getMemoryProperties());
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sportsCar.obj", this->_lightManager->getDescriptorSet()));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorSet()));
         this->_materialManager->createDescriptorPool();
         for (auto &model : this->_models)
             this->_commandBufferBuilder->addBuildables(model->getBuildables());
 		this->createCommandBuffers();
 		this->createSemaphores();
-		this->run();
 	}
 
 	Renderer::~Renderer()
@@ -75,6 +76,14 @@ namespace Dwarf
 			glfwPollEvents();
 			start = std::chrono::high_resolution_clock::now();
 			this->_camera.update(frameTimer);
+            if (this->_movance.down)
+                this->_models.at(0)->move(0.0, 0.0, -10 * frameTimer);
+            if (this->_movance.up)
+                this->_models.at(0)->move(0.0, 0.0, 10 * frameTimer);
+            if (this->_movance.left)
+                this->_models.at(0)->move(-10 * frameTimer, 0.0, 0.0);
+            if (this->_movance.right)
+                this->_models.at(0)->move(10 * frameTimer, 0.0, 0.0);
 			this->buildCommandBuffers();
 			this->drawFrame();
 			++frameCounter;
@@ -437,15 +446,16 @@ namespace Dwarf
 		return (availableFormats.at(0));
 	}
 
-	vk::PresentModeKHR Renderer::chooseSwapPresentFormat(const std::vector<vk::PresentModeKHR> &availablePresentModes)
-	{
-		for (const auto &presentMode : availablePresentModes)
-		{
-            if (presentMode == vk::PresentModeKHR::eMailbox)
-                return (presentMode);
-		}
-		return (vk::PresentModeKHR::eFifo);
-	}
+    vk::PresentModeKHR Renderer::chooseSwapPresentFormat(const std::vector<vk::PresentModeKHR> &availablePresentModes)
+    {
+        if (!this->_fifo)
+            for (const auto &presentMode : availablePresentModes)
+            {
+                if (presentMode == vk::PresentModeKHR::eMailbox)
+                    return (presentMode);
+            }
+        return (vk::PresentModeKHR::eFifo);
+    }
 
 	vk::Extent2D Renderer::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities)
 	{
@@ -537,7 +547,6 @@ namespace Dwarf
 	{
 		Renderer *renderer = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(window));
 		Camera *camera = renderer->getCamera();
-        Mesh *model = renderer->getModel();
 
 		if (action == GLFW_PRESS)
 		{
@@ -551,26 +560,14 @@ namespace Dwarf
                 camera->_down = true;
             else if (scancode == 42)
                 camera->setCameraSpeed(10.0f);
-            //else if (scancode == 328)
-            //    model->setMove(0);
-            //else if (scancode == 336)
-            //    model->setMove(1);
-            //else if (scancode == 331)
-            //    model->setMove(2);
-            //else if (scancode == 333)
-            //    model->setMove(3);
-            //else if (scancode == 79)
-            //    model->setScale(0, 0.1);
-            //else if (scancode == 80)
-            //    model->setScale(1, 0.1);
-            //else if (scancode == 81)
-            //    model->setScale(2, 0.1);
-            //else if (scancode == 75)
-            //    model->setRotation(0, 1);
-            //else if (scancode == 76)
-            //    model->setRotation(1, 1);
-            //else if (scancode == 77)
-            //    model->setRotation(2, 1);
+            else if (scancode == 328)
+                renderer->_movance.up = true;
+            else if (scancode == 336)
+                renderer->_movance.down = true;
+            else if (scancode == 331)
+                renderer->_movance.left = true;
+            else if (scancode == 333)
+                renderer->_movance.right = true;
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -584,14 +581,14 @@ namespace Dwarf
 				camera->_down = false;
             else if (scancode == 42)
                 camera->setCameraSpeed(1.0f);
-            //else if (scancode == 328)
-            //    model->setMove(4);
-            //else if (scancode == 336)
-            //    model->setMove(5);
-            //else if (scancode == 331)
-            //    model->setMove(6);
-            //else if (scancode == 333)
-            //    model->setMove(7);
+            else if (scancode == 328)
+                renderer->_movance.up = false;
+            else if (scancode == 336)
+                renderer->_movance.down = false;
+            else if (scancode == 331)
+                renderer->_movance.left = false;
+            else if (scancode == 333)
+                renderer->_movance.right = false;
 		}
 	}
 

@@ -10,5 +10,6 @@ int main(int ac, char **av)
     //el::Loggers::reconfigureLogger("default", c);
 	START_EASYLOGGINGPP(ac, av);
     LOG(INFO) << "=== Dwarf ===";
-	Dwarf::Renderer renderer;
+	Dwarf::Renderer renderer(1280, 720, "Swag Man le brave", true);
+    renderer.run();
 }

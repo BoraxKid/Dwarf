@@ -4,45 +4,36 @@
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTextureCoord;
+layout(location = 3) in vec4 inLightPos;
+layout(location = 4) in vec3 inLightColor;
 
-layout (binding = 0) uniform UBO 
+layout(binding = 0) uniform UBO 
 {
-	vec4 Ka; // ambient
-	vec4 Kd; // diffuse
-	vec4 Ks; // specular
-	vec4 Tf; // transmittance
-	vec4 Ke; // emission
-	float Ns; // shininess
-	float Ni; // ior
-	float d; // dissolve
-	int illum; // illum
+    vec4 Ka; // ambient
+    vec4 Kd; // diffuse
+    vec4 Ks; // specular
+    vec4 Tf; // transmittance
+    vec4 Ke; // emission
+    float Ns; // shininess
+    float Ni; // ior
+    float d; // dissolve
+    int illum; // illum
 } ubo;
 
 layout(binding = 1) uniform sampler2D textureSampler;
 
 layout(location = 0) out vec4 outColor;
 
-struct lightSource
-{
-  vec3 position;
-  vec3 diffuse;
-};
-
-lightSource light0 = lightSource(
-    vec3(0.0, 0.0, 10.0),
-    vec3(1.0, 1.0, 1.0)
-);
+#define MAX_LIGHT_DIST 9.0 * 9.0
 
 void main()
 {
-	//outColor = texture(textureSampler, inFragTextureCoord) * vec4(inDiffuseReflection, 1.0) * ubo.Kd * ubo.illum;
-	vec3 normal = normalize(inNormal);
-
-	vec3 surfaceToLight = light0.position - inPosition;
-
-	float brightness = dot(inNormal, surfaceToLight) / (length(surfaceToLight) * length(inNormal));
-	brightness = clamp(brightness, 0, 1);
-
-	vec4 surfaceColor = texture(textureSampler, inTextureCoord);
-	outColor = vec4(brightness * light0.diffuse * surfaceColor.rgb, surfaceColor.a);
+    vec4 surfaceColor = texture(textureSampler, inTextureCoord);
+    float lRadius =  MAX_LIGHT_DIST * inLightPos.w;
+    float dist = min(dot(inLightPos, inLightPos), lRadius) / lRadius;
+    float distFactor = 1.0 - dist;
+    vec3 diffuse = inLightColor * distFactor;
+    if (ubo.d < 1.0)
+        discard;
+    outColor = surfaceColor * vec4(diffuse, 1.0) * ubo.Kd * ubo.illum;
 }
