@@ -43,12 +43,14 @@ namespace Dwarf
     {
         this->_position = position;
         this->_uniformBuffer.position = glm::vec4(this->_position, this->_radius);
+        this->updateUniformBuffer();
     }
 
     void Light::setColor(const Color &color)
     {
         this->_color = color;
         this->_uniformBuffer.color = this->_color.getColor();
+        this->updateUniformBuffer();
     }
 
     void Light::changeRadius(double radius)
@@ -60,6 +62,7 @@ namespace Dwarf
     {
         this->_radius = radius;
         this->_uniformBuffer.position.w = static_cast<float>(this->_radius);
+        this->updateUniformBuffer();
     }
 
     const LightUniformBuffer &Light::getUniformBuffer() const

@@ -20,11 +20,12 @@ namespace Dwarf
 		this->createCommandPool();
 		this->createDepthResources();
 		this->createFramebuffers();
-        this->_lightManager = new LightManager(this->_device);
-        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent, *this->_lightManager);
-        this->_lightManager->buildDescriptorSet(this->_physicalDevice.getMemoryProperties());
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sportsCar.obj", this->_lightManager->getDescriptorSet()));
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorSet()));
+        this->_lightManager = new LightManager(this->_device, this->_physicalDevice.getMemoryProperties());
+        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj", this->_lightManager->getDescriptorBufferInfo()));
+        this->_models.back()->setRotation(-90.0, 0.0, 0.0);
+        this->_models.back()->setScale(10.0, 10.0, 10.0);
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_materialManager->createDescriptorPool();
         for (auto &model : this->_models)
             this->_commandBufferBuilder->addBuildables(model->getBuildables());
@@ -38,6 +39,7 @@ namespace Dwarf
             delete (model);
         delete (this->_commandBufferBuilder);
         delete (this->_materialManager);
+        delete (this->_lightManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
 		if (!this->_commandBuffers.empty())
@@ -76,6 +78,7 @@ namespace Dwarf
 			glfwPollEvents();
 			start = std::chrono::high_resolution_clock::now();
 			this->_camera.update(frameTimer);
+            this->_lightManager->updateLightPos(frameTimer);
             if (this->_movance.down)
                 this->_models.at(0)->move(0.0, 0.0, -10 * frameTimer);
             if (this->_movance.up)

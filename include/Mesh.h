@@ -23,7 +23,7 @@ namespace Dwarf
 	class Mesh
 	{
 	public:
-        Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorSet &lightDescriptorSet);
+        Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorBufferInfo &lightBufferInfo);
 		virtual ~Mesh();
 
 		void loadFromFile(Dwarf::MaterialManager &materialManager, const std::string &filename);
@@ -44,7 +44,7 @@ namespace Dwarf
 
 	private:
 		const vk::Device &_device;
-        const vk::DescriptorSet &_lightDescriptorSet;
+        const vk::DescriptorBufferInfo &_lightBufferInfo;
         std::vector<Submesh> _submeshes;
         glm::dvec3 _position;
         glm::dvec3 _rotation;

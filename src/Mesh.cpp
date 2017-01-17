@@ -5,8 +5,8 @@
 
 namespace Dwarf
 {
-	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorSet &lightDescriptorSet)
-		: _device(device), _lightDescriptorSet(lightDescriptorSet), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
+	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorBufferInfo &lightBufferInfo)
+		: _device(device), _lightBufferInfo(lightBufferInfo), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
 	{
 		this->loadFromFile(materialManager, meshFilename);
         this->updateTransformationMatrix();
@@ -30,7 +30,7 @@ namespace Dwarf
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename.c_str(), "resources/materials/"))
 			Tools::exitOnError(error);
 		Material *tmpMaterial = nullptr;
-        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix, this->_lightDescriptorSet));
+        this->_submeshes.push_back(Submesh(materialManager.getMaterial("default"), this->_transformationMatrix, this->_lightBufferInfo));
 		for (const auto &material : materials)
 		{
             tmpMaterial = materialManager.createMaterial(material.name, !material.diffuse_texname.empty());
@@ -74,7 +74,7 @@ namespace Dwarf
 				tmpMaterial->createEmissiveTexture(material.emissive_texname);
 			if (!material.normal_texname.empty())
 				tmpMaterial->createNormalTexture(material.normal_texname);*/
-            this->_submeshes.push_back(Submesh(tmpMaterial, this->_transformationMatrix, this->_lightDescriptorSet));
+            this->_submeshes.push_back(Submesh(tmpMaterial, this->_transformationMatrix, this->_lightBufferInfo));
             tmpMaterial = nullptr;
 		}
 
@@ -166,6 +166,7 @@ namespace Dwarf
         this->_position = position;
         this->_positionMatrix = glm::translate(glm::dmat4(), this->_position);
         this->updateTransformationMatrix();
+        std::cout << "x: " << this->_position.x << "y: " << this->_position.y << "z: " << this->_position.z << std::endl;
     }
 
     void Mesh::scale(double x, double y, double z)

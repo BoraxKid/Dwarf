@@ -3,12 +3,11 @@
 
 namespace Dwarf
 {
-	MaterialManager::MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent, LightManager &lightManager)
+	MaterialManager::MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent)
         : _device(device), _graphicsQueue(graphicsQueue), _renderPass(renderPass), _swapChainExtent(swapChainExtent), _lastID(0)
 	{
         this->createDescriptorSetLayout();
-        this->createPipelineLayout(lightManager.createDescriptorSetLayout());
-        lightManager.setPipelineLayout(this->_pipelineLayout);
+        this->createPipelineLayout();
         this->createMaterial("default", false);
 	}
 
@@ -99,11 +98,10 @@ namespace Dwarf
         this->_descriptorSetLayout = this->_device.createDescriptorSetLayout(layoutInfo, CUSTOM_ALLOCATOR);
     }
 
-    void MaterialManager::createPipelineLayout(const vk::DescriptorSetLayout &lightDescriptorSetLayout)
+    void MaterialManager::createPipelineLayout()
     {
         vk::PushConstantRange pushConstantInfo(vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4) * 2);
-        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { this->_descriptorSetLayout, lightDescriptorSetLayout };
-        vk::PipelineLayoutCreateInfo pipelineLayoutInfo(vk::PipelineLayoutCreateFlags(), 2, descriptorSetLayouts.data(), 1, &pushConstantInfo);
+        vk::PipelineLayoutCreateInfo pipelineLayoutInfo(vk::PipelineLayoutCreateFlags(), 1, &this->_descriptorSetLayout, 1, &pushConstantInfo);
         if (this->_pipelineLayout)
             this->_device.destroyPipelineLayout(this->_pipelineLayout, CUSTOM_ALLOCATOR);
         this->_pipelineLayout = this->_device.createPipelineLayout(pipelineLayoutInfo, CUSTOM_ALLOCATOR);

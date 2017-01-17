@@ -19,6 +19,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "CommandBufferBuilder.h"
+#include "LightManager.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"

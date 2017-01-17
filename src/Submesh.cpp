@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-    Submesh::Submesh(Material *material, const glm::mat4 &transformMatrix, const vk::DescriptorSet &lightDescriptorSet)
-        : _lightDescriptorSet(lightDescriptorSet), _material(material), _transform(transformMatrix)
+    Submesh::Submesh(Material *material, const glm::mat4 &transformMatrix, const vk::DescriptorBufferInfo &lightBufferInfo)
+        : _lightBufferInfo(lightBufferInfo), _material(material), _transform(transformMatrix)
     {
     }
 
@@ -92,7 +92,7 @@ namespace Dwarf
         device.destroyBuffer(indexBuffer, CUSTOM_ALLOCATOR);
         device.destroyBuffer(vertexBuffer, CUSTOM_ALLOCATOR);
 
-        this->_material->buildDescriptorSet(this->_buffer, this->_uniformBufferOffset, memProperties);
+        this->_material->buildDescriptorSet(this->_buffer, this->_uniformBufferOffset, memProperties, this->_lightBufferInfo);
     }
 
     void Submesh::buildCommandBuffer(const vk::CommandBufferInheritanceInfo &inheritanceInfo, const glm::mat4 &mvp, const vk::Extent2D &extent) const
@@ -109,8 +109,7 @@ namespace Dwarf
 
         this->_commandBuffer.bindVertexBuffers(0, this->_buffer, this->_vertexBufferOffset);
         this->_commandBuffer.bindIndexBuffer(this->_buffer, this->_indexBufferOffset, vk::IndexType::eUint32);
-        std::array<vk::DescriptorSet, 2> descriptorSets = { this->_material->getDescriptorSet(), this->_lightDescriptorSet };
-        this->_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, this->_material->getPipelineLayout(), 0, descriptorSets, nullptr);
+        this->_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, this->_material->getPipelineLayout(), 0, this->_material->getDescriptorSet(), nullptr);
         this->_commandBuffer.drawIndexed(static_cast<uint32_t>(this->_indices.size()), 1, 0, 0, 0);
         this->_commandBuffer.end();
     }

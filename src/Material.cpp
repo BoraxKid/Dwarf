@@ -14,12 +14,12 @@ namespace Dwarf
             delete (texture.second);
 	}
 
-    void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties)
+    void Material::buildDescriptorSet(const vk::Buffer &buffer, const vk::DeviceSize &uniformBufferOffset, const vk::PhysicalDeviceMemoryProperties &memProperties, const vk::DescriptorBufferInfo &lightBufferInfo)
     {
         //vk::DescriptorImageInfo &imageInfo = this->_texture->createTexture(memProperties, descriptorPool, descriptorSetLayout);
 
         vk::DescriptorBufferInfo bufferInfo(buffer, uniformBufferOffset, sizeof(MaterialUniformBuffer));
-        std::vector<vk::WriteDescriptorSet> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo)/*, vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo)*/ };
+        std::vector<vk::WriteDescriptorSet> descriptorWrites = { vk::WriteDescriptorSet(this->_descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo), vk::WriteDescriptorSet(this->_descriptorSet, 2, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &lightBufferInfo) };
         for (auto &texture : this->_textures)
             descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &texture.second->createTexture(memProperties)));
         this->_device.updateDescriptorSets(descriptorWrites, nullptr);

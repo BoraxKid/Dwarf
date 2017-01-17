@@ -5,14 +5,13 @@
 #include <map>
 
 #include "Material.h"
-#include "LightManager.h"
 
 namespace Dwarf
 {
 	class MaterialManager
 	{
 	public:
-		MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent, LightManager &lightManager);
+		MaterialManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::RenderPass &renderPass, const vk::Extent2D &swapChainExtent);
 		virtual ~MaterialManager();
         bool exist(const Material::ID materialID) const;
         bool exist(const std::string &materialName) const;
@@ -24,7 +23,7 @@ namespace Dwarf
 
 	private:
         void createDescriptorSetLayout();
-        void createPipelineLayout(const vk::DescriptorSetLayout &lightDescriptorSetLayout);
+        void createPipelineLayout();
         void createMaterialPipeline(const Material::ID &materialID, bool diffuseTexture);
 		bool isSame(const Material::ID &leftMaterialID, Material *rightMaterial) const;
 

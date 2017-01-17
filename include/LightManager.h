@@ -10,21 +10,17 @@ namespace Dwarf
     class LightManager
     {
     public:
-        LightManager(const vk::Device &device);
+        LightManager(const vk::Device &device, const vk::PhysicalDeviceMemoryProperties &memProperties);
         virtual ~LightManager();
-        void setPipelineLayout(vk::PipelineLayout pipelineLayout);
-        vk::DescriptorSetLayout createDescriptorSetLayout();
-        void createDescriptorSet();
         void buildDescriptorSet(const vk::PhysicalDeviceMemoryProperties &memProperties);
         void updateLightPos(float elapsedTime);
-        const vk::DescriptorSet &getDescriptorSet() const;
+        const vk::DescriptorBufferInfo &getDescriptorBufferInfo() const;
 
     private:
         const vk::Device &_device;
-        vk::PipelineLayout _pipelineLayout;
-        vk::DescriptorSetLayout _descriptorSetLayout;
-        vk::DescriptorPool _descriptorPool;
-        vk::DescriptorSet _descriptorSet;
+        vk::DescriptorBufferInfo _descriptorBufferInfo;
+        float _speed;
+        float _angle;
         Light _light;
         vk::DeviceMemory _bufferMemory;
         vk::Buffer _uniformBuffer;
