@@ -143,7 +143,7 @@ namespace Dwarf
 			createInfo.enabledLayerCount = static_cast<uint32_t>(gValidationLayers.size());
 			createInfo.ppEnabledLayerNames = gValidationLayers.data();
 		}
-		if (this->_instance != (vk::Instance)VK_NULL_HANDLE)
+		if (this->_instance)
 			this->_instance.destroy(CUSTOM_ALLOCATOR);
 		this->_instance = vk::createInstance(createInfo, CUSTOM_ALLOCATOR);
 
@@ -158,7 +158,7 @@ namespace Dwarf
 
 	void Renderer::createSurface()
 	{
-		if (this->_surface != (vk::SurfaceKHR)VK_NULL_HANDLE)
+		if (this->_surface)
 			this->_instance.destroySurfaceKHR(this->_surface, CUSTOM_ALLOCATOR);
 		Tools::exitOnResult(static_cast<vk::Result>(glfwCreateWindowSurface((VkInstance)this->_instance, this->_window, CUSTOM_ALLOCATOR, (VkSurfaceKHR *)&this->_surface)));
 	}
