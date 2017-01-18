@@ -1,5 +1,5 @@
-#ifndef DWARF_COMMANDBUFFERBUILDER_H_
-#define DWARF_COMMANDBUFFERBUILDER_H_
+#ifndef DWARF_COMMANDBUFFERSBUILDER_H_
+#define DWARF_COMMANDBUFFERSBUILDER_H_
 #pragma once
 
 #include <vector>
@@ -10,11 +10,11 @@
 
 namespace Dwarf
 {
-    class CommandBufferBuilder
+    class CommandBuffersBuilder
     {
     public:
-        CommandBufferBuilder(const vk::Device &device, const vk::RenderPass &renderPass, std::vector<vk::Framebuffer> &swapChainFramebuffers, const vk::Extent2D &swapChainExtent, ThreadPool &threadPool, const uint32_t &numThreads);
-        virtual ~CommandBufferBuilder();
+        CommandBuffersBuilder(const vk::Device &device, const vk::RenderPass &renderPass, std::vector<vk::Framebuffer> &swapChainFramebuffers, const vk::Extent2D &swapChainExtent, ThreadPool &threadPool, const uint32_t &numThreads);
+        virtual ~CommandBuffersBuilder();
         void createCommandPools(const uint32_t &graphicsFamily);
         void createCommandBuffers(const vk::Queue &graphicsQueue, vk::PhysicalDeviceMemoryProperties &memProperties);
         void buildCommandBuffers(const std::vector<vk::CommandBuffer> &commandBuffers, const glm::mat4 &mvp);
@@ -34,4 +34,4 @@ namespace Dwarf
     };
 }
 
-#endif // DWARF_COMMANDBUFFERBUILDER_H_
+#endif // DWARF_COMMANDBUFFERSBUILDER_H_

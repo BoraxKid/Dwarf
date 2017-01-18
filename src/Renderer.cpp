@@ -7,7 +7,7 @@ namespace Dwarf
 	{
         this->_numThreads = std::thread::hardware_concurrency();
         this->_threadPool.setThreadCount(this->_numThreads);
-        this->_commandBufferBuilder = new CommandBufferBuilder(this->_device, this->_renderPass, this->_swapChainFramebuffers, this->_swapChainExtent, this->_threadPool, this->_numThreads);
+        this->_commandBufferBuilder = new CommandBuffersBuilder(this->_device, this->_renderPass, this->_swapChainFramebuffers, this->_swapChainExtent, this->_threadPool, this->_numThreads);
         this->createWindow(width, height, title);
 		this->createInstance();
 		this->setupDebugCallback();
@@ -551,6 +551,7 @@ namespace Dwarf
 		Renderer *renderer = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(window));
 		Camera *camera = renderer->getCamera();
 
+        std::cout << scancode << std::endl;
 		if (action == GLFW_PRESS)
 		{
             if (scancode == 32)
@@ -571,6 +572,8 @@ namespace Dwarf
                 renderer->_movance.left = true;
             else if (scancode == 333)
                 renderer->_movance.right = true;
+            else if (scancode == 56) // ALT
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -592,6 +595,8 @@ namespace Dwarf
                 renderer->_movance.left = false;
             else if (scancode == 333)
                 renderer->_movance.right = false;
+            else if (scancode == 56) // ALT
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 	}
 

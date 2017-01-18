@@ -51,15 +51,126 @@ ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 FILE(
     GLOB_RECURSE
-    SOURCE_FILES
-	include/*.h
-    src/*.cpp
+    MAIN_SOURCE_FILES
+    src/main.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    MATERIAL_HEADER_FILES
+    include/Material.h
+    include/MaterialManager.h
+    include/Texture.h
+)
+
+FILE(
+    GLOB_RECURSE
+    MATERIAL_SOURCE_FILES
+    src/Material.cpp
+    src/MaterialManager.cpp
+    src/Texture.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    MESH_HEADER_FILES
+    include/Mesh.h
+    include/Submesh.h
+)
+
+FILE(
+    GLOB_RECURSE
+    MESH_SOURCE_FILES
+    src/Mesh.cpp
+    src/Submesh.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    LIGHT_HEADER_FILES
+    include/Light.h
+    include/LightManager.h
+)
+
+FILE(
+    GLOB_RECURSE
+    LIGHT_SOURCE_FILES
+    src/Light.cpp
+    src/LightManager.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    COMMANDBUFFER_HEADER_FILES
+    include/CommandBuffersBuilder.h
+    include/IBuildable.h
+)
+
+FILE(
+    GLOB_RECURSE
+    COMMANDBUFFER_SOURCE_FILES
+    src/CommandBuffersBuilder.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    RENDERER_HEADER_FILES
+    include/Camera.h
+    include/Renderer.h
+)
+
+FILE(
+    GLOB_RECURSE
+    RENDERER_SOURCE_FILES
+    src/Camera.cpp
+    src/Renderer.cpp
+)
+
+FILE(
+    GLOB_RECURSE
+    HELPER_HEADER_FILES
+    include/Color.h
+    include/ThreadPool.h
+    include/Tools.h
+)
+
+FILE(
+    GLOB_RECURSE
+    HELPER_SOURCE_FILES
+    src/Color.cpp
+    src/ThreadPool.cpp
+    src/Tools.cpp
 )
 
 ADD_EXECUTABLE(
     Dwarf
-    ${SOURCE_FILES}
+    ${MAIN_SOURCE_FILES}
+    ${MATERIAL_HEADER_FILES}
+    ${MATERIAL_SOURCE_FILES}
+    ${MESH_HEADER_FILES}
+    ${MESH_SOURCE_FILES}
+    ${LIGHT_HEADER_FILES}
+    ${LIGHT_SOURCE_FILES}
+    ${COMMANDBUFFER_HEADER_FILES}
+    ${COMMANDBUFFER_SOURCE_FILES}
+    ${RENDERER_HEADER_FILES}
+    ${RENDERER_SOURCE_FILES}
+    ${HELPER_HEADER_FILES}
+    ${HELPER_SOURCE_FILES}
 )
+
+SOURCE_GROUP("Header Files\\Material" FILES ${MATERIAL_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Material" FILES ${MATERIAL_SOURCE_FILES})
+SOURCE_GROUP("Header Files\\Mesh" FILES ${MESH_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Mesh" FILES ${MESH_SOURCE_FILES})
+SOURCE_GROUP("Header Files\\Lighting" FILES ${LIGHT_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Lighting" FILES ${LIGHT_SOURCE_FILES})
+SOURCE_GROUP("Header Files\\Command Buffer" FILES ${COMMANDBUFFER_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Command Buffer" FILES ${COMMANDBUFFER_SOURCE_FILES})
+SOURCE_GROUP("Header Files\\Renderer" FILES ${RENDERER_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Renderer" FILES ${RENDERER_SOURCE_FILES})
+SOURCE_GROUP("Header Files\\Helper" FILES ${HELPER_HEADER_FILES})
+SOURCE_GROUP("Source Files\\Helper" FILES ${HELPER_SOURCE_FILES})
 
 TARGET_LINK_LIBRARIES(
     Dwarf

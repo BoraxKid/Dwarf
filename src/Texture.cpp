@@ -18,7 +18,7 @@ namespace Dwarf
 		this->_device.destroyImage(this->_textureImage, CUSTOM_ALLOCATOR);
 	}
 
-	vk::DescriptorImageInfo &Texture::createTexture(vk::PhysicalDeviceMemoryProperties memProperties)
+	vk::DescriptorImageInfo &Texture::createTexture(const vk::PhysicalDeviceMemoryProperties &memProperties)
 	{
 		int textureWidth;
 		int textureHeight;

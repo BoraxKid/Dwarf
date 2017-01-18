@@ -54,10 +54,6 @@ namespace Dwarf
         glm::dmat4 _scaleMatrix;
         glm::dmat4 _preciseTransformationMatrix;
         glm::mat4 _transformationMatrix;
-        bool _left;
-        bool _right;
-        bool _up;
-        bool _down;
 	};
 }
 

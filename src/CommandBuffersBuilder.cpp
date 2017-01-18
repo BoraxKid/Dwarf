@@ -1,13 +1,13 @@
-#include "CommandBufferBuilder.h"
+#include "CommandBuffersBuilder.h"
 
 namespace Dwarf
 {
-    CommandBufferBuilder::CommandBufferBuilder(const vk::Device &device, const vk::RenderPass &renderPass, std::vector<vk::Framebuffer> &swapChainFramebuffers, const vk::Extent2D &swapChainExtent, ThreadPool &threadPool, const uint32_t &numThreads)
+    CommandBuffersBuilder::CommandBuffersBuilder(const vk::Device &device, const vk::RenderPass &renderPass, std::vector<vk::Framebuffer> &swapChainFramebuffers, const vk::Extent2D &swapChainExtent, ThreadPool &threadPool, const uint32_t &numThreads)
         : _device(device), _renderPass(renderPass), _swapChainFramebuffers(swapChainFramebuffers), _swapChainExtent(swapChainExtent), _threadPool(threadPool), _numThreads(numThreads)
     {
     }
 
-    CommandBufferBuilder::~CommandBufferBuilder()
+    CommandBuffersBuilder::~CommandBuffersBuilder()
     {
         for (const auto &commandPool : this->_commandPools)
         {
@@ -16,7 +16,7 @@ namespace Dwarf
         }
     }
 
-    void CommandBufferBuilder::createCommandPools(const uint32_t &graphicsFamily)
+    void CommandBuffersBuilder::createCommandPools(const uint32_t &graphicsFamily)
     {
         vk::CommandPoolCreateInfo poolInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, graphicsFamily);
         this->_commandPools.resize(this->_numThreads);
@@ -28,7 +28,7 @@ namespace Dwarf
         }
     }
 
-    void CommandBufferBuilder::createCommandBuffers(const vk::Queue &graphicsQueue, vk::PhysicalDeviceMemoryProperties &memProperties)
+    void CommandBuffersBuilder::createCommandBuffers(const vk::Queue &graphicsQueue, vk::PhysicalDeviceMemoryProperties &memProperties)
     {
         uint32_t minObjectsPerThread = static_cast<uint32_t>(this->_buildables.size()) / this->_numThreads;
         this->_orderedBuildables.clear();
@@ -66,7 +66,7 @@ namespace Dwarf
         }
     }
 
-    void CommandBufferBuilder::buildCommandBuffers(const std::vector<vk::CommandBuffer> &commandBuffers, const glm::mat4 &mvp)
+    void CommandBuffersBuilder::buildCommandBuffers(const std::vector<vk::CommandBuffer> &commandBuffers, const glm::mat4 &mvp)
     {
         std::vector<vk::CommandBuffer> builtCommandBuffers;
         vk::CommandBufferBeginInfo beginInfo;
@@ -99,12 +99,12 @@ namespace Dwarf
         }
     }
 
-    void CommandBufferBuilder::addBuildable(IBuildable *buildable)
+    void CommandBuffersBuilder::addBuildable(IBuildable *buildable)
     {
         this->_buildables.push_back(buildable);
     }
 
-    void CommandBufferBuilder::addBuildables(std::vector<IBuildable*> &buildables)
+    void CommandBuffersBuilder::addBuildables(std::vector<IBuildable*> &buildables)
     {
         this->_buildables.insert(this->_buildables.end(), buildables.begin(), buildables.end());
     }

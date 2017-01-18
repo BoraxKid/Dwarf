@@ -18,7 +18,7 @@
 #include "Tools.h"
 #include "Mesh.h"
 #include "Camera.h"
-#include "CommandBufferBuilder.h"
+#include "CommandBuffersBuilder.h"
 #include "LightManager.h"
 
 const std::vector<const char *> gValidationLayers = {
@@ -176,7 +176,7 @@ namespace Dwarf
         MaterialManager *_materialManager;
 		std::vector<Mesh *> _models;
         ThreadPool _threadPool;
-        CommandBufferBuilder *_commandBufferBuilder;
+        CommandBuffersBuilder *_commandBufferBuilder;
         uint32_t _numThreads;
         bool _fifo;
         struct {

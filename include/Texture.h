@@ -14,7 +14,7 @@ namespace Dwarf
 		Texture(const vk::Device &device, vk::CommandPool *commandPool, const vk::Queue &graphicsQueue, const std::string textureName, vk::ImageLayout imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal);
 		virtual ~Texture();
 
-		vk::DescriptorImageInfo &createTexture(vk::PhysicalDeviceMemoryProperties memProperties);
+		vk::DescriptorImageInfo &createTexture(const vk::PhysicalDeviceMemoryProperties &memProperties);
         void setCommandPool(vk::CommandPool *commandPool);
 
 	private:
