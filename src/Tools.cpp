@@ -147,7 +147,7 @@ namespace Dwarf
 			return (commandBuffers.at(0));
 		}
 
-		void endSingleTimeCommands(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, vk::CommandBuffer commandBuffer)
+		void endSingleTimeCommands(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, const vk::CommandBuffer &commandBuffer)
 		{
 			vk::SubmitInfo submitInfo;
 

@@ -20,6 +20,7 @@
 #include "Camera.h"
 #include "CommandBuffersBuilder.h"
 #include "LightManager.h"
+#include "DeviceAllocationManager.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"

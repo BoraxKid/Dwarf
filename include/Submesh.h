@@ -50,7 +50,9 @@ namespace Dwarf
         void setVertices(const std::vector<Vertex> &vertices);
         void setIndices(const std::vector<uint32_t> &indices);
         size_t getVerticesCount() const;
+        const std::vector<Vertex> &getVertices() const;
         size_t getIndicesCount() const;
+        const std::vector<uint32_t> &getIndices() const;
         virtual vk::CommandBuffer getCommandBuffer() const;
 
     private:

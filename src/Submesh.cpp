@@ -140,9 +140,19 @@ namespace Dwarf
         return (this->_vertices.size());
     }
 
+    const std::vector<Vertex> &Submesh::getVertices() const
+    {
+        return (this->_vertices);
+    }
+
     size_t Submesh::getIndicesCount() const
     {
         return (this->_indices.size());
+    }
+
+    const std::vector<uint32_t> &Submesh::getIndices() const
+    {
+        return (this->_indices);
     }
 
     vk::CommandBuffer Submesh::getCommandBuffer() const

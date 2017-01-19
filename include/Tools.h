@@ -29,7 +29,7 @@ namespace Dwarf
 		void createImageView(const vk::Device &device, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageView &imageView);
 		void transitionImageLayout(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 		vk::CommandBuffer beginSingleTimeCommands(const vk::Device &device, const vk::CommandPool &commandPool);
-		void endSingleTimeCommands(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, vk::CommandBuffer commandBuffer);
+		void endSingleTimeCommands(const vk::Device &device, const vk::Queue &queue, const vk::CommandPool &commandPool, const vk::CommandBuffer &commandBuffer);
 		
 		inline void exitOnError(const std::string &error, const char *file, const int line)
 		{

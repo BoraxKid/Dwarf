@@ -214,4 +214,9 @@ namespace Dwarf
         this->_rotationMatrix = glm::rotate(this->_rotationMatrix, glm::radians(this->_rotation.z), glm::dvec3(0.0, 0.0, 1.0));
         this->updateTransformationMatrix();
     }
+
+    const std::vector<Submesh> &Mesh::getSubmeshes() const
+    {
+        return (this->_submeshes);
+    }
 }
