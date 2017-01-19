@@ -41,7 +41,7 @@ namespace Dwarf
         void rotate(const glm::dvec3 &rotation);
         void setRotation(double x, double y, double z);
         void setRotation(const glm::dvec3 &rotation);
-        const std::vector<Submesh> &getSubmeshes() const;
+        std::vector<Submesh> &getSubmeshes();
 
 	private:
 		const vk::Device &_device;

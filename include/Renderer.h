@@ -186,6 +186,7 @@ namespace Dwarf
             bool down = false;
             bool up = false;
         } _movance;
+        DeviceAllocationManager *_deviceAllocator;
 	};
 }
 

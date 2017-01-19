@@ -9,6 +9,10 @@ namespace Dwarf
 
     DeviceAllocationManager::~DeviceAllocationManager()
     {
+        for (const auto &deviceMemory : this->_deviceMemories)
+            this->_device.freeMemory(deviceMemory, CUSTOM_ALLOCATOR);
+        for (const auto &buffer : this->_buffers)
+            this->_device.destroyBuffer(buffer, CUSTOM_ALLOCATOR);
     }
 
     void DeviceAllocationManager::allocate(const std::vector<Mesh *> &meshes, const vk::CommandPool &commandPool)
@@ -34,10 +38,7 @@ namespace Dwarf
                 }
             }
         }
-        vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), totalVertexBuffersSize, vk::BufferUsageFlagBits::eVertexBuffer);
-        vk::Buffer temporaryVertexBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-        vk::MemoryRequirements memoryRequirements = this->_device.getBufferMemoryRequirements(temporaryVertexBuffer);
-        this->_device.destroyBuffer(temporaryVertexBuffer, CUSTOM_ALLOCATOR);
+        vk::MemoryRequirements memoryRequirements = this->getMemoryRequirements(totalVertexBuffersSize + totalIndexBuffersSize, vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer);
 
         totalVertexBuffersSize = 0;
         for (auto &vertexBufferSize : separateVertexBuffersSizes)
@@ -47,16 +48,19 @@ namespace Dwarf
                 vertexBufferSize = tmp;
             totalVertexBuffersSize += vertexBufferSize;
         }
-        bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), totalVertexBuffersSize, vk::BufferUsageFlagBits::eVertexBuffer);
-        temporaryVertexBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-        memoryRequirements = this->_device.getBufferMemoryRequirements(temporaryVertexBuffer);
-        this->_device.destroyBuffer(temporaryVertexBuffer, CUSTOM_ALLOCATOR);
-        LOG(INFO) << "Size needed: " << totalVertexBuffersSize << " and size form requirements: " << memoryRequirements.size;
+        totalIndexBuffersSize = 0;
+        for (auto &indexBufferSize : separateIndexBuffersSizes)
+        {
+            tmp = (indexBufferSize + (memoryRequirements.alignment - indexBufferSize % memoryRequirements.alignment));
+            if (indexBufferSize != tmp)
+                indexBufferSize = tmp;
+            totalIndexBuffersSize += indexBufferSize;
+        }
+        memoryRequirements = this->getMemoryRequirements(totalVertexBuffersSize + totalIndexBuffersSize, vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer);
 
-        bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), memoryRequirements.size, vk::BufferUsageFlagBits::eTransferSrc);
+        vk::BufferCreateInfo bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), memoryRequirements.size, vk::BufferUsageFlagBits::eTransferSrc);
         vk::Buffer stagingBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
         memoryRequirements = this->_device.getBufferMemoryRequirements(stagingBuffer);
-        LOG(INFO) << "Size from requirements: " << memoryRequirements.size;
         vk::MemoryAllocateInfo allocInfo(memoryRequirements.size, Tools::getMemoryType(this->_physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
         vk::DeviceMemory stagingBufferMemory = this->_device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
 
@@ -64,22 +68,38 @@ namespace Dwarf
         void *data;
         tmp = 0;
         size_t i = 0;
-        for (const auto &mesh : meshes)
+        for (auto &mesh : meshes)
         {
-            for (const auto &submesh : mesh->getSubmeshes())
+            for (auto &submesh : mesh->getSubmeshes())
             {
                 if (sizeof(Vertex) * submesh.getVerticesCount() > 0)
                 {
                     data = this->_device.mapMemory(stagingBufferMemory, tmp, static_cast<vk::DeviceSize>(sizeof(Vertex) * submesh.getVerticesCount()));
                     memcpy(data, submesh.getVertices().data(), static_cast<size_t>(sizeof(Vertex) * submesh.getVerticesCount()));
                     this->_device.unmapMemory(stagingBufferMemory);
+                    submesh.setVertexBufferOffset(tmp);
                     tmp += separateVertexBuffersSizes.at(i);
                     ++i;
                 }
             }
         }
-        
-        bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), memoryRequirements.size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+        i = 0;
+        for (auto &mesh : meshes)
+        {
+            for (auto &submesh : mesh->getSubmeshes())
+            {
+                if (sizeof(uint32_t) * submesh.getIndicesCount() > 0)
+                {
+                    data = this->_device.mapMemory(stagingBufferMemory, tmp, static_cast<vk::DeviceSize>(sizeof(uint32_t) * submesh.getIndicesCount()));
+                    memcpy(data, submesh.getIndices().data(), static_cast<size_t>(sizeof(uint32_t) * submesh.getIndicesCount()));
+                    this->_device.unmapMemory(stagingBufferMemory);
+                    submesh.setIndexBufferOffset(tmp);
+                    tmp += separateIndexBuffersSizes.at(i);
+                    ++i;
+                }
+            }
+        }
+        bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), memoryRequirements.size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer);
         this->_buffers.push_back(this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR));
         memoryRequirements = this->_device.getBufferMemoryRequirements(this->_buffers.back());
         LOG(INFO) << "Size from requirements: " << memoryRequirements.size;
@@ -91,9 +111,19 @@ namespace Dwarf
         singleUseCommandBuffer.copyBuffer(stagingBuffer, this->_buffers.back(), vk::BufferCopy(0, 0, memoryRequirements.size));
         Tools::endSingleTimeCommands(this->_device, this->_graphicsQueue, commandPool, singleUseCommandBuffer);
 
-        this->_device.freeMemory(this->_deviceMemories.back(), CUSTOM_ALLOCATOR);
-        this->_device.destroyBuffer(this->_buffers.back(), CUSTOM_ALLOCATOR);
+        for (const auto &mesh : meshes)
+            for (auto &submesh : mesh->getSubmeshes())
+                submesh.setBuffer(this->_buffers.back());
         this->_device.freeMemory(stagingBufferMemory, CUSTOM_ALLOCATOR);
-        this->_device.destroyBuffer(stagingBuffer);
+        this->_device.destroyBuffer(stagingBuffer, CUSTOM_ALLOCATOR);
+    }
+
+    vk::MemoryRequirements DeviceAllocationManager::getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const
+    {
+        vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), size, usage);
+        vk::Buffer temporaryBuffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
+        vk::MemoryRequirements memoryRequirements = this->_device.getBufferMemoryRequirements(temporaryBuffer);
+        this->_device.destroyBuffer(temporaryBuffer, CUSTOM_ALLOCATOR);
+        return (memoryRequirements);
     }
 }

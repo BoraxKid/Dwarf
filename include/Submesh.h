@@ -53,6 +53,9 @@ namespace Dwarf
         const std::vector<Vertex> &getVertices() const;
         size_t getIndicesCount() const;
         const std::vector<uint32_t> &getIndices() const;
+        void setBuffer(const vk::Buffer &buffer);
+        void setVertexBufferOffset(const vk::DeviceSize &vertexBufferOffset);
+        void setIndexBufferOffset(const vk::DeviceSize &indexBufferOffset);
         virtual vk::CommandBuffer getCommandBuffer() const;
 
     private:
@@ -64,6 +67,7 @@ namespace Dwarf
         std::vector<uint32_t> _indices;
         vk::DeviceMemory _buffersMemory;
         vk::Buffer _buffer;
+        vk::Buffer _uniformBuffer;
         vk::DeviceSize _vertexBufferOffset;
         vk::DeviceSize _indexBufferOffset;
         vk::DeviceSize _uniformBufferOffset;

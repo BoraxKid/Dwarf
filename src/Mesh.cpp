@@ -215,7 +215,7 @@ namespace Dwarf
         this->updateTransformationMatrix();
     }
 
-    const std::vector<Submesh> &Mesh::getSubmeshes() const
+    std::vector<Submesh> &Mesh::getSubmeshes()
     {
         return (this->_submeshes);
     }

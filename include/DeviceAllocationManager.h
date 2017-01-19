@@ -17,6 +17,8 @@ namespace Dwarf
         void allocate(const std::vector<Mesh *> &meshes, const vk::CommandPool &commandPool);
 
     private:
+        vk::MemoryRequirements getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const;
+
         const vk::Device &_device;
         const vk::Queue &_graphicsQueue;
         const vk::PhysicalDeviceMemoryProperties _physicalDeviceMemoryProperties;
