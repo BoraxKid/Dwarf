@@ -22,7 +22,7 @@ namespace Dwarf
 		this->createFramebuffers();
         this->_lightManager = new LightManager(this->_device, this->_physicalDevice.getMemoryProperties());
         this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sportsCar.obj", this->_lightManager->getDescriptorBufferInfo()));
+        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_models.back()->setRotation(-90.0, 0.0, 0.0);
         this->_models.back()->setScale(10.0, 10.0, 10.0);
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));

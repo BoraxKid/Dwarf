@@ -1,0 +1,37 @@
+{
+    // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+    "configurations": [
+        {
+            "buildCommandArgs": "-m -v:minimal",
+            "buildRoot": "${ProjectDir}\\build\\${workspaceHash}\\build\\${name}",
+            "cmakeCommandArgs": "",
+            "configurationType": "Debug",
+            "generator": "Visual Studio 15 2017",
+            "name": "x86-Debug"
+        },
+        {
+            "buildCommandArgs": "-m -v:minimal",
+            "buildRoot": "${ProjectDir}\\build\\${workspaceHash}\\build\\${name}",
+            "cmakeCommandArgs": "",
+            "configurationType": "Release",
+            "generator": "Visual Studio 15 2017",
+            "name": "x86-Release"
+        },
+        {
+            "buildCommandArgs": "-m -v:minimal",
+            "buildRoot": "${ProjectDir}\\build\\${workspaceHash}\\build\\${name}",
+            "cmakeCommandArgs": "",
+            "configurationType": "Debug",
+            "generator": "Visual Studio 15 2017 Win64",
+            "name": "x64-Debug"
+        },
+        {
+            "buildCommandArgs": "-m -v:minimal",
+            "buildRoot": "${ProjectDir}\\build\\${workspaceHash}\\build\\${name}",
+            "cmakeCommandArgs": "",
+            "configurationType": "Release",
+            "generator": "Visual Studio 15 2017 Win64",
+            "name": "x64-Release"
+        }
+    ]
+}

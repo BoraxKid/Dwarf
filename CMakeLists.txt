@@ -10,12 +10,12 @@ SET(INCLUDE_DIR_STB "C:/Libraries/stb" CACHE PATH "stb's include directory")
 SET(INCLUDE_DIR_TINYOBJLOADER "C:/Libraries/tinyobjloader" CACHE PATH "tinyobjloader's include directory")
 SET(INCLUDE_DIR_GLFW32 "C:/Libraries/GLFW/win32/include" CACHE PATH "GLFW's include directory for 32 bits build")
 SET(INCLUDE_DIR_GLFW64 "C:/Libraries/GLFW/win64/include" CACHE PATH "GLFW's include directory for 64 bits build")
-SET(INCLUDE_DIR_VULKAN "C:/Libraries/VulkanSDK/1.0.37.0/Include" CACHE PATH "Vulkan's include directory")
+SET(INCLUDE_DIR_VULKAN "C:/Libraries/VulkanSDK/1.0.39.0/Include" CACHE PATH "Vulkan's include directory")
 
 SET(LIB_DIR_GLFW32 "C:/Libraries/GLFW/win32/lib-vc2015" CACHE PATH "GLFW's library directory for 32 bits build")
 SET(LIB_DIR_GLFW64 "C:/Libraries/GLFW/win64/lib-vc2015" CACHE PATH "GLFW's library directory for 64 bits build")
-SET(LIB_DIR_VULKAN32 "C:/Libraries/VulkanSDK/1.0.37.0/Bin32" CACHE PATH "Vulkan's library directory for 32 bits build")
-SET(LIB_DIR_VULKAN64 "C:/Libraries/VulkanSDK/1.0.37.0/Bin" CACHE PATH "Vulkan's library directory for 64 bits build")
+SET(LIB_DIR_VULKAN32 "C:/Libraries/VulkanSDK/1.0.39.0/Bin32" CACHE PATH "Vulkan's library directory for 32 bits build")
+SET(LIB_DIR_VULKAN64 "C:/Libraries/VulkanSDK/1.0.39.0/Bin" CACHE PATH "Vulkan's library directory for 64 bits build")
 
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	INCLUDE_DIRECTORIES(
