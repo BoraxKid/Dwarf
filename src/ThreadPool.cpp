@@ -81,7 +81,7 @@ namespace Dwarf
         this->_threads.clear();
         while (i < threadCount)
         {
-            this->_threads.push_back(make_unique<Thread>());
+            this->_threads.push_back(std::make_unique<Thread>());
             ++i;
         }
         this->_beginThreadsIterator = this->_threads.begin();

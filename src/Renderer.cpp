@@ -24,7 +24,7 @@ namespace Dwarf
         this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_models.back()->setRotation(-90.0, 0.0, 0.0);
-        this->_models.back()->setScale(10.0, 10.0, 10.0);
+        this->_models.back()->setScale(5.0, 5.0, 5.0);
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_materialManager->createDescriptorPool();
         this->_deviceAllocator = new DeviceAllocationManager(this->_device, this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());

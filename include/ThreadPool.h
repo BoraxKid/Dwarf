@@ -8,12 +8,6 @@
 #include <mutex>
 #include <condition_variable>
 
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique(Args&& ...args)
-{
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
 namespace Dwarf
 {
     class Thread
