@@ -5,7 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <vector>
+#include <map>
 #include <string>
 
 #include "Tools.h"
@@ -19,7 +19,10 @@ namespace Dwarf
         ModelLoader();
         virtual ~ModelLoader();
         bool loadModel(const std::string &fileName);
+
     private:
+        void loadMesh(const aiScene *scene, const std::string &meshName);
+
         struct RawMeshData
         {
             uint32_t indicesNumber;
@@ -29,7 +32,7 @@ namespace Dwarf
             std::vector<uint32_t> indices;
         };
         Assimp::Importer _importer;
-        std::vector<std::string> _meshes;
+        std::map<const std::string, std::unique_ptr<TmpMesh>> _meshes;
     };
 }
 

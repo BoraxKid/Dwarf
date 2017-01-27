@@ -26,7 +26,7 @@ namespace Dwarf
         this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_models.back()->setRotation(-90.0, 0.0, 0.0);
         this->_models.back()->setScale(5.0, 5.0, 5.0);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));
+        //this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));
         this->_materialManager->createDescriptorPool();
         this->_deviceAllocator = new DeviceAllocationManager(this->_device, this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
         this->_deviceAllocator->allocate(this->_models, this->_commandPool);
@@ -36,8 +36,8 @@ namespace Dwarf
 		this->createSemaphores();
         ModelLoader ml;
         ml.loadModel("resources/models/CamaroSS.obj");
-        ml.loadModel("resources/models/sportsCar.obj");
-        ml.loadModel("resources/models/sphere.obj");
+        //ml.loadModel("resources/models/sportsCar.obj");
+        //ml.loadModel("resources/models/sphere.obj");
 	}
 
 	Renderer::~Renderer()

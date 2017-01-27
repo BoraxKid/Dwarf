@@ -83,6 +83,7 @@ FILE(
 FILE(
     GLOB_RECURSE
     MESH_HEADER_FILES
+    include/Transformable.h
     include/ModelLoader.h
     include/Mesh.h
     include/Submesh.h
@@ -91,6 +92,7 @@ FILE(
 FILE(
     GLOB_RECURSE
     MESH_SOURCE_FILES
+    src/Transformable.cpp
     src/ModelLoader.cpp
     src/Mesh.cpp
     src/Submesh.cpp

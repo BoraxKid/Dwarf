@@ -11,6 +11,16 @@ namespace Dwarf
     class Vertex
     {
     public:
+        Vertex() {}
+        
+        Vertex(const glm::vec3 &pos, const glm::vec3 &normal)
+            : pos(pos), normal(normal)
+        {}
+        
+        Vertex(const glm::vec3 &pos, const glm::vec3 &normal, const glm::vec2 &uv)
+            : pos(pos), normal(normal), uv(uv)
+        {}
+
         static vk::VertexInputBindingDescription getBindingDescription()
         {
             return (vk::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex));

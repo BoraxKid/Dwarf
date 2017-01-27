@@ -6,10 +6,9 @@
 namespace Dwarf
 {
 	Mesh::Mesh(const vk::Device &device, Dwarf::MaterialManager &materialManager, const std::string &meshFilename, const vk::DescriptorBufferInfo &lightBufferInfo)
-		: _device(device), _lightBufferInfo(lightBufferInfo), _position(0, 0, 0), _rotation(0, 0, 0), _scale(1, 1, 1)
+		: _device(device), _lightBufferInfo(lightBufferInfo)
 	{
 		this->loadFromFile(materialManager, meshFilename);
-        this->updateTransformationMatrix();
 	}
 
 	Mesh::~Mesh()
@@ -86,7 +85,7 @@ namespace Dwarf
         size_t v;
         int materialID;
         tinyobj::index_t i;
-        std::vector<std::unordered_map<Vertex, int>> perMaterialUniqueVertices(this->_submeshes.size());
+        std::vector<std::unordered_map<Vertex, size_t>> perMaterialUniqueVertices(this->_submeshes.size());
         std::vector<std::vector<uint32_t>> submeshIndices(this->_submeshes.size());
         std::vector<std::vector<Vertex>> submeshVertices(this->_submeshes.size());
         while (s < shapes.size())
@@ -109,7 +108,7 @@ namespace Dwarf
                         vertex.uv = glm::vec2(attrib.texcoords.at(2 * i.texcoord_index + 0), 1.0f - attrib.texcoords.at(2 * i.texcoord_index + 1));
                     if (perMaterialUniqueVertices.at(materialID).count(vertex) == 0)
                     {
-                        perMaterialUniqueVertices.at(materialID)[vertex] = static_cast<int>(submeshVertices.at(materialID).size());
+                        perMaterialUniqueVertices.at(materialID)[vertex] = submeshVertices.at(materialID).size();
                         submeshVertices.at(materialID).push_back(vertex);
                     }
                     submeshIndices.at(materialID).push_back(perMaterialUniqueVertices.at(materialID).at(vertex));
@@ -123,17 +122,12 @@ namespace Dwarf
         s = 0;
         while (s < this->_submeshes.size())
         {
+            LOG(INFO) << "TinyOBJLoader: vertices number(" << submeshVertices.at(s).size() << ") with indices number (" << submeshIndices.at(s).size() << ")";
             this->_submeshes.at(s).setVertices(submeshVertices.at(s));
             this->_submeshes.at(s).setIndices(submeshIndices.at(s));
             ++s;
         }
 	}
-
-    void Mesh::updateTransformationMatrix()
-    {
-        this->_preciseTransformationMatrix = this->_scaleMatrix * this->_rotationMatrix * this->_positionMatrix;
-        this->_transformationMatrix = this->_preciseTransformationMatrix;
-    }
 
     std::vector<IBuildable *> Mesh::getBuildables()
     {
@@ -146,77 +140,16 @@ namespace Dwarf
         return (buildables);
     }
 
-    void Mesh::move(double x, double y, double z)
-    {
-        this->move(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::move(const glm::dvec3 &movement)
-    {
-        this->setPosition(this->_position + movement);
-    }
-
-    void Mesh::setPosition(double x, double y, double z)
-    {
-        this->setPosition(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::setPosition(const glm::dvec3 &position)
-    {
-        this->_position = position;
-        this->_positionMatrix = glm::translate(glm::dmat4(), this->_position);
-        this->updateTransformationMatrix();
-        std::cout << "x: " << this->_position.x << "y: " << this->_position.y << "z: " << this->_position.z << std::endl;
-    }
-
-    void Mesh::scale(double x, double y, double z)
-    {
-        this->scale(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::scale(const glm::dvec3 &scale)
-    {
-        this->setScale(this->_scale + scale);
-    }
-
-    void Mesh::setScale(double x, double y, double z)
-    {
-        this->setScale(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::setScale(const glm::dvec3 &scale)
-    {
-        this->_scale = scale;
-        this->_scaleMatrix = glm::scale(glm::dmat4(), this->_scale);
-        this->updateTransformationMatrix();
-    }
-
-    void Mesh::rotate(double x, double y, double z)
-    {
-        this->rotate(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::rotate(const glm::dvec3 &rotation)
-    {
-        this->setRotation(this->_rotation + rotation);
-    }
-
-    void Mesh::setRotation(double x, double y, double z)
-    {
-        this->setRotation(glm::dvec3(x, y, z));
-    }
-
-    void Mesh::setRotation(const glm::dvec3 &rotation)
-    {
-        this->_rotation = rotation;
-        this->_rotationMatrix = glm::rotate(glm::dmat4(), glm::radians(this->_rotation.x), glm::dvec3(1.0, 0.0, 0.0));
-        this->_rotationMatrix = glm::rotate(this->_rotationMatrix, glm::radians(this->_rotation.y), glm::dvec3(0.0, 1.0, 0.0));
-        this->_rotationMatrix = glm::rotate(this->_rotationMatrix, glm::radians(this->_rotation.z), glm::dvec3(0.0, 0.0, 1.0));
-        this->updateTransformationMatrix();
-    }
-
     std::vector<Submesh> &Mesh::getSubmeshes()
     {
         return (this->_submeshes);
+    }
+
+    TmpMesh::TmpMesh()
+    {
+    }
+
+    TmpMesh::~TmpMesh()
+    {
     }
 }
