@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "ModelLoader.h"
 
 namespace Dwarf
 {
@@ -33,6 +34,10 @@ namespace Dwarf
             this->_commandBufferBuilder->addBuildables(model->getBuildables());
 		this->createCommandBuffers();
 		this->createSemaphores();
+        ModelLoader ml;
+        ml.loadModel("resources/models/CamaroSS.obj");
+        ml.loadModel("resources/models/sportsCar.obj");
+        ml.loadModel("resources/models/sphere.obj");
 	}
 
 	Renderer::~Renderer()
