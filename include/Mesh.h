@@ -49,9 +49,12 @@ namespace Dwarf
     public:
         TmpMesh();
         virtual ~TmpMesh();
-
+        void addSubmesh(const TmpSubmesh &submesh)
+        {
+            this->_submeshes.push_back(submesh);
+        }
     private:
-        std::vector<Submesh> _submeshes;
+        std::vector<TmpSubmesh> _submeshes;
     };
 }
 

@@ -7,9 +7,12 @@
 #include <assimp/postprocess.h>
 #include <map>
 #include <string>
+#include <unordered_map>
 
 #include "Tools.h"
-#include "Mesh.h"
+#include "MeshData.h"
+#include "ModelData.h"
+#include "MaterialManager.h"
 
 namespace Dwarf
 {
@@ -22,17 +25,10 @@ namespace Dwarf
 
     private:
         void loadMesh(const aiScene *scene, const std::string &meshName);
+        Material::ID loadMaterial(const aiMaterial *material);
 
-        struct RawMeshData
-        {
-            uint32_t indicesNumber;
-            uint32_t materialIndex;
-            uint32_t vertexBase;
-            std::vector<Vertex> vertices;
-            std::vector<uint32_t> indices;
-        };
         Assimp::Importer _importer;
-        std::map<const std::string, std::unique_ptr<TmpMesh>> _meshes;
+        std::map<const std::string, ModelData> _modelDatas;
     };
 }
 

@@ -111,7 +111,7 @@ namespace Dwarf
                         perMaterialUniqueVertices.at(materialID)[vertex] = submeshVertices.at(materialID).size();
                         submeshVertices.at(materialID).push_back(vertex);
                     }
-                    submeshIndices.at(materialID).push_back(perMaterialUniqueVertices.at(materialID).at(vertex));
+                    submeshIndices.at(materialID).push_back(static_cast<uint32_t>(perMaterialUniqueVertices.at(materialID).at(vertex)));
                     ++v;
                 }
                 indexOffset += fv;
