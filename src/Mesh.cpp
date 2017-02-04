@@ -33,11 +33,17 @@ namespace Dwarf
 		for (const auto &material : materials)
 		{
             tmpMaterial = materialManager.createMaterial(material.name, !material.diffuse_texname.empty());
+            LOG(INFO) << "MATERIAL -> " << material.name;
             tmpMaterial->setAmbient(Color(material.ambient[0], material.ambient[1], material.ambient[2]));
+            LOG(INFO) << "MESH -> Ambient (" << material.ambient[0] << ", " << material.ambient[1] << ", " << material.ambient[2] << ")";
             tmpMaterial->setDiffuse(Color(material.diffuse[0], material.diffuse[1], material.diffuse[2]));
+            LOG(INFO) << "MESH -> Diffuse (" << material.diffuse[0] << ", " << material.diffuse[1] << ", " << material.diffuse[2] << ")";
             tmpMaterial->setSpecular(Color(material.specular[0], material.specular[1], material.specular[2]));
+            LOG(INFO) << "MESH -> Specular (" << material.specular[0] << ", " << material.specular[1] << ", " << material.specular[2] << ")";
             tmpMaterial->setTransmittance(Color(material.transmittance[0], material.transmittance[1], material.transmittance[2]));
+            LOG(INFO) << "MESH -> Transmittance (" << material.transmittance[0] << ", " << material.transmittance[1] << ", " << material.transmittance[2] << ")";
             tmpMaterial->setEmission(Color(material.emission[0], material.emission[1], material.emission[2]));
+            LOG(INFO) << "MESH -> Emission (" << material.emission[0] << ", " << material.emission[1] << ", " << material.emission[2] << ")";
             tmpMaterial->setShininess(material.shininess);
             tmpMaterial->setIor(material.ior);
             tmpMaterial->setDissolve(material.dissolve);

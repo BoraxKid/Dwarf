@@ -93,15 +93,15 @@ namespace Dwarf
 
     struct MaterialUniformBuffer
     {
-        glm::vec4 Ka; // ambient
-        glm::vec4 Kd; // diffuse
-        glm::vec4 Ks; // specular
-        glm::vec4 Tf; // transmittance
-        glm::vec4 Ke; // emission
-        float Ns; // shininess
-        float Ni; // ior
-        float d; // dissolve
-        int illum; // illum
+        glm::vec3 Ka; // ambient color (values between 0 and 1)
+        glm::vec3 Kd; // diffuse color (values between 0 and 1)
+        glm::vec3 Ks; // specular color (values between 0 and 1)
+        glm::vec3 Tf; // transmittance || transmission filter (values between 0 and 1)
+        glm::vec3 Ke; // emission || emissive (values between 0 and 1)
+        float Ns; // shininess || specular exponent (values between 0 and 1000)
+        float Ni; // ior - refraction (values between 0.001 and 10)
+        float d; // (or Tr where Tr = 1 - d) dissolve || transparency (values between 0 and 1 with 0.0 being fully dissolved - completely transparent and 1.0 fully opaque)
+        int illum; // illumination model - ignored for now
     };
 
 	class Material

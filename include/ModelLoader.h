@@ -19,7 +19,7 @@ namespace Dwarf
     class ModelLoader
     {
     public:
-        ModelLoader();
+        ModelLoader(MaterialManager &materialManager);
         virtual ~ModelLoader();
         bool loadModel(const std::string &fileName);
 
@@ -27,6 +27,7 @@ namespace Dwarf
         void loadMesh(const aiScene *scene, const std::string &meshName);
         Material::ID loadMaterial(const aiMaterial *material);
 
+        MaterialManager &_materialManager;
         Assimp::Importer _importer;
         std::map<const std::string, ModelData> _modelDatas;
     };

@@ -2,18 +2,18 @@
 #define DWARF_SCENEMANAGER_H_
 #pragma once
 
-#include "ModelLoader.h"
+#include "ModelManager.h"
 
 namespace Dwarf
 {
     class SceneManager
     {
     public:
-        SceneManager();
+        SceneManager(MaterialManager &materialManager);
         virtual ~SceneManager();
 
     private:
-        ModelLoader _modelLoader;
+        ModelManager _modelManager;
     };
 }
 

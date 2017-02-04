@@ -21,7 +21,8 @@ namespace Dwarf
 		void setValues(float red, float green, float blue, float alpha);
 		void setValues(glm::vec3 values);
 		void setValues(glm::vec4 values);
-		const glm::vec4 &getColor() const;
+        const glm::vec3 &getColor() const;
+        const glm::vec4 &getColorWithAlpha() const;
 
 	private:
 		glm::vec4 _values;

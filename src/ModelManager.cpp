@@ -2,7 +2,8 @@
 
 namespace Dwarf
 {
-    ModelManager::ModelManager()
+    ModelManager::ModelManager(MaterialManager &materialManager)
+        : _modelLoader(materialManager)
     {
     }
 

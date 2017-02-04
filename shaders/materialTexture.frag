@@ -9,11 +9,11 @@ layout(location = 4) in vec3 inLightColor;
 
 layout(binding = 0) uniform UBO 
 {
-    vec4 Ka; // ambient
-    vec4 Kd; // diffuse
-    vec4 Ks; // specular
-    vec4 Tf; // transmittance
-    vec4 Ke; // emission
+    vec3 Ka; // ambient
+    vec3 Kd; // diffuse
+    vec3 Ks; // specular
+    vec3 Tf; // transmittance
+    vec3 Ke; // emission
     float Ns; // shininess
     float Ni; // ior
     float d; // dissolve
@@ -35,5 +35,5 @@ void main()
     vec3 diffuse = inLightColor * distFactor;
     if (ubo.d < 1.0)
         discard;
-    outColor = surfaceColor * vec4(diffuse, 1.0) * ubo.Kd * ubo.illum;
+    outColor = surfaceColor * vec4(diffuse, 1.0) * vec4(ubo.Kd, 1.0) * ubo.illum;
 }

@@ -12,7 +12,7 @@ namespace Dwarf
     class ModelManager
     {
     public:
-        ModelManager();
+        ModelManager(MaterialManager &materialManager);
         virtual ~ModelManager();
 
     private:

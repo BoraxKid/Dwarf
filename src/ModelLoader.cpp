@@ -2,7 +2,8 @@
 
 namespace Dwarf
 {
-    ModelLoader::ModelLoader()
+    ModelLoader::ModelLoader(MaterialManager &materialManager)
+        : _materialManager(materialManager)
     {
     }
 
@@ -96,8 +97,38 @@ namespace Dwarf
     {
         aiString name;
         material->Get(AI_MATKEY_NAME, name);
-        LOG(INFO) << "    [name] = \"" << name.C_Str() << "\"";
-
+        LOG(INFO) << "[name] = \"" << name.C_Str() << "\"";
+        Material *newMaterial = this->_materialManager.createMaterial(name.C_Str(), true);
+        aiColor3D color;
+        material->Get(AI_MATKEY_COLOR_AMBIENT, color); // Ka
+        newMaterial->setAmbient(Color(color.r, color.g, color.b));
+        LOG(INFO) << "Ka = " << color.r << " " << color.g << " " << color.b;
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, color); // Kd
+        newMaterial->setDiffuse(Color(color.r, color.g, color.b));
+        LOG(INFO) << "Kd = " << color.r << " " << color.g << " " << color.b;
+        material->Get(AI_MATKEY_COLOR_SPECULAR, color); // Ks
+        newMaterial->setSpecular(Color(color.r, color.g, color.b));
+        LOG(INFO) << "Ks = " << color.r << " " << color.g << " " << color.b;
+        material->Get(AI_MATKEY_COLOR_EMISSIVE, color); // Ke
+        newMaterial->setEmission(Color(color.r, color.g, color.b));
+        LOG(INFO) << "Ke = " << color.r << " " << color.g << " " << color.b;
+        material->Get(AI_MATKEY_COLOR_TRANSPARENT, color); // Tf
+        aiColor3D color2;
+        material->Get(AI_MATKEY_COLOR_REFLECTIVE, color2);
+        if (color != color2)
+            LOG(WARNING) << "In material " << name.C_Str() << ": Transparent color and reflective color differ. Transparent(" << color.r << "," << color.g << "," << color.b << ") & Reflective(" << color2.r << "," << color2.g << "," << color2.b << ")";
+        newMaterial->setTransmittance(Color(color.r, color.g, color.b));
+        LOG(INFO) << "Tf = " << color.r << " " << color.g << " " << color.b;
+        int illum;
+        material->Get(AI_MATKEY_SHADING_MODEL, illum); // illum ?
+        LOG(INFO) << "illum = " << illum;
+        float value;
+        material->Get(AI_MATKEY_SHININESS, value); // Ns
+        LOG(INFO) << "Ns = " << value;
+        material->Get(AI_MATKEY_REFRACTI, value); // Ni
+        LOG(INFO) << "Ni = " << value;
+        material->Get(AI_MATKEY_OPACITY, value); // d ?
+        LOG(INFO) << "d = " << value;
         return Material::ID();
     }
 }

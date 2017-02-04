@@ -34,8 +34,8 @@ namespace Dwarf
             this->_commandBufferBuilder->addBuildables(model->getBuildables());
 		this->createCommandBuffers();
 		this->createSemaphores();
-        ModelLoader ml;
-        ml.loadModel("resources/models/CamaroSS.obj");
+        ModelLoader ml(*this->_materialManager);
+        ml.loadModel("resources/models/sportsCar.obj");
         //ml.loadModel("resources/models/sportsCar.obj");
         //ml.loadModel("resources/models/sphere.obj");
 	}

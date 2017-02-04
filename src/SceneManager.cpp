@@ -2,7 +2,8 @@
 
 namespace Dwarf
 {
-    SceneManager::SceneManager()
+    SceneManager::SceneManager(MaterialManager &materialManager)
+        : _modelManager(materialManager)
     {
     }
 

@@ -55,10 +55,15 @@ namespace Dwarf
 		this->_values = values;
 	}
 
-	const glm::vec4 &Color::getColor() const
-	{
-		return (this->_values);
-	}
+    const glm::vec3 &Color::getColor() const
+    {
+        return (this->_values);
+    }
+
+    const glm::vec4 &Color::getColorWithAlpha() const
+    {
+        return (this->_values);
+    }
 
 	bool operator==(const Color &lhs, const Color &rhs)
 	{
