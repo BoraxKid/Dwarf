@@ -16,11 +16,9 @@
 #include <GLFW/glfw3.h>
 
 #include "Tools.h"
-#include "Mesh.h"
 #include "Camera.h"
-#include "CommandBuffersBuilder.h"
 #include "LightManager.h"
-#include "DeviceAllocationManager.h"
+#include "AllocationManager.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -174,10 +172,6 @@ namespace Dwarf
 		glm::vec2 _mousePos;
 
         LightManager *_lightManager;
-        MaterialManager *_materialManager;
-		std::vector<Mesh *> _models;
-        ThreadPool _threadPool;
-        CommandBuffersBuilder *_commandBufferBuilder;
         uint32_t _numThreads;
         bool _fifo;
         struct {
@@ -186,7 +180,7 @@ namespace Dwarf
             bool down = false;
             bool up = false;
         } _movance;
-        DeviceAllocationManager *_deviceAllocator;
+        AllocationManager *_allocationManager;
 	};
 }
 

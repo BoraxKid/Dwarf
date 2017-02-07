@@ -15,6 +15,7 @@ namespace Dwarf
     public:
         Thread();
         virtual ~Thread();
+
         void addJob(std::function<void()> function);
         void wait();
         bool isJobQueueEmpty() const;
@@ -35,7 +36,9 @@ namespace Dwarf
     public:
         ThreadPool();
         virtual ~ThreadPool();
+
         void setThreadCount(uint32_t threadCount);
+        size_t getThreadCount() const;
         void addJobThread(const uint32_t &threadIndex, std::function<void()> function);
         void wait();
 

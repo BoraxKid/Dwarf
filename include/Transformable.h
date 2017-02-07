@@ -15,6 +15,7 @@ namespace Dwarf
     public:
         Transformable();
         virtual ~Transformable();
+
         void move(double x, double y, double z);
         void move(const glm::dvec3 &movement);
         void setPosition(double x, double y, double z);

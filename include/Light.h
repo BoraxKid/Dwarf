@@ -25,6 +25,7 @@ namespace Dwarf
         Light(double x, double y, double z, double radius = 1.0);
         Light(double x, double y, double z, const Color &color, double radius = 1.0);
         virtual ~Light();
+
         void move(double x, double y, double z);
         void move(const glm::dvec3 &movement);
         void setPosition(double x, double y, double z);

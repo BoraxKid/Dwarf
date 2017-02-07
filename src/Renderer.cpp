@@ -1,14 +1,11 @@
 #include "Renderer.h"
-#include "ModelLoader.h"
+#include "SceneManager.h"
 
 namespace Dwarf
 {
 	Renderer::Renderer(int width, int height, const std::string &title, bool fifo)
 		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo)
 	{
-        this->_numThreads = std::thread::hardware_concurrency();
-        this->_threadPool.setThreadCount(this->_numThreads);
-        this->_commandBufferBuilder = new CommandBuffersBuilder(this->_device, this->_renderPass, this->_swapChainFramebuffers, this->_swapChainExtent, this->_threadPool, this->_numThreads);
         this->createWindow(width, height, title);
 		this->createInstance();
 		this->setupDebugCallback();
@@ -22,31 +19,15 @@ namespace Dwarf
 		this->createDepthResources();
 		this->createFramebuffers();
         this->_lightManager = new LightManager(this->_device, this->_physicalDevice.getMemoryProperties());
-        this->_materialManager = new MaterialManager(this->_device, this->_graphicsQueue, this->_renderPass, this->_swapChainExtent);
-        this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/CamaroSS.obj", this->_lightManager->getDescriptorBufferInfo()));
-        this->_models.back()->setRotation(-90.0, 0.0, 0.0);
-        this->_models.back()->setScale(5.0, 5.0, 5.0);
-        //this->_models.push_back(new Mesh(this->_device, *this->_materialManager, "resources/models/sphere.obj", this->_lightManager->getDescriptorBufferInfo()));
-        this->_materialManager->createDescriptorPool();
-        this->_deviceAllocator = new DeviceAllocationManager(this->_device, this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
-        this->_deviceAllocator->allocate(this->_models, this->_commandPool);
-        for (auto &model : this->_models)
-            this->_commandBufferBuilder->addBuildables(model->getBuildables());
+        this->_allocationManager = new AllocationManager(this->_device, this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
 		this->createCommandBuffers();
 		this->createSemaphores();
-        ModelLoader ml(*this->_materialManager);
-        ml.loadModel("resources/models/sportsCar.obj");
-        //ml.loadModel("resources/models/sportsCar.obj");
-        //ml.loadModel("resources/models/sphere.obj");
+        SceneManager sceneManager;
 	}
 
 	Renderer::~Renderer()
 	{
-        delete (this->_deviceAllocator);
-		for (auto &model : this->_models)
-            delete (model);
-        delete (this->_commandBufferBuilder);
-        delete (this->_materialManager);
+        delete (this->_allocationManager);
         delete (this->_lightManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
@@ -87,14 +68,6 @@ namespace Dwarf
 			start = std::chrono::high_resolution_clock::now();
 			this->_camera.update(frameTimer);
             this->_lightManager->updateLightPos(frameTimer);
-            if (this->_movance.down)
-                this->_models.at(0)->move(0.0, 0.0, -10 * frameTimer);
-            if (this->_movance.up)
-                this->_models.at(0)->move(0.0, 0.0, 10 * frameTimer);
-            if (this->_movance.left)
-                this->_models.at(0)->move(-10 * frameTimer, 0.0, 0.0);
-            if (this->_movance.right)
-                this->_models.at(0)->move(10 * frameTimer, 0.0, 0.0);
 			this->buildCommandBuffers();
 			this->drawFrame();
 			++frameCounter;
@@ -276,7 +249,6 @@ namespace Dwarf
 		if (this->_commandPool)
 			this->_device.destroyCommandPool(this->_commandPool, CUSTOM_ALLOCATOR);
 		this->_commandPool = this->_device.createCommandPool(poolInfo, CUSTOM_ALLOCATOR);
-        this->_commandBufferBuilder->createCommandPools(queueFamilyIndices.graphicsFamily);
 	}
 
 	void Renderer::createDepthResources()
@@ -326,13 +298,11 @@ namespace Dwarf
 			vk::CommandBufferAllocateInfo allocInfo(this->_commandPool, vk::CommandBufferLevel::ePrimary, static_cast<uint32_t>(this->_commandBuffers.size()));
 			this->_commandBuffers = this->_device.allocateCommandBuffers(allocInfo);
 		}
-        this->_commandBufferBuilder->createCommandBuffers(this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
 		this->buildCommandBuffers();
 	}
 
 	void Renderer::buildCommandBuffers()
 	{
-        this->_commandBufferBuilder->buildCommandBuffers(this->_commandBuffers, this->_camera.getMVP());
 	}
 
 	void Renderer::createSemaphores()
@@ -532,7 +502,6 @@ namespace Dwarf
 		this->createSwapChain();
 		this->createImageViews();
 		this->createRenderPass();
-        this->_materialManager->recreatePipelines();
 		this->createDepthResources();
 		this->createFramebuffers();
 		this->createCommandBuffers();

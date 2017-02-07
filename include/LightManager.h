@@ -12,6 +12,7 @@ namespace Dwarf
     public:
         LightManager(const vk::Device &device, const vk::PhysicalDeviceMemoryProperties &memProperties);
         virtual ~LightManager();
+
         void buildDescriptorSet(const vk::PhysicalDeviceMemoryProperties &memProperties);
         void updateLightPos(float elapsedTime);
         const vk::DescriptorBufferInfo &getDescriptorBufferInfo() const;

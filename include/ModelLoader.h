@@ -13,23 +13,24 @@
 #include "MeshData.h"
 #include "ModelData.h"
 #include "MaterialManager.h"
+#include "TextureManager.h"
 
 namespace Dwarf
 {
     class ModelLoader
     {
     public:
-        ModelLoader(MaterialManager &materialManager);
+        ModelLoader(std::shared_ptr<MaterialManager> materialManager, std::vector<ModelData> &modelDatas);
         virtual ~ModelLoader();
-        bool loadModel(const std::string &fileName);
+
+        size_t loadModel(const std::string &fileName);
 
     private:
         void loadMesh(const aiScene *scene, const std::string &meshName);
-        Material::ID loadMaterial(const aiMaterial *material);
 
-        MaterialManager &_materialManager;
+        std::shared_ptr<MaterialManager> _materialManager;
         Assimp::Importer _importer;
-        std::map<const std::string, ModelData> _modelDatas;
+        std::vector<ModelData> &_modelDatas;
     };
 }
 

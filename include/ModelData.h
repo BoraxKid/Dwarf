@@ -8,7 +8,7 @@ namespace Dwarf
 {
     struct ModelData
     {
-        std::vector<MeshData> meshes;
+        std::vector<MeshData> meshDatas;
     };
 }
 

@@ -88,6 +88,11 @@ namespace Dwarf
         this->_endThreadsIterator = this->_threads.end();
     }
 
+    size_t ThreadPool::getThreadCount() const
+    {
+        return (this->_threads.size());
+    }
+
     void ThreadPool::addJobThread(const uint32_t &threadIndex, std::function<void()> function)
     {
         this->_threads.at(threadIndex)->addJob(function);

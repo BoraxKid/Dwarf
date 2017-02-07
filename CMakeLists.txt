@@ -70,6 +70,7 @@ FILE(
     include/Material.h
     include/MaterialManager.h
     include/Texture.h
+    include/TextureManager.h
 )
 
 FILE(
@@ -78,6 +79,7 @@ FILE(
     src/Material.cpp
     src/MaterialManager.cpp
     src/Texture.cpp
+    src/TextureManager.cpp
 )
 
 FILE(
@@ -85,8 +87,6 @@ FILE(
     MESH_HEADER_FILES
     include/Transformable.h
     include/ModelLoader.h
-    include/Mesh.h
-    include/Submesh.h
     include/MeshData.h
     include/Model.h
     include/ModelData.h
@@ -98,8 +98,6 @@ FILE(
     MESH_SOURCE_FILES
     src/Transformable.cpp
     src/ModelLoader.cpp
-    src/Mesh.cpp
-    src/Submesh.cpp
     src/Model.cpp
     src/ModelManager.cpp
 )
@@ -120,22 +118,10 @@ FILE(
 
 FILE(
     GLOB_RECURSE
-    COMMANDBUFFER_HEADER_FILES
-    include/CommandBuffersBuilder.h
-    include/IBuildable.h
-)
-
-FILE(
-    GLOB_RECURSE
-    COMMANDBUFFER_SOURCE_FILES
-    src/CommandBuffersBuilder.cpp
-)
-
-FILE(
-    GLOB_RECURSE
     RENDERER_HEADER_FILES
     include/Camera.h
     include/Renderer.h
+    include/CommandBufferManager.h
 )
 
 FILE(
@@ -143,6 +129,7 @@ FILE(
     RENDERER_SOURCE_FILES
     src/Camera.cpp
     src/Renderer.cpp
+    src/CommandBufferManager.cpp
 )
 
 FILE(
@@ -164,13 +151,13 @@ FILE(
 FILE(
     GLOB_RECURSE
     ALLOCATION_HEADER_FILES
-    include/DeviceAllocationManager.h
+    include/AllocationManager.h
 )
 
 FILE(
     GLOB_RECURSE
     ALLOCATION_SOURCE_FILES
-    src/DeviceAllocationManager.cpp
+    src/AllocationManager.cpp
 )
 
 FILE(
@@ -194,8 +181,6 @@ ADD_EXECUTABLE(
     ${MESH_SOURCE_FILES}
     ${LIGHT_HEADER_FILES}
     ${LIGHT_SOURCE_FILES}
-    ${COMMANDBUFFER_HEADER_FILES}
-    ${COMMANDBUFFER_SOURCE_FILES}
     ${RENDERER_HEADER_FILES}
     ${RENDERER_SOURCE_FILES}
     ${HELPER_HEADER_FILES}
@@ -212,8 +197,6 @@ SOURCE_GROUP("Header Files\\Scene\\Mesh" FILES ${MESH_HEADER_FILES})
 SOURCE_GROUP("Source Files\\Scene\\Mesh" FILES ${MESH_SOURCE_FILES})
 SOURCE_GROUP("Header Files\\Scene\\Lighting" FILES ${LIGHT_HEADER_FILES})
 SOURCE_GROUP("Source Files\\Scene\\Lighting" FILES ${LIGHT_SOURCE_FILES})
-SOURCE_GROUP("Header Files\\Command Buffer" FILES ${COMMANDBUFFER_HEADER_FILES})
-SOURCE_GROUP("Source Files\\Command Buffer" FILES ${COMMANDBUFFER_SOURCE_FILES})
 SOURCE_GROUP("Header Files\\Renderer" FILES ${RENDERER_HEADER_FILES})
 SOURCE_GROUP("Source Files\\Renderer" FILES ${RENDERER_SOURCE_FILES})
 SOURCE_GROUP("Header Files\\Helper" FILES ${HELPER_HEADER_FILES})

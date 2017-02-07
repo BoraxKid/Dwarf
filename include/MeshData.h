@@ -2,8 +2,9 @@
 #define DWARF_MESHDATA_H_
 #pragma once
 
+#include <glm/gtx/hash.hpp>
+
 #include "Tools.h"
-#include "IBuildable.h"
 #include "Material.h"
 
 namespace Dwarf
@@ -51,7 +52,7 @@ namespace Dwarf
     {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        Material::ID materialID;
+        size_t materialID;
     };
 }
 

@@ -4,21 +4,38 @@
 
 #include "ModelLoader.h"
 #include "MaterialManager.h"
+#include "TextureManager.h"
 #include "ModelData.h"
 #include "Model.h"
 
 namespace Dwarf
 {
+    struct MeshVulkanData
+    {
+        size_t commandBufferID;
+        vk::DeviceSize vertexBufferOffset;
+        vk::DeviceSize indexBufferOffset;
+        vk::DeviceSize uniformBufferOffset;
+    };
+
+    struct ModelVulkanData
+    {
+        std::vector<MeshVulkanData> _meshVulkanDatas;
+    };
+
     class ModelManager
     {
     public:
-        ModelManager(MaterialManager &materialManager);
+        ModelManager();
         virtual ~ModelManager();
 
     private:
-        ModelLoader _modelLoader;
-        std::unique_ptr<MaterialManager> _materialManager;
+        void loadModels();
+
+        std::unique_ptr<ModelLoader> _modelLoader;
+        std::shared_ptr<MaterialManager> _materialManager;
         std::vector<ModelData> _modelDatas;
+        std::vector<ModelVulkanData> _modelVulkanDatas;
         std::vector<Model> _models;
     };
 }

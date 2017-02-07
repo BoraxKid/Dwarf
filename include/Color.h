@@ -13,6 +13,7 @@ namespace Dwarf
 	public:
 		Color(float red = 1.0f, float green = 0.0f, float blue = 1.0f, float alpha = 1.0f);
 		virtual ~Color();
+
 		void setRed(float red);
 		void setGreen(float green);
 		void setBlue(float blue);
@@ -25,7 +26,8 @@ namespace Dwarf
         const glm::vec4 &getColorWithAlpha() const;
 
 	private:
-		glm::vec4 _values;
+        glm::vec3 _values;
+		glm::vec4 _valuesAlpha;
 	};
 
 	bool operator==(const Color &lhs, const Color &rhs);

@@ -9,7 +9,7 @@ namespace Dwarf
     class SceneManager
     {
     public:
-        SceneManager(MaterialManager &materialManager);
+        SceneManager();
         virtual ~SceneManager();
 
     private:
