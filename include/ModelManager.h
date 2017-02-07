@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ModelLoader.h"
+#include "AllocationManager.h"
 #include "MaterialManager.h"
 #include "TextureManager.h"
 #include "ModelData.h"
@@ -20,7 +21,7 @@ namespace Dwarf
 
     struct ModelVulkanData
     {
-        std::vector<MeshVulkanData> _meshVulkanDatas;
+        std::vector<MeshVulkanData> meshVulkanDatas;
     };
 
     class ModelManager
@@ -30,7 +31,7 @@ namespace Dwarf
         virtual ~ModelManager();
 
     private:
-        void loadModels();
+        void loadModels(AllocationManager &allocationManager);
 
         std::unique_ptr<ModelLoader> _modelLoader;
         std::shared_ptr<MaterialManager> _materialManager;
