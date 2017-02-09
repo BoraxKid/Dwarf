@@ -14,8 +14,11 @@ namespace Dwarf
     struct MeshVulkanData
     {
         size_t commandBufferID;
+        size_t vertexBufferID;
         vk::DeviceSize vertexBufferOffset;
+        size_t indexBufferID;
         vk::DeviceSize indexBufferOffset;
+        size_t uniformBufferID;
         vk::DeviceSize uniformBufferOffset;
     };
 

@@ -35,10 +35,13 @@ namespace Dwarf
         {
             for (auto &meshVulkanData : modelVulkanData.meshVulkanDatas)
             {
+                meshVulkanData.vertexBufferID = vertexBufferAllocInfos.at(i).bufferID;
                 meshVulkanData.vertexBufferOffset = vertexBufferAllocInfos.at(i).offset;
+                meshVulkanData.indexBufferID = indexBufferAllocInfos.at(i).bufferID;
                 meshVulkanData.indexBufferOffset = indexBufferAllocInfos.at(i).offset;
                 ++i;
             }
         }
+        this->_materialManager->createMaterials(allocationManager, this->_modelDatas, this->_modelVulkanDatas);
     }
 }

@@ -1,4 +1,5 @@
 #include "MaterialManager.h"
+#include "ModelManager.h"
 
 namespace Dwarf
 {
@@ -10,7 +11,7 @@ namespace Dwarf
 	{
     }
 
-    size_t MaterialManager::createMaterial(const aiMaterial *material)
+    size_t MaterialManager::addMaterial(const aiMaterial *material)
     {
         this->_materials.push_back(std::make_unique<Material>(this->_materials.size()));
         aiString name;
@@ -38,10 +39,38 @@ namespace Dwarf
         {
             aiString texturePath;
             if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == aiReturn_SUCCESS)
+            {
+                this->_materials.back()->setTextureID(this->_textureManager.addTexture(texturePath.C_Str()));
                 LOG(INFO) << "[" << name.C_Str() << "] Texture path: " << texturePath.C_Str();
+            }
             else
                 LOG(ERROR) << "Error getting texture";
         }
         return (this->_materials.back()->getID());
+    }
+
+    void MaterialManager::createMaterials(AllocationManager &allocationManager, const std::vector<ModelData> &modelDatas, std::vector<ModelVulkanData> &modelVulkanDatas)
+    {
+        std::vector<AllocationManager::BufferAllocInfo> uniformBufferAllocInfos;
+        size_t i = 0;
+
+        for (const auto &modelData : modelDatas)
+        {
+            for (const auto &meshData : modelData.meshDatas)
+            {
+                uniformBufferAllocInfos.push_back(AllocationManager::BufferAllocInfo(this->_materials.at(meshData.materialID)->getData()));
+            }
+        }
+        allocationManager.createBuffer(uniformBufferAllocInfos, vk::BufferUsageFlagBits::eUniformBuffer);
+        for (auto &modelVulkanData : modelVulkanDatas)
+        {
+            for (auto &meshVulkanData : modelVulkanData.meshVulkanDatas)
+            {
+                meshVulkanData.uniformBufferID = uniformBufferAllocInfos.at(i).bufferID;
+                meshVulkanData.uniformBufferOffset = uniformBufferAllocInfos.at(i).offset;
+                ++i;
+            }
+        }
+        this->_textureManager.createTextures(allocationManager);
     }
 }

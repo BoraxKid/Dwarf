@@ -122,6 +122,7 @@ FILE(
     include/Camera.h
     include/Renderer.h
     include/CommandBufferManager.h
+    include/ImageManager.h
 )
 
 FILE(
@@ -130,6 +131,7 @@ FILE(
     src/Camera.cpp
     src/Renderer.cpp
     src/CommandBufferManager.cpp
+    src/ImageManager.cpp
 )
 
 FILE(

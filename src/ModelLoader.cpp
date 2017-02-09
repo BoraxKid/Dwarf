@@ -37,7 +37,7 @@ namespace Dwarf
 
         while (i < scene->mNumMaterials)
         {
-            materialIDs[i] = this->_materialManager->createMaterial(scene->mMaterials[i]);
+            materialIDs[i] = this->_materialManager->addMaterial(scene->mMaterials[i]);
             ++i;
         }
         i = 0;

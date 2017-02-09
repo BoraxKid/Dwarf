@@ -7,19 +7,26 @@
 #include <assimp/scene.h>
 
 #include "Material.h"
+#include "AllocationManager.h"
 #include "Tools.h"
+#include "ModelData.h"
+#include "TextureManager.h"
 
 namespace Dwarf
 {
-	class MaterialManager
+    struct ModelVulkanData;
+
+    class MaterialManager
 	{
 	public:
 		MaterialManager();
 		virtual ~MaterialManager();
 
-        size_t createMaterial(const aiMaterial *material);
+        size_t addMaterial(const aiMaterial *material);
+        void createMaterials(AllocationManager &allocationManager, const std::vector<ModelData> &modelDatas, std::vector<ModelVulkanData> &modelVulkanDatas);
 
 	private:
+        TextureManager _textureManager;
         std::vector<std::unique_ptr<Material>> _materials;
 	};
 }

@@ -4,17 +4,22 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "Tools.h"
+#include "AllocationManager.h"
 
 namespace Dwarf
 {
 	class Texture
 	{
 	public:
-		Texture(const std::string &texturePath);
+		Texture(const size_t ID, const std::string &texturePath);
 		virtual ~Texture();
 
+        void loadTexture(AllocationManager &allocationManager);
+        const size_t &getID() const;
+        const std::string &getTexturePath() const;
+
 	private:
+        const size_t _ID;
 		const std::string _texturePath;
 
         uint32_t _width;

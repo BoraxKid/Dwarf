@@ -2,8 +2,8 @@
 
 namespace Dwarf
 {
-	Material::Material(size_t id)
-        : _id(id)
+	Material::Material(size_t ID)
+        : _ID(ID), _texture(false)
 	{
 	}
 
@@ -51,8 +51,19 @@ namespace Dwarf
         this->_data.d = value;
     }
 
+    void Material::setTextureID(size_t textureID)
+    {
+        this->_texture = true;
+        this->_textureID = textureID;
+    }
+
     size_t Material::getID() const
     {
-        return (this->_id);
+        return (this->_ID);
+    }
+
+    const MaterialData &Material::getData() const
+    {
+        return (this->_data);
     }
 }
