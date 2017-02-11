@@ -22,13 +22,14 @@ namespace Dwarf
 		MaterialManager(const vk::Device &device);
 		virtual ~MaterialManager();
 
+        void init();
         size_t addMaterial(const aiMaterial *material);
         void createMaterials(AllocationManager &allocationManager, const std::vector<ModelData> &modelDatas, std::vector<ModelVulkanData> &modelVulkanDatas);
-        void createDescriptorPool();
         void recreatePipelines(const vk::Extent2D &extent, const vk::RenderPass &renderPass);
-
-	private:
+        
+    private:
         void createDescriptorSetLayout();
+        void createDescriptorPool();
         void createPipelineLayout();
         void createMaterialPipeline(const vk::Extent2D &extent, const vk::RenderPass &renderPass, const size_t materialID, const bool texture);
 

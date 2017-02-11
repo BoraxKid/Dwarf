@@ -12,6 +12,8 @@ namespace Dwarf
         SceneManager(const vk::Device &device);
         virtual ~SceneManager();
 
+        void init(AllocationManager &allocationManager, const vk::Extent2D &extent, const vk::RenderPass &renderPass);
+
     private:
         ModelManager _modelManager;
     };

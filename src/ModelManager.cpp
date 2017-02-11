@@ -11,7 +11,12 @@ namespace Dwarf
     {
     }
 
-    void ModelManager::loadModels(AllocationManager &allocationManager)
+    void ModelManager::init()
+    {
+        this->_materialManager.init();
+    }
+
+    void ModelManager::loadModels(AllocationManager &allocationManager, const vk::Extent2D &extent, const vk::RenderPass &renderPass)
     {
         std::vector<AllocationManager::BufferAllocInfo> vertexBufferAllocInfos;
         std::vector<AllocationManager::BufferAllocInfo> indexBufferAllocInfos;
@@ -42,5 +47,6 @@ namespace Dwarf
             }
         }
         this->_materialManager.createMaterials(allocationManager, this->_modelDatas, this->_modelVulkanDatas);
+        this->_materialManager.recreatePipelines(extent, renderPass);
     }
 }

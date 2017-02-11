@@ -4,7 +4,7 @@
 namespace Dwarf
 {
 	Renderer::Renderer(int width, int height, const std::string &title, bool fifo)
-		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo), _sceneManager(_device)
+		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo)
 	{
         this->createWindow(width, height, title);
 		this->createInstance();
@@ -21,10 +21,19 @@ namespace Dwarf
         this->_lightManager = new LightManager(this->_device, this->_physicalDevice.getMemoryProperties());
 		this->createCommandBuffers();
 		this->createSemaphores();
+        this->_physicalDeviceMemoryProperties = this->_physicalDevice.getMemoryProperties();
+        this->_allocationManager = new AllocationManager(this->_device, this->_graphicsQueue, this->_physicalDeviceMemoryProperties);
+        //this->_commandBufferManager = new CommandBufferManager(*this->_allocationManager);
+        Renderer::QueueFamilyIndices queueFamilyIndices = this->findQueueFamilies(this->_physicalDevice);
+        this->_allocationManager->createCommandPools(queueFamilyIndices.graphicsFamily, 1);
+        this->_sceneManager = new SceneManager(this->_device);
+        this->_sceneManager->init(*this->_allocationManager, this->_swapChainExtent, this->_renderPass);
 	}
 
 	Renderer::~Renderer()
 	{
+        delete (this->_sceneManager);
+        delete (this->_allocationManager);
         delete (this->_lightManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
@@ -472,25 +481,6 @@ namespace Dwarf
 	uint32_t Renderer::findMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags &properties) const
 	{
 		return (Tools::getMemoryType(this->_physicalDevice.getMemoryProperties(), typeFilter, properties));
-	}
-
-	void Renderer::createBuffer(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage, const vk::MemoryPropertyFlags &properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory) const
-	{
-		vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), size, usage);
-		buffer = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
-		vk::MemoryRequirements memRequirements = this->_device.getBufferMemoryRequirements(buffer);
-		vk::MemoryAllocateInfo allocInfo(memRequirements.size, this->findMemoryType(memRequirements.memoryTypeBits, properties));
-		bufferMemory = this->_device.allocateMemory(allocInfo, CUSTOM_ALLOCATOR);
-		LOG(INFO) << "buffer: deviceSize " << size << " memReq.size " << memRequirements.size << " " << memRequirements.memoryTypeBits << " " << this->findMemoryType(memRequirements.memoryTypeBits, properties);
-		this->_device.bindBufferMemory(buffer, bufferMemory, 0);
-	}
-
-	void Renderer::copyBuffer(const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, const vk::DeviceSize &size) const
-	{
-		vk::CommandBuffer commandBuffer = Tools::beginSingleTimeCommands(this->_device, this->_commandPool);
-		vk::BufferCopy copyRegion(0, 0, size);
-		commandBuffer.copyBuffer(srcBuffer, dstBuffer, 1, &copyRegion);
-		Tools::endSingleTimeCommands(this->_device, this->_graphicsQueue, this->_commandPool, commandBuffer);
 	}
 
 	void Renderer::recreateSwapChain()

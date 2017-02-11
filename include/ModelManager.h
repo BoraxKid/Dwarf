@@ -32,10 +32,11 @@ namespace Dwarf
     public:
         ModelManager(const vk::Device &device);
         virtual ~ModelManager();
+        
+        void init();
+        void loadModels(AllocationManager &allocationManager, const vk::Extent2D &extent, const vk::RenderPass &renderPass);
 
     private:
-        void loadModels(AllocationManager &allocationManager);
-
         ModelLoader _modelLoader;
         MaterialManager _materialManager;
         std::vector<ModelData> _modelDatas;

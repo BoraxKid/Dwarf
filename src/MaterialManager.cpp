@@ -30,6 +30,12 @@ namespace Dwarf
             this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
     }
 
+    void MaterialManager::init()
+    {
+        this->createDescriptorSetLayout();
+        this->createPipelineLayout();
+    }
+
     size_t MaterialManager::addMaterial(const aiMaterial *material)
     {
         this->_materials[++this->_materialLastID] = Material();
@@ -93,34 +99,10 @@ namespace Dwarf
         this->_textureManager.createTextures(allocationManager);
     }
 
-    void MaterialManager::createDescriptorPool()
-    {
-        uint32_t descriptorCount = static_cast<uint32_t>(this->_materials.size()) * 2;
-        std::vector<vk::DescriptorPoolSize> poolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
-        vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
-        this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
-        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts(this->_materials.size(), this->_descriptorSetLayout);
-        vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, static_cast<uint32_t>(this->_materials.size()), descriptorSetLayouts.data());
-        std::vector<vk::DescriptorSet> descriptorSets = this->_device.allocateDescriptorSets(allocInfo);
-        if (this->_descriptorSets.empty())
-        {
-            std::vector<vk::DescriptorSet> existingDescriptorSets;
-            for (const auto &descriptorSet : this->_descriptorSets)
-                existingDescriptorSets.push_back(descriptorSet.second);
-            this->_device.freeDescriptorSets(this->_descriptorPool, existingDescriptorSets);
-            this->_descriptorSets.clear();
-        }
-        size_t i = 0;
-        for (auto &material : this->_materials)
-        {
-            this->_descriptorSets[material.first] = descriptorSets.at(i);
-            material.second.setDescriptorSetID(i);
-            ++i;
-        }
-    }
-
     void MaterialManager::recreatePipelines(const vk::Extent2D &extent, const vk::RenderPass &renderPass)
     {
+        if (this->_descriptorSets.size() != this->_materials.size())
+            this->createDescriptorPool();
         for (const auto &pipeline : this->_pipelines)
             this->createMaterialPipeline(extent, renderPass, pipeline.first, this->_materials.at(pipeline.first).hasTexture());
     }
@@ -137,6 +119,32 @@ namespace Dwarf
         if (this->_descriptorSetLayout)
             this->_device.destroyDescriptorSetLayout(this->_descriptorSetLayout, CUSTOM_ALLOCATOR);
         this->_descriptorSetLayout = this->_device.createDescriptorSetLayout(layoutInfo, CUSTOM_ALLOCATOR);
+    }
+
+    void MaterialManager::createDescriptorPool()
+    {
+        uint32_t descriptorCount = static_cast<uint32_t>(this->_materials.size()) * 2;
+        std::vector<vk::DescriptorPoolSize> poolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, descriptorCount), vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, descriptorCount) };
+        vk::DescriptorPoolCreateInfo poolInfo(vk::DescriptorPoolCreateFlags(), descriptorCount, static_cast<uint32_t>(poolSizes.size()), poolSizes.data());
+        this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts(this->_materials.size(), this->_descriptorSetLayout);
+        vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, static_cast<uint32_t>(this->_materials.size()), descriptorSetLayouts.data());
+        std::vector<vk::DescriptorSet> descriptorSets = this->_device.allocateDescriptorSets(allocInfo);
+        if (!this->_descriptorSets.empty())
+        {
+            std::vector<vk::DescriptorSet> existingDescriptorSets;
+            for (const auto &descriptorSet : this->_descriptorSets)
+                existingDescriptorSets.push_back(descriptorSet.second);
+            this->_device.freeDescriptorSets(this->_descriptorPool, existingDescriptorSets);
+            this->_descriptorSets.clear();
+        }
+        size_t i = 0;
+        for (auto &material : this->_materials)
+        {
+            this->_descriptorSets[material.first] = descriptorSets.at(i);
+            material.second.setDescriptorSetID(i);
+            ++i;
+        }
     }
 
     void MaterialManager::createPipelineLayout()

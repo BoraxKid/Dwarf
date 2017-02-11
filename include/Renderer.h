@@ -18,7 +18,9 @@
 #include "Tools.h"
 #include "Camera.h"
 #include "LightManager.h"
+#include "AllocationManager.h"
 #include "SceneManager.h"
+#include "CommandBufferManager.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -122,8 +124,6 @@ namespace Dwarf
 		vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) const;
 		uint32_t findMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags &properties) const;
 		
-		void createBuffer(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage, const vk::MemoryPropertyFlags &properties, vk::Buffer &buffer, vk::DeviceMemory &bufferMemory) const;
-		void copyBuffer(const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, const vk::DeviceSize &size) const;
 		void recreateSwapChain();
 
 		static void onWindowResized(GLFWwindow *window, int width, int height);
@@ -180,7 +180,10 @@ namespace Dwarf
             bool down = false;
             bool up = false;
         } _movance;
-        SceneManager _sceneManager;
+        vk::PhysicalDeviceMemoryProperties _physicalDeviceMemoryProperties;
+        AllocationManager *_allocationManager;
+        CommandBufferManager *_commandBufferManager;
+        SceneManager *_sceneManager;
 	};
 }
 

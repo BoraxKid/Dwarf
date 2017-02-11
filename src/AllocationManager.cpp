@@ -39,7 +39,7 @@ namespace Dwarf
 
     void AllocationManager::createBuffer(std::vector<BufferAllocInfo> &bufferAllocInfos, const vk::BufferUsageFlags &usage)
     {
-        vk::MemoryRequirements memoryRequirements = this->getMemoryRequirements(0, usage);
+        vk::MemoryRequirements memoryRequirements = this->getMemoryRequirements(static_cast<vk::DeviceSize>(bufferAllocInfos.back().size), usage);
         vk::DeviceSize bufferSize = 0;
         vk::DeviceSize tmp = 0;
         vk::BufferCreateInfo bufferInfo;
