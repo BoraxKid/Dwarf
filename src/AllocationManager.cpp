@@ -97,7 +97,6 @@ namespace Dwarf
         memcpy(data, imageData, static_cast<size_t>(size));
         this->_device.unmapMemory(stagingImageMemory);
         
-        this->_deviceMemories.push_back(vk::DeviceMemory());
         Tools::createImage(this->_device, this->_physicalDeviceMemoryProperties, width, height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_imageDatas.back().image, this->_imageDatas.back().imageMemory);
         Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), stagingImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferSrcOptimal);
         Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), this->_imageDatas.back().image, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferDstOptimal);

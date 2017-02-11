@@ -13,14 +13,7 @@ namespace Dwarf
         for (const auto &pipeline : this->_pipelines)
             this->_device.destroyPipeline(pipeline.second, CUSTOM_ALLOCATOR);
         this->_pipelines.clear();
-        if (!this->_descriptorSets.empty())
-        {
-            std::vector<vk::DescriptorSet> existingDescriptorSets;
-            for (const auto &descriptorSet : this->_descriptorSets)
-                existingDescriptorSets.push_back(descriptorSet.second);
-            this->_device.freeDescriptorSets(this->_descriptorPool, existingDescriptorSets);
-            this->_descriptorSets.clear();
-        }
+        this->_descriptorSets.clear();
         this->_materials.clear();
         if (this->_descriptorPool)
             this->_device.destroyDescriptorPool(this->_descriptorPool, CUSTOM_ALLOCATOR);
@@ -129,15 +122,9 @@ namespace Dwarf
         this->_descriptorPool = this->_device.createDescriptorPool(poolInfo, CUSTOM_ALLOCATOR);
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts(this->_materials.size(), this->_descriptorSetLayout);
         vk::DescriptorSetAllocateInfo allocInfo(this->_descriptorPool, static_cast<uint32_t>(this->_materials.size()), descriptorSetLayouts.data());
-        std::vector<vk::DescriptorSet> descriptorSets = this->_device.allocateDescriptorSets(allocInfo);
         if (!this->_descriptorSets.empty())
-        {
-            std::vector<vk::DescriptorSet> existingDescriptorSets;
-            for (const auto &descriptorSet : this->_descriptorSets)
-                existingDescriptorSets.push_back(descriptorSet.second);
-            this->_device.freeDescriptorSets(this->_descriptorPool, existingDescriptorSets);
-            this->_descriptorSets.clear();
-        }
+            this->_device.resetDescriptorPool(this->_descriptorPool); 
+        std::vector<vk::DescriptorSet> descriptorSets = this->_device.allocateDescriptorSets(allocInfo);
         size_t i = 0;
         for (auto &material : this->_materials)
         {

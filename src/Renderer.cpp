@@ -23,17 +23,18 @@ namespace Dwarf
 		this->createSemaphores();
         this->_physicalDeviceMemoryProperties = this->_physicalDevice.getMemoryProperties();
         this->_allocationManager = new AllocationManager(this->_device, this->_graphicsQueue, this->_physicalDeviceMemoryProperties);
-        //this->_commandBufferManager = new CommandBufferManager(*this->_allocationManager);
+        this->_commandBufferManager = new CommandBufferManager(*this->_allocationManager);
         Renderer::QueueFamilyIndices queueFamilyIndices = this->findQueueFamilies(this->_physicalDevice);
-        this->_allocationManager->createCommandPools(queueFamilyIndices.graphicsFamily, 1);
+        this->_commandBufferManager->createCommandPools(queueFamilyIndices.graphicsFamily);
         this->_sceneManager = new SceneManager(this->_device);
         this->_sceneManager->init(*this->_allocationManager, this->_swapChainExtent, this->_renderPass);
+        delete (this->_sceneManager);
+        delete (this->_commandBufferManager);
+        delete (this->_allocationManager);
 	}
 
 	Renderer::~Renderer()
 	{
-        delete (this->_sceneManager);
-        delete (this->_allocationManager);
         delete (this->_lightManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);
