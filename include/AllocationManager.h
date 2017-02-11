@@ -32,13 +32,21 @@ namespace Dwarf
             vk::DeviceSize offset;
         };
 
+        struct ImageData
+        {
+            vk::DeviceMemory imageMemory;
+            vk::Image image;
+            vk::ImageView imageView;
+            vk::Sampler sampler;
+        };
+
         AllocationManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &physicalDeviceMemoryProperties);
         virtual ~AllocationManager();
 
         void createCommandPools(uint32_t graphicsFamily, size_t size);
         void createBuffer(std::vector<BufferAllocInfo> &bufferAllocInfos, const vk::BufferUsageFlags & usage);
-        void createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height);
-
+        size_t createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height);
+        
     private:
         vk::MemoryRequirements getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const;
 
@@ -48,7 +56,7 @@ namespace Dwarf
         std::vector<vk::CommandPool> _commandPools;
         std::vector<vk::DeviceMemory> _deviceMemories;
         std::vector<vk::Buffer> _buffers;
-        std::vector<vk::Image> _images;
+        std::vector<ImageData> _imageDatas;
     };
 }
 

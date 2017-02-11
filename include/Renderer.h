@@ -18,7 +18,7 @@
 #include "Tools.h"
 #include "Camera.h"
 #include "LightManager.h"
-#include "AllocationManager.h"
+#include "SceneManager.h"
 
 const std::vector<const char *> gValidationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -180,7 +180,7 @@ namespace Dwarf
             bool down = false;
             bool up = false;
         } _movance;
-        AllocationManager *_allocationManager;
+        SceneManager _sceneManager;
 	};
 }
 

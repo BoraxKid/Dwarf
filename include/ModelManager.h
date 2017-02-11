@@ -30,14 +30,14 @@ namespace Dwarf
     class ModelManager
     {
     public:
-        ModelManager();
+        ModelManager(const vk::Device &device);
         virtual ~ModelManager();
 
     private:
         void loadModels(AllocationManager &allocationManager);
 
-        std::unique_ptr<ModelLoader> _modelLoader;
-        std::shared_ptr<MaterialManager> _materialManager;
+        ModelLoader _modelLoader;
+        MaterialManager _materialManager;
         std::vector<ModelData> _modelDatas;
         std::vector<ModelVulkanData> _modelVulkanDatas;
         std::vector<Model> _models;

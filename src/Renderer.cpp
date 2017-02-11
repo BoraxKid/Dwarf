@@ -4,7 +4,7 @@
 namespace Dwarf
 {
 	Renderer::Renderer(int width, int height, const std::string &title, bool fifo)
-		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo)
+		: _title(title), _mousePos(static_cast<float>(width) / 2.0f, static_cast<float>(height) / 2.0f), _fifo(fifo), _sceneManager(_device)
 	{
         this->createWindow(width, height, title);
 		this->createInstance();
@@ -19,15 +19,12 @@ namespace Dwarf
 		this->createDepthResources();
 		this->createFramebuffers();
         this->_lightManager = new LightManager(this->_device, this->_physicalDevice.getMemoryProperties());
-        this->_allocationManager = new AllocationManager(this->_device, this->_graphicsQueue, this->_physicalDevice.getMemoryProperties());
 		this->createCommandBuffers();
 		this->createSemaphores();
-        SceneManager sceneManager;
 	}
 
 	Renderer::~Renderer()
 	{
-        delete (this->_allocationManager);
         delete (this->_lightManager);
 		this->_device.destroySemaphore(this->_renderFinishedSemaphore, CUSTOM_ALLOCATOR);
 		this->_device.destroySemaphore(this->_imageAvailableSemaphore, CUSTOM_ALLOCATOR);

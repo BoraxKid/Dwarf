@@ -19,15 +19,30 @@ namespace Dwarf
     class MaterialManager
 	{
 	public:
-		MaterialManager();
+		MaterialManager(const vk::Device &device);
 		virtual ~MaterialManager();
 
         size_t addMaterial(const aiMaterial *material);
         void createMaterials(AllocationManager &allocationManager, const std::vector<ModelData> &modelDatas, std::vector<ModelVulkanData> &modelVulkanDatas);
+        void createDescriptorPool();
+        void recreatePipelines(const vk::Extent2D &extent, const vk::RenderPass &renderPass);
 
 	private:
+        void createDescriptorSetLayout();
+        void createPipelineLayout();
+        void createMaterialPipeline(const vk::Extent2D &extent, const vk::RenderPass &renderPass, const size_t materialID, const bool texture);
+
+        const vk::Device &_device;
         TextureManager _textureManager;
-        std::vector<std::unique_ptr<Material>> _materials;
+        vk::DescriptorSetLayout _descriptorSetLayout;
+        vk::PipelineLayout _pipelineLayout;
+        vk::DescriptorPool _descriptorPool;
+        std::map<const size_t, Material> _materials;
+        size_t _materialLastID;
+        std::map<const size_t, vk::DescriptorSet> _descriptorSets;
+        size_t _descriptorSetLastID;
+        std::map<const size_t, vk::Pipeline> _pipelines;
+        size_t _pipelineLastID;
 	};
 }
 

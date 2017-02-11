@@ -2,12 +2,27 @@
 #define DWARF_TEXTUREMANAGER_H_
 #pragma once
 
-#include "Texture.h"
-#include "ImageManager.h"
 #include "AllocationManager.h"
 
 namespace Dwarf
 {
+    struct Texture
+    {
+        Texture()
+            : imageDataID(0)
+        {}
+
+        Texture(const std::string &name)
+            : name(name), imageDataID(0)
+        {}
+
+        virtual ~Texture()
+        {}
+
+        std::string name;
+        size_t imageDataID;
+    };
+
     class TextureManager
     {
     public:
@@ -18,8 +33,8 @@ namespace Dwarf
         void createTextures(AllocationManager &allocationManager);
 
     private:
-        ImageManager _imageManager;
-        std::vector<std::unique_ptr<Texture>> _textures;
+        std::map<const size_t, Texture> _textures;
+        size_t _textureLastID;
     };
 }
 

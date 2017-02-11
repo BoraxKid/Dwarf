@@ -9,12 +9,19 @@ namespace Dwarf
 
     AllocationManager::~AllocationManager()
     {
-        for (const auto &commandPool : this->_commandPools)
-            this->_device.destroyCommandPool(commandPool, CUSTOM_ALLOCATOR);
-        for (const auto &deviceMemory : this->_deviceMemories)
-            this->_device.freeMemory(deviceMemory, CUSTOM_ALLOCATOR);
+        for (const auto &imageData : this->_imageDatas)
+        {
+            this->_device.destroySampler(imageData.sampler, CUSTOM_ALLOCATOR);
+            this->_device.destroyImageView(imageData.imageView, CUSTOM_ALLOCATOR);
+            this->_device.destroyImage(imageData.image, CUSTOM_ALLOCATOR);
+            this->_device.freeMemory(imageData.imageMemory, CUSTOM_ALLOCATOR);
+        }
         for (const auto &buffer : this->_buffers)
             this->_device.destroyBuffer(buffer, CUSTOM_ALLOCATOR);
+        for (const auto &deviceMemory : this->_deviceMemories)
+            this->_device.freeMemory(deviceMemory, CUSTOM_ALLOCATOR);
+        for (const auto &commandPool : this->_commandPools)
+            this->_device.destroyCommandPool(commandPool, CUSTOM_ALLOCATOR);
     }
 
     void AllocationManager::createCommandPools(uint32_t graphicsFamily, size_t size)
@@ -80,28 +87,28 @@ namespace Dwarf
         this->_device.destroyBuffer(stagingBuffer, CUSTOM_ALLOCATOR);
     }
 
-    void AllocationManager::createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height)
+    size_t AllocationManager::createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height)
     {
         vk::Image stagingImage;
         vk::DeviceMemory stagingImageMemory;
+        this->_imageDatas.push_back(ImageData());
         Tools::createImage(this->_device, this->_physicalDeviceMemoryProperties, width, height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eLinear, vk::ImageUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, stagingImage, stagingImageMemory);
         void *data = this->_device.mapMemory(stagingImageMemory, 0, size);
         memcpy(data, imageData, static_cast<size_t>(size));
         this->_device.unmapMemory(stagingImageMemory);
         
-        this->_images.push_back(vk::Image());
-        Tools::createImage(this->_device, this->_physicalDeviceMemoryProperties, width, height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_textureImage, this->_textureImageMemory);
+        this->_deviceMemories.push_back(vk::DeviceMemory());
+        Tools::createImage(this->_device, this->_physicalDeviceMemoryProperties, width, height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, this->_imageDatas.back().image, this->_imageDatas.back().imageMemory);
         Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), stagingImage, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferSrcOptimal);
-        Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), this->_images.back(), vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferDstOptimal);
-        Tools::copyImage(this->_device, this->_graphicsQueue, this->_commandPools.at(0), stagingImage, this->_images.back(), width, height);
-        Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), this->_images.back(), vk::ImageLayout::eTransferDstOptimal, this->_textureImageLayout);
+        Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), this->_imageDatas.back().image, vk::ImageLayout::ePreinitialized, vk::ImageLayout::eTransferDstOptimal);
+        Tools::copyImage(this->_device, this->_graphicsQueue, this->_commandPools.at(0), stagingImage, this->_imageDatas.back().image, width, height);
+        Tools::transitionImageLayout(this->_device, this->_graphicsQueue, this->_commandPools.at(0), this->_imageDatas.back().image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
         this->_device.freeMemory(stagingImageMemory, CUSTOM_ALLOCATOR);
         this->_device.destroyImage(stagingImage, CUSTOM_ALLOCATOR);
-        Tools::createImageView(this->_device, this->_images.back(), vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, this->_textureImageView);
+        Tools::createImageView(this->_device, this->_imageDatas.back().image, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, this->_imageDatas.back().imageView);
         vk::SamplerCreateInfo samplerInfo(vk::SamplerCreateFlags(), vk::Filter::eLinear, vk::Filter::eLinear, vk::SamplerMipmapMode::eLinear, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, 0.0f, VK_TRUE, 16, VK_FALSE, vk::CompareOp::eAlways, 0.0f, 0.0f, vk::BorderColor::eIntOpaqueBlack, VK_FALSE);
-        this->_textureSampler = this->_device.createSampler(samplerInfo, CUSTOM_ALLOCATOR);
-
-        this->_imageInfo = vk::DescriptorImageInfo(this->_textureSampler, this->_textureImageView, this->_textureImageLayout);
+        this->_imageDatas.back().sampler = this->_device.createSampler(samplerInfo, CUSTOM_ALLOCATOR);
+        return (this->_imageDatas.size() - 1);
     }
 
     vk::MemoryRequirements AllocationManager::getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const

@@ -2,7 +2,8 @@
 
 namespace Dwarf
 {
-    SceneManager::SceneManager()
+    SceneManager::SceneManager(const vk::Device &device)
+        : _modelManager(device)
     {
     }
 

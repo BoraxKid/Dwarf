@@ -9,7 +9,7 @@ namespace Dwarf
     class SceneManager
     {
     public:
-        SceneManager();
+        SceneManager(const vk::Device &device);
         virtual ~SceneManager();
 
     private:

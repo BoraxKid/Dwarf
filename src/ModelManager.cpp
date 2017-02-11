@@ -2,10 +2,9 @@
 
 namespace Dwarf
 {
-    ModelManager::ModelManager()
+    ModelManager::ModelManager(const vk::Device &device)
+        : _materialManager(device), _modelLoader(_materialManager, _modelDatas)
     {
-        this->_materialManager = std::make_shared<MaterialManager>();
-        this->_modelLoader = std::make_unique<ModelLoader>(this->_materialManager, this->_modelDatas);
     }
 
     ModelManager::~ModelManager()
@@ -18,7 +17,7 @@ namespace Dwarf
         std::vector<AllocationManager::BufferAllocInfo> indexBufferAllocInfos;
         size_t i = 0;
         
-        this->_modelLoader->loadModel("resources/models/sphere.obj");
+        this->_modelLoader.loadModel("resources/models/sphere.obj");
         for (const auto &modelData : this->_modelDatas)
         {
             this->_modelVulkanDatas.push_back(ModelVulkanData());
@@ -42,6 +41,6 @@ namespace Dwarf
                 ++i;
             }
         }
-        this->_materialManager->createMaterials(allocationManager, this->_modelDatas, this->_modelVulkanDatas);
+        this->_materialManager.createMaterials(allocationManager, this->_modelDatas, this->_modelVulkanDatas);
     }
 }

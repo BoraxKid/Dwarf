@@ -69,7 +69,6 @@ FILE(
     MATERIAL_HEADER_FILES
     include/Material.h
     include/MaterialManager.h
-    include/Texture.h
     include/TextureManager.h
 )
 
@@ -78,7 +77,6 @@ FILE(
     MATERIAL_SOURCE_FILES
     src/Material.cpp
     src/MaterialManager.cpp
-    src/Texture.cpp
     src/TextureManager.cpp
 )
 
@@ -122,7 +120,6 @@ FILE(
     include/Camera.h
     include/Renderer.h
     include/CommandBufferManager.h
-    include/ImageManager.h
 )
 
 FILE(
@@ -131,7 +128,6 @@ FILE(
     src/Camera.cpp
     src/Renderer.cpp
     src/CommandBufferManager.cpp
-    src/ImageManager.cpp
 )
 
 FILE(

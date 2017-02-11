@@ -2,7 +2,7 @@
 
 namespace Dwarf
 {
-    ModelLoader::ModelLoader(std::shared_ptr<MaterialManager> materialManager, std::vector<ModelData> &modelDatas)
+    ModelLoader::ModelLoader(MaterialManager &materialManager, std::vector<ModelData> &modelDatas)
         : _materialManager(materialManager), _modelDatas(modelDatas)
     {
     }
@@ -37,7 +37,7 @@ namespace Dwarf
 
         while (i < scene->mNumMaterials)
         {
-            materialIDs[i] = this->_materialManager->addMaterial(scene->mMaterials[i]);
+            materialIDs[i] = this->_materialManager.addMaterial(scene->mMaterials[i]);
             ++i;
         }
         i = 0;

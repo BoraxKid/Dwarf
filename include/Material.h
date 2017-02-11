@@ -24,7 +24,7 @@ namespace Dwarf
 	class Material
 	{
 	public:
-        Material(size_t ID);
+        Material();
 		virtual ~Material();
 
         void setAmbient(const Color &color);
@@ -35,15 +35,17 @@ namespace Dwarf
         void setSpecularExponent(float value);
         void setRefraction(float value);
         void setDissolve(float value);
-        void setTextureID(size_t textureID);
-        size_t getID() const;
+        void setTextureID(const size_t textureID);
+        void setDescriptorSetID(const size_t descriptorSetID);
         const MaterialData &getData() const;
+        bool hasTexture() const;
 
 	private:
-        const size_t _ID;
         MaterialData _data;
         bool _texture;
         size_t _textureID;
+        bool _descriptorSet;
+        size_t _descriptorSetID;
 	};
 }
 

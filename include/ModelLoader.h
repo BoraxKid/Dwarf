@@ -20,7 +20,7 @@ namespace Dwarf
     class ModelLoader
     {
     public:
-        ModelLoader(std::shared_ptr<MaterialManager> materialManager, std::vector<ModelData> &modelDatas);
+        ModelLoader(MaterialManager &materialManager, std::vector<ModelData> &modelDatas);
         virtual ~ModelLoader();
 
         size_t loadModel(const std::string &fileName);
@@ -28,7 +28,7 @@ namespace Dwarf
     private:
         void loadMesh(const aiScene *scene, const std::string &meshName);
 
-        std::shared_ptr<MaterialManager> _materialManager;
+        MaterialManager &_materialManager;
         Assimp::Importer _importer;
         std::vector<ModelData> &_modelDatas;
     };
