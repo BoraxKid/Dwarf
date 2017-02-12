@@ -45,8 +45,9 @@ namespace Dwarf
 
         void createCommandPools(uint32_t graphicsFamily, size_t size);
         void createBuffer(std::vector<BufferAllocInfo> &bufferAllocInfos, const vk::BufferUsageFlags & usage);
-        size_t createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height);
-        
+        vk::DescriptorImageInfo createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height);
+        const vk::Buffer &getBuffer(const size_t bufferID) const;
+
     private:
         vk::MemoryRequirements getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const;
 
@@ -54,8 +55,9 @@ namespace Dwarf
         const vk::Queue &_graphicsQueue;
         const vk::PhysicalDeviceMemoryProperties &_physicalDeviceMemoryProperties;
         std::vector<vk::CommandPool> _commandPools;
-        std::vector<vk::DeviceMemory> _deviceMemories;
-        std::vector<vk::Buffer> _buffers;
+        std::map<const size_t, vk::DeviceMemory> _deviceMemories;
+        std::map<const size_t, vk::Buffer> _buffers;
+        size_t _lastBufferID;
         std::vector<ImageData> _imageDatas;
     };
 }

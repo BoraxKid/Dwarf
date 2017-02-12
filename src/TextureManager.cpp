@@ -12,13 +12,12 @@ namespace Dwarf
 
     TextureManager::~TextureManager()
     {
-        this->_textures.clear();
     }
 
     size_t TextureManager::addTexture(const std::string &textureName)
     {
-        this->_textures[++this->_textureLastID] = Texture(textureName);
-        return (this->_textures.size() - 1);
+        this->_textureNames[++this->_textureLastID] = textureName;
+        return (this->_textureLastID);
     }
 
     void TextureManager::createTextures(AllocationManager &allocationManager)
@@ -28,14 +27,19 @@ namespace Dwarf
         int textureChannels;
         stbi_uc *pixels;
 
-        for (auto &texture : this->_textures)
+        for (const auto &textureName : this->_textureNames)
         {
-            pixels = stbi_load(std::string("resources/textures/" + texture.second.name).c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+            pixels = stbi_load(std::string("resources/textures/" + textureName.second).c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
             if (!pixels)
-                Tools::exitOnError("Failed to load texture " + texture.second.name + " file");
+                Tools::exitOnError("Failed to load texture " + textureName.second + " file");
             vk::DeviceSize imageSize = textureWidth * textureHeight * STBI_rgb_alpha;
-            texture.second.imageDataID = allocationManager.createImage(pixels, imageSize, static_cast<uint32_t>(textureWidth), static_cast<uint32_t>(textureHeight));
+            this->_descriptorImageInfos[textureName.first] = allocationManager.createImage(pixels, imageSize, static_cast<uint32_t>(textureWidth), static_cast<uint32_t>(textureHeight));
             stbi_image_free(pixels);
         }
+    }
+
+    const vk::DescriptorImageInfo &TextureManager::getDescriptorImageInfo(const size_t textureID) const
+    {
+        return (this->_descriptorImageInfos.at(textureID));
     }
 }

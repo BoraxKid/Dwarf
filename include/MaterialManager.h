@@ -26,7 +26,8 @@ namespace Dwarf
         size_t addMaterial(const aiMaterial *material);
         void createMaterials(AllocationManager &allocationManager, const std::vector<ModelData> &modelDatas, std::vector<ModelVulkanData> &modelVulkanDatas);
         void recreatePipelines(const vk::Extent2D &extent, const vk::RenderPass &renderPass);
-        
+        void buildDescriptorSets(AllocationManager &allocationManager);
+
     private:
         void createDescriptorSetLayout();
         void createDescriptorPool();

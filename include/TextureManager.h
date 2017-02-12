@@ -6,23 +6,6 @@
 
 namespace Dwarf
 {
-    struct Texture
-    {
-        Texture()
-            : imageDataID(0)
-        {}
-
-        Texture(const std::string &name)
-            : name(name), imageDataID(0)
-        {}
-
-        virtual ~Texture()
-        {}
-
-        std::string name;
-        size_t imageDataID;
-    };
-
     class TextureManager
     {
     public:
@@ -31,9 +14,11 @@ namespace Dwarf
 
         size_t addTexture(const std::string &textureName);
         void createTextures(AllocationManager &allocationManager);
+        const vk::DescriptorImageInfo &getDescriptorImageInfo(const size_t textureID) const;
 
     private:
-        std::map<const size_t, Texture> _textures;
+        std::map<const size_t, std::string> _textureNames;
+        std::map<const size_t, vk::DescriptorImageInfo> _descriptorImageInfos;
         size_t _textureLastID;
     };
 }

@@ -18,8 +18,6 @@ namespace Dwarf
         vk::DeviceSize vertexBufferOffset;
         size_t indexBufferID;
         vk::DeviceSize indexBufferOffset;
-        size_t uniformBufferID;
-        vk::DeviceSize uniformBufferOffset;
     };
 
     struct ModelVulkanData

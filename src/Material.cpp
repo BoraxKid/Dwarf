@@ -3,7 +3,7 @@
 namespace Dwarf
 {
 	Material::Material()
-        : _texture(false)
+        : _texture(false), _uniformBufferID(0), _uniformBufferOffset(0)
 	{
 	}
 
@@ -61,6 +61,36 @@ namespace Dwarf
     {
         this->_descriptorSet = true;
         this->_descriptorSetID = descriptorSetID;
+    }
+
+    void Material::setUniformBufferID(const size_t uniformBufferID)
+    {
+        this->_uniformBufferID = uniformBufferID;
+    }
+
+    void Material::setUniformBufferOffset(const vk::DeviceSize uniformBufferOffset)
+    {
+        this->_uniformBufferOffset = uniformBufferOffset;
+    }
+
+    size_t Material::getTextureID() const
+    {
+        return (this->_textureID);
+    }
+
+    size_t Material::getDescriptorSetID() const
+    {
+        return (this->_descriptorSetID);
+    }
+
+    size_t Material::getUniformBufferID() const
+    {
+        return (this->_uniformBufferID);
+    }
+
+    vk::DeviceSize Material::getUniformBufferOffset() const
+    {
+        return (this->_uniformBufferOffset);
     }
 
     const MaterialData &Material::getData() const

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <map>
+#include <vulkan/vulkan.hpp>
 
 #include "Color.h"
 
@@ -37,6 +38,12 @@ namespace Dwarf
         void setDissolve(float value);
         void setTextureID(const size_t textureID);
         void setDescriptorSetID(const size_t descriptorSetID);
+        void setUniformBufferID(const size_t uniformBufferID);
+        void setUniformBufferOffset(const vk::DeviceSize uniformBufferOffset);
+        size_t getTextureID() const;
+        size_t getDescriptorSetID() const;
+        size_t getUniformBufferID() const;
+        vk::DeviceSize getUniformBufferOffset() const;
         const MaterialData &getData() const;
         bool hasTexture() const;
 
@@ -46,6 +53,8 @@ namespace Dwarf
         size_t _textureID;
         bool _descriptorSet;
         size_t _descriptorSetID;
+        size_t _uniformBufferID;
+        vk::DeviceSize _uniformBufferOffset;
 	};
 }
 

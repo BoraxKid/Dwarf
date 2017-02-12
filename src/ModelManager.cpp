@@ -48,5 +48,6 @@ namespace Dwarf
         }
         this->_materialManager.createMaterials(allocationManager, this->_modelDatas, this->_modelVulkanDatas);
         this->_materialManager.recreatePipelines(extent, renderPass);
+        this->_materialManager.buildDescriptorSets(allocationManager);
     }
 }

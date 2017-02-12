@@ -3,7 +3,7 @@
 namespace Dwarf
 {
     AllocationManager::AllocationManager(const vk::Device &device, const vk::Queue &graphicsQueue, const vk::PhysicalDeviceMemoryProperties &physicalDeviceMemoryProperties)
-        : _device(device), _graphicsQueue(graphicsQueue), _physicalDeviceMemoryProperties(physicalDeviceMemoryProperties)
+        : _device(device), _graphicsQueue(graphicsQueue), _physicalDeviceMemoryProperties(physicalDeviceMemoryProperties), _lastBufferID(0)
     {
     }
 
@@ -17,9 +17,9 @@ namespace Dwarf
             this->_device.freeMemory(imageData.imageMemory, CUSTOM_ALLOCATOR);
         }
         for (const auto &buffer : this->_buffers)
-            this->_device.destroyBuffer(buffer, CUSTOM_ALLOCATOR);
+            this->_device.destroyBuffer(buffer.second, CUSTOM_ALLOCATOR);
         for (const auto &deviceMemory : this->_deviceMemories)
-            this->_device.freeMemory(deviceMemory, CUSTOM_ALLOCATOR);
+            this->_device.freeMemory(deviceMemory.second, CUSTOM_ALLOCATOR);
         for (const auto &commandPool : this->_commandPools)
             this->_device.destroyCommandPool(commandPool, CUSTOM_ALLOCATOR);
     }
@@ -72,22 +72,22 @@ namespace Dwarf
             tmp += bufferAllocInfo.bufferSize;
         }
         bufferInfo = vk::BufferCreateInfo(vk::BufferCreateFlags(), memoryRequirements.size, vk::BufferUsageFlagBits::eTransferDst | usage);
-        this->_buffers.push_back(this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR));
+        this->_buffers[++this->_lastBufferID] = this->_device.createBuffer(bufferInfo, CUSTOM_ALLOCATOR);
         for (auto &bufferAllocInfo : bufferAllocInfos)
-            bufferAllocInfo.bufferID = this->_buffers.size() - 1;
-        memoryRequirements = this->_device.getBufferMemoryRequirements(this->_buffers.back());
+            bufferAllocInfo.bufferID = this->_lastBufferID;
+        memoryRequirements = this->_device.getBufferMemoryRequirements(this->_buffers.at(this->_lastBufferID));
         memoryInfo = vk::MemoryAllocateInfo(memoryRequirements.size, Tools::getMemoryType(this->_physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal));
-        this->_deviceMemories.push_back(this->_device.allocateMemory(memoryInfo, CUSTOM_ALLOCATOR));
-        this->_device.bindBufferMemory(this->_buffers.back(), this->_deviceMemories.back(), 0);
+        this->_deviceMemories[this->_lastBufferID] = this->_device.allocateMemory(memoryInfo, CUSTOM_ALLOCATOR);
+        this->_device.bindBufferMemory(this->_buffers.at(this->_lastBufferID), this->_deviceMemories.at(this->_lastBufferID), 0);
         singleUseCommandBuffer = Tools::beginSingleTimeCommands(this->_device, this->_commandPools.at(0));
-        singleUseCommandBuffer.copyBuffer(stagingBuffer, this->_buffers.back(), vk::BufferCopy(0, 0, memoryRequirements.size));
+        singleUseCommandBuffer.copyBuffer(stagingBuffer, this->_buffers.at(this->_lastBufferID), vk::BufferCopy(0, 0, memoryRequirements.size));
         Tools::endSingleTimeCommands(this->_device, this->_graphicsQueue, this->_commandPools.at(0), singleUseCommandBuffer);
 
         this->_device.freeMemory(stagingMemory, CUSTOM_ALLOCATOR);
         this->_device.destroyBuffer(stagingBuffer, CUSTOM_ALLOCATOR);
     }
 
-    size_t AllocationManager::createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height)
+    vk::DescriptorImageInfo AllocationManager::createImage(const void *imageData, vk::DeviceSize size, uint32_t width, uint32_t height)
     {
         vk::Image stagingImage;
         vk::DeviceMemory stagingImageMemory;
@@ -107,7 +107,12 @@ namespace Dwarf
         Tools::createImageView(this->_device, this->_imageDatas.back().image, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor, this->_imageDatas.back().imageView);
         vk::SamplerCreateInfo samplerInfo(vk::SamplerCreateFlags(), vk::Filter::eLinear, vk::Filter::eLinear, vk::SamplerMipmapMode::eLinear, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, vk::SamplerAddressMode::eRepeat, 0.0f, VK_TRUE, 16, VK_FALSE, vk::CompareOp::eAlways, 0.0f, 0.0f, vk::BorderColor::eIntOpaqueBlack, VK_FALSE);
         this->_imageDatas.back().sampler = this->_device.createSampler(samplerInfo, CUSTOM_ALLOCATOR);
-        return (this->_imageDatas.size() - 1);
+        return (vk::DescriptorImageInfo(this->_imageDatas.back().sampler, this->_imageDatas.back().imageView, vk::ImageLayout::eShaderReadOnlyOptimal));
+    }
+
+    const vk::Buffer &AllocationManager::getBuffer(const size_t bufferID) const
+    {
+        return (this->_buffers.at(bufferID));
     }
 
     vk::MemoryRequirements AllocationManager::getMemoryRequirements(const vk::DeviceSize &size, const vk::BufferUsageFlags &usage) const

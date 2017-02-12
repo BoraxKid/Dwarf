@@ -80,12 +80,12 @@ namespace Dwarf
             }
         }
         allocationManager.createBuffer(uniformBufferAllocInfos, vk::BufferUsageFlagBits::eUniformBuffer);
-        for (auto &modelVulkanData : modelVulkanDatas)
+        for (const auto &modelData : modelDatas)
         {
-            for (auto &meshVulkanData : modelVulkanData.meshVulkanDatas)
+            for (const auto &meshData : modelData.meshDatas)
             {
-                meshVulkanData.uniformBufferID = uniformBufferAllocInfos.at(i).bufferID;
-                meshVulkanData.uniformBufferOffset = uniformBufferAllocInfos.at(i).offset;
+                this->_materials.at(meshData.materialID).setUniformBufferID(uniformBufferAllocInfos.at(i).bufferID);
+                this->_materials.at(meshData.materialID).setUniformBufferOffset(uniformBufferAllocInfos.at(i).offset);
                 ++i;
             }
         }
@@ -98,6 +98,23 @@ namespace Dwarf
             this->createDescriptorPool();
         for (const auto &pipeline : this->_pipelines)
             this->createMaterialPipeline(extent, renderPass, pipeline.first, this->_materials.at(pipeline.first).hasTexture());
+    }
+
+    void MaterialManager::buildDescriptorSets(AllocationManager &allocationManager)
+    {
+        std::vector<vk::WriteDescriptorSet> descriptorWrites;
+        for (const auto &material : this->_materials)
+        {
+            if (material.second.getUniformBufferID() != 0)
+            {
+                vk::DescriptorBufferInfo bufferInfo(allocationManager.getBuffer(material.second.getUniformBufferID()), material.second.getUniformBufferOffset(), sizeof(MaterialData));
+                descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSets.at(material.second.getDescriptorSetID()), 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo));//, vk::WriteDescriptorSet(this->_descriptorSets.at(i), 2, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &lightBufferInfo)
+                if (material.second.hasTexture())
+                    descriptorWrites.push_back(vk::WriteDescriptorSet(this->_descriptorSets.at(material.second.getDescriptorSetID()), 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &this->_textureManager.getDescriptorImageInfo(material.second.getTextureID())));
+            }
+        }
+        if (!descriptorWrites.empty())
+            this->_device.updateDescriptorSets(descriptorWrites, nullptr);
     }
 
     void MaterialManager::createDescriptorSetLayout()
@@ -128,7 +145,7 @@ namespace Dwarf
         size_t i = 0;
         for (auto &material : this->_materials)
         {
-            this->_descriptorSets[material.first] = descriptorSets.at(i);
+            this->_descriptorSets[i] = descriptorSets.at(i);
             material.second.setDescriptorSetID(i);
             ++i;
         }
